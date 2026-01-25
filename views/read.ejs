@@ -7,8 +7,18 @@
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="/css/style.css">
+
+    <script>
+        (function() {
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+            const savedFont = localStorage.getItem('fontSize') || '20';
+            document.documentElement.style.setProperty('--reader-font-size', savedFont + 'px');
+        })();
+    </script>
+
     <style>
-        /* --- Theme Variables (Kakuyomu Inspired) --- */
+        /* --- Theme Variables --- */
         :root {
             --reader-bg: #ffffff;
             --reader-text: #111111;
@@ -18,6 +28,7 @@
             --accent-color: #2bace4;
             --hover-bg: #f9f9f9;
             --nav-bg: rgba(255, 255, 255, 0.98);
+            --reader-font-size: 20px;
         }
         [data-theme="dark"] {
             --reader-bg: #121212;
@@ -47,17 +58,28 @@
             overflow: hidden;
             height: 100vh;
             font-family: 'Sarabun', sans-serif;
+            transition: background-color 0.3s, color 0.3s;
         }
 
-        /* --- Layout --- */
+        body.preload * {
+            transition: none !important;
+        }
+
+        /* --- Layout & Animation --- */
         .layout-container {
             display: flex;
             height: 100vh;
             width: 100vw;
-            transition: all 0.3s ease;
+            opacity: 0;
+            animation: pageFadeIn 0.5s ease-out forwards;
         }
 
-        /* --- Sidebar Style (Kakuyomu Clean Style) --- */
+        @keyframes pageFadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* --- Sidebar Style --- */
         .sidebar {
             width: 320px;
             background: var(--sidebar-bg);
@@ -68,7 +90,8 @@
             flex-shrink: 0;
             z-index: 100;
         }
-        
+
+        /* เมื่อมี class collapsed จะซ่อนตัวเอง */
         .sidebar.collapsed { width: 0; overflow: hidden; border: none; }
 
         .sidebar-header {
@@ -81,8 +104,8 @@
 
         .sidebar-title-link {
             text-decoration: none;
-            color: var(--sidebar-text); 
-            font-weight: 700; font-size: 1rem; 
+            color: var(--sidebar-text);
+            font-weight: 700; font-size: 1rem;
             display: flex; align-items: center; gap: 8px;
             overflow: hidden; white-space: nowrap; text-overflow: ellipsis;
         }
@@ -100,7 +123,7 @@
         .chapter-list::-webkit-scrollbar-thumb { background: #ccc; border-radius: 2px; }
 
         .chapter-item { margin: 0; padding: 0; }
-        
+
         .chapter-link {
             display: flex;
             align-items: center;
@@ -117,12 +140,12 @@
             transition: all 0.15s ease-in-out;
             background: transparent;
         }
-        
-        .chapter-link:hover { 
+
+        .chapter-link:hover {
             background: var(--hover-bg);
             color: var(--accent-color);
         }
-        
+
         .chapter-link.active {
             color: var(--accent-color);
             background: var(--hover-bg);
@@ -131,18 +154,13 @@
             padding-left: 16px;
         }
 
-        /* --- Style สำหรับตอนที่อ่านแล้ว --- */
-        .chapter-link.read {
-            opacity: 0.6;
-        }
+        .chapter-link.read { opacity: 0.6; }
         .chapter-link.read .chapter-title-text::before {
             content: '✓ ';
             color: var(--accent-color);
             font-weight: bold;
         }
-        .chapter-link.active.read {
-            opacity: 1; 
-        }
+        .chapter-link.active.read { opacity: 1; }
 
         .chapter-info {
             display: flex;
@@ -151,18 +169,18 @@
             overflow: hidden;
         }
 
-        .ep-badge { 
+        .ep-badge {
             font-size: 0.75em;
-            opacity: 0.6; 
-            font-weight: 400; 
+            opacity: 0.6;
+            font-weight: 400;
             margin-bottom: 2px;
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
-        
+
         .chapter-title-text {
             white-space: nowrap;
-            overflow: hidden; 
+            overflow: hidden;
             text-overflow: ellipsis;
         }
 
@@ -192,10 +210,11 @@
         }
 
         .reader-text {
-            font-size: 1.2rem;
+            font-size: var(--reader-font-size);
             line-height: 2.2;
             font-family: 'Sarabun', sans-serif;
             color: var(--reader-text);
+            transition: font-size 0.2s ease;
         }
 
         .nav-footer {
@@ -208,13 +227,13 @@
             flex-direction: column; justify-content: center;
             padding: 20px; min-height: 80px;
             text-align: left; text-decoration: none;
-            border-radius: 8px; 
+            border-radius: 8px;
             border: 1px solid var(--sidebar-border);
             background: transparent;
             color: var(--sidebar-text);
             transition: all 0.2s;
         }
-        .nav-btn-lg:hover { 
+        .nav-btn-lg:hover {
             border-color: var(--accent-color);
             background: var(--hover-bg);
             color: var(--accent-color);
@@ -253,21 +272,21 @@
         }
     </style>
 </head>
-<body>
+<body class="preload">
 
     <div class="layout-container">
         
-        <aside class="sidebar" id="sidebar">
+        <aside class="sidebar collapsed" id="sidebar">
             <div class="sidebar-header">
                 <a href="/novel/<%= chapter.novelId._id %>" class="sidebar-title-link" title="<%= chapter.novelId.title %>">
-                    <i class="fa-solid fa-book"></i> 
+                    <i class="fa-solid fa-book"></i>
                     <span><%= chapter.novelId.title %></span>
                 </a>
                 <button onclick="toggleSidebar()" class="btn btn-sm btn-outline" style="border:none; color: var(--sidebar-text); opacity: 0.5;">
                     <i class="fa-solid fa-xmark"></i>
                 </button>
             </div>
-            
+
             <ul class="chapter-list" id="chapterList">
                 <% allChapters.forEach(c => { %>
                     <li class="chapter-item">
@@ -292,7 +311,7 @@
                         <i class="fa-solid fa-bars"></i>
                     </button>
                     <div style="font-weight:600; font-size:1rem; max-width: 320px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; color: var(--sidebar-text);">
-                        <span style="color:var(--accent-color); margin-right:5px;">Ep.<%= chapter.chapterNumber %></span> 
+                        <span style="color:var(--accent-color); margin-right:5px;">Ep.<%= chapter.chapterNumber %></span>
                         <%= chapter.title.replace(/^ตอนที่ \d+[:\s]*/, '') %>
                     </div>
                 </div>
@@ -310,14 +329,14 @@
                 <div class="reader-container">
                     <article class="reader-text" id="text-body">
                         <h2 style="text-align:center; margin-bottom:60px; font-weight: 700; font-size: 1.8rem; line-height: 1.4;">
-                            <span style="color:var(--accent-color);">Ep.<%= chapter.chapterNumber %></span> 
+                            <span style="color:var(--accent-color);">Ep.<%= chapter.chapterNumber %></span>
                             <%= chapter.title.replace(/^ตอนที่ \d+[:\s]*/, '') %>
                         </h2>
-                        
+
                         <div style="margin-bottom: 60px;">
                             <%- chapter.translatedContent.replace(/\n/g, '<br>') %>
                         </div>
-                    
+
                         <div class="nav-footer" id="chapterFooter">
                             <% if (prevChapter) { %>
                                 <a href="/chapter/<%= prevChapter._id %>" class="nav-btn-lg">
@@ -375,46 +394,53 @@
     <script>
         const novelId = "<%= chapter.novelId._id %>";
         const chapterId = "<%= chapter._id %>";
-        
-        // --- System 1: บันทึก Last Read ทันที (เพื่อให้ปุ่ม 'อ่านต่อ' ทำงาน) ---
+
+        let fontSize = parseInt(localStorage.getItem('fontSize')) || 20;
+        const fontSizeDisplay = document.getElementById('fontSizeDisplay');
+        if(fontSizeDisplay) fontSizeDisplay.innerText = fontSize;
+
+        function adjustFont(delta) {
+            fontSize = Math.max(14, Math.min(32, fontSize + delta));
+            document.documentElement.style.setProperty('--reader-font-size', fontSize + 'px');
+            if(fontSizeDisplay) fontSizeDisplay.innerText = fontSize;
+            localStorage.setItem('fontSize', fontSize);
+        }
+
+        function setTheme(theme) {
+            document.documentElement.setAttribute('data-theme', theme);
+            localStorage.setItem('theme', theme);
+        }
+
         function saveLastRead() {
              localStorage.setItem(`lastRead-${novelId}`, chapterId);
         }
 
-        // --- System 2: บันทึกว่า "อ่านจบแล้ว" (History Checkmark) เมื่อเลื่อนถึงท้าย ---
         function markAsFinished() {
-            // ดึงประวัติเก่า
             let history = localStorage.getItem(`readHistory-${novelId}`);
             history = history ? JSON.parse(history) : [];
-            
-            // ถ้ายังไม่มีในประวัติ ให้เพิ่มเข้าไป
+
             if (!history.includes(chapterId)) {
                 history.push(chapterId);
                 localStorage.setItem(`readHistory-${novelId}`, JSON.stringify(history));
-                
-                // อัปเดต UI ทันที (เพิ่มเครื่องหมายถูกที่ Sidebar)
                 const currentLink = document.getElementById(`link-${chapterId}`);
                 if (currentLink) currentLink.classList.add('read');
             }
         }
 
-        // --- ตั้งค่า Observer เพื่อตรวจจับการเลื่อนถึง Footer ---
         function setupScrollObserver() {
             const footer = document.getElementById('chapterFooter');
             const observer = new IntersectionObserver((entries) => {
                 if (entries[0].isIntersecting) {
                     markAsFinished();
-                    observer.disconnect(); // ทำงานครั้งเดียวพอ
+                    observer.disconnect();
                 }
             }, {
-                root: document.getElementById('scrollArea'), // ตัว scroll container
-                threshold: 0.1 // ให้เห็น Footer นิดเดียวก็ถือว่าจบแล้ว
+                root: document.getElementById('scrollArea'),
+                threshold: 0.1
             });
-
             if (footer) observer.observe(footer);
         }
 
-        // --- โหลดสถานะของตอนอื่นๆ ใน Sidebar ---
         function loadSidebarHistory() {
             let history = localStorage.getItem(`readHistory-${novelId}`);
             if (history) {
@@ -425,25 +451,13 @@
             }
         }
 
-        // --- General Settings ---
-        let fontSize = parseInt(localStorage.getItem('fontSize')) || 20;
-        const textBody = document.getElementById('text-body');
-        const fontSizeDisplay = document.getElementById('fontSizeDisplay');
-
-        function applySettings() {
-            textBody.style.fontSize = fontSize + 'px';
-            fontSizeDisplay.innerText = fontSize;
-            const savedTheme = localStorage.getItem('theme') || 'light';
-            document.documentElement.setAttribute('data-theme', savedTheme);
-        }
-
         function toggleSidebar() {
-            const sidebar = document.getElementById('sidebar');
-            if (window.innerWidth <= 768) {
-                sidebar.classList.toggle('collapsed');
-            } else {
-                sidebar.classList.toggle('collapsed');
-            }
+             const sidebar = document.getElementById('sidebar');
+             if (window.innerWidth <= 768) {
+                 sidebar.classList.toggle('active');
+             } else {
+                 sidebar.classList.toggle('collapsed');
+             }
         }
 
         function toggleSettings() {
@@ -460,23 +474,14 @@
             }
         }
 
-        function adjustFont(delta) {
-            fontSize = Math.max(14, Math.min(32, fontSize + delta));
-            textBody.style.fontSize = fontSize + 'px';
-            fontSizeDisplay.innerText = fontSize;
-            localStorage.setItem('fontSize', fontSize);
-        }
-
-        function setTheme(theme) {
-            document.documentElement.setAttribute('data-theme', theme);
-            localStorage.setItem('theme', theme);
-        }
+        window.addEventListener('load', () => {
+            document.body.classList.remove('preload');
+        });
 
         document.addEventListener('DOMContentLoaded', () => {
-            saveLastRead();      // 1. บันทึกว่าอยู่ตอนนี้ทันที
-            setupScrollObserver(); // 2. รอเลื่อนถึงล่างสุดค่อยบันทึกว่าอ่านจบ
-            loadSidebarHistory();  // 3. โหลดเครื่องหมายถูกของตอนเก่าๆ
-            applySettings();
+            saveLastRead();
+            setupScrollObserver();
+            loadSidebarHistory();
             
             const activeLink = document.querySelector('.chapter-link.active');
             if(activeLink) activeLink.scrollIntoView({ block: 'center', behavior: 'smooth' });
