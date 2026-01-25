@@ -1,8 +1,11 @@
 require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
+const bcrypt = require('bcryptjs');
+const User = require('./models/User');
 const bodyParser = require('body-parser');
 const methodOverride = require('method-override');
+const session = require('express-session');
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 
 const Novel = require('./models/Novel');
@@ -19,7 +22,7 @@ mongoose.connect(process.env.MONGODB_URI)
 // Setup Gemini
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 const model = genAI.getGenerativeModel({ 
-    model: "gemini-2.5-flash", // หรือ gemini-2.0-flash-exp ตามที่คุณมี
+    model: "gemini-2.5-flash", 
     generationConfig: { responseMimeType: "application/json" }
 });
 
@@ -29,7 +32,30 @@ app.use(bodyParser.json());
 app.use(express.static('public'));
 app.use(methodOverride('_method'));
 
-// Helper: Auto Retry Function
+// Session
+app.use(session({
+    secret: 'secret_key_change_me',
+    resave: false,
+    saveUninitialized: false,
+    cookie: { maxAge: 24 * 60 * 60 * 1000 }
+}));
+
+// Middleware: ส่งค่า isAdmin ไปหน้า View
+app.use((req, res, next) => {
+    res.locals.isAdmin = req.session.isAdmin || false;
+    next();
+});
+
+// Middleware: ตรวจสิทธิ์ Admin
+const requireAdmin = (req, res, next) => {
+    if (req.session.isAdmin) {
+        next();
+    } else {
+        res.redirect('/login');
+    }
+};
+
+// Helper: Auto Retry
 async function generateWithRetry(prompt, retries = 3, delay = 5000) {
     for (let i = 0; i < retries; i++) {
         try {
@@ -50,22 +76,80 @@ async function generateWithRetry(prompt, retries = 3, delay = 5000) {
 
 // ================= ROUTES =================
 
+app.get('/login', (req, res) => {
+    res.render('login', { error: null });
+});
+
+app.post('/login', async (req, res) => {
+    const { username, password } = req.body;
+
+    try {
+        // 1. ค้นหา User ใน Database
+        const user = await User.findOne({ username });
+
+        // 2. ถ้าไม่เจอ User
+        if (!user) {
+            return res.render('login', { error: 'ชื่อผู้ใช้ไม่ถูกต้อง' });
+        }
+
+        // 3. ตรวจสอบรหัสผ่าน (เทียบรหัสที่กรอก กับ Hash ใน DB)
+        const isMatch = await bcrypt.compare(password, user.password);
+
+        if (isMatch) {
+            // ล็อกอินสำเร็จ
+            req.session.isAdmin = true;
+            req.session.username = user.username; // เก็บชื่อไว้หน่อยเผื่อใช้
+            res.redirect('/');
+        } else {
+            // รหัสผิด
+            res.render('login', { error: 'รหัสผ่านไม่ถูกต้อง' });
+        }
+
+    } catch (err) {
+        console.error(err);
+        res.render('login', { error: 'เกิดข้อผิดพลาดของระบบ' });
+    }
+});
+
+app.get('/logout', (req, res) => {
+    req.session.destroy(() => {
+        res.redirect('/');
+    });
+});
+
+// --- Public Routes ---
+
 app.get('/', async (req, res) => {
   const novels = await Novel.find().sort({ createdAt: -1 });
   res.render('index', { novels });
 });
 
-app.post('/novels', async (req, res) => {
+app.get('/novel/:id', async (req, res) => {
+  const novel = await Novel.findById(req.params.id);
+  const chapters = await Chapter.find({ novelId: req.params.id }).sort({ chapterNumber: -1 });
+  res.render('novel_detail', { novel, chapters });
+});
+
+app.get('/chapter/:id', async (req, res) => {
+  const chapter = await Chapter.findById(req.params.id).populate('novelId');
+  const allChapters = await Chapter.find({ novelId: chapter.novelId._id }).select('title chapterNumber _id').sort({ chapterNumber: 1 });
+  const prevChapter = await Chapter.findOne({ novelId: chapter.novelId._id, chapterNumber: { $lt: chapter.chapterNumber } }).sort({ chapterNumber: -1 });
+  const nextChapter = await Chapter.findOne({ novelId: chapter.novelId._id, chapterNumber: { $gt: chapter.chapterNumber } }).sort({ chapterNumber: 1 });
+  res.render('read', { chapter, allChapters, prevChapter, nextChapter });
+});
+
+// --- Admin Only Routes ---
+
+app.post('/novels', requireAdmin, async (req, res) => {
   await Novel.create(req.body);
   res.redirect('/');
 });
 
-// [เพิ่มใหม่] Route ลบนิยาย (ลบทั้งนิยายและตอนทั้งหมดในเรื่องนั้น)
-app.delete('/novel/:id', async (req, res) => {
+app.delete('/novel/:id', requireAdmin, async (req, res) => {
     try {
         const novelId = req.params.id;
         await Novel.findByIdAndDelete(novelId);
-        await Chapter.deleteMany({ novelId: novelId }); // ลบตอนทั้งหมดของเรื่องนี้
+        await Chapter.deleteMany({ novelId: novelId });
         res.redirect('/');
     } catch (err) {
         console.error(err);
@@ -73,18 +157,12 @@ app.delete('/novel/:id', async (req, res) => {
     }
 });
 
-app.get('/novel/:id', async (req, res) => {
-  const novel = await Novel.findById(req.params.id);
-  const chapters = await Chapter.find({ novelId: req.params.id }).sort({ chapterNumber: -1 }); // เรียงตอนล่าสุดขึ้นก่อน
-  res.render('novel_detail', { novel, chapters });
-});
-
-app.get('/novel/:id/edit', async (req, res) => {
+app.get('/novel/:id/edit', requireAdmin, async (req, res) => {
   const novel = await Novel.findById(req.params.id);
   res.render('edit_novel', { novel });
 });
 
-app.put('/novel/:id', async (req, res) => {
+app.put('/novel/:id', requireAdmin, async (req, res) => {
   await Novel.findByIdAndUpdate(req.params.id, {
     title: req.body.title,
     description: req.body.description,
@@ -94,7 +172,7 @@ app.put('/novel/:id', async (req, res) => {
   res.redirect(`/novel/${req.params.id}`);
 });
 
-app.post('/api/translate-snippet', async (req, res) => {
+app.post('/api/translate-snippet', requireAdmin, async (req, res) => {
     try {
         const { text } = req.body;
         const prompt = `Translate this Japanese novel title/short text to Thai naturally: "${text}". Return ONLY JSON: {"translatedText": "..."}`;
@@ -105,7 +183,7 @@ app.post('/api/translate-snippet', async (req, res) => {
     }
 });
 
-app.post('/novel/:id/chapters', async (req, res) => {
+app.post('/novel/:id/chapters', requireAdmin, async (req, res) => {
   const novelId = req.params.id;
   const { mode, manualTitle, manualChapterNumber, manualTranslated, manualOriginal, rawText } = req.body;
 
@@ -181,25 +259,17 @@ app.post('/novel/:id/chapters', async (req, res) => {
   }
 });
 
-app.get('/chapter/:id', async (req, res) => {
-  const chapter = await Chapter.findById(req.params.id).populate('novelId');
-  const allChapters = await Chapter.find({ novelId: chapter.novelId._id }).select('title chapterNumber _id').sort({ chapterNumber: 1 });
-  const prevChapter = await Chapter.findOne({ novelId: chapter.novelId._id, chapterNumber: { $lt: chapter.chapterNumber } }).sort({ chapterNumber: -1 });
-  const nextChapter = await Chapter.findOne({ novelId: chapter.novelId._id, chapterNumber: { $gt: chapter.chapterNumber } }).sort({ chapterNumber: 1 });
-  res.render('read', { chapter, allChapters, prevChapter, nextChapter });
-});
-
-app.delete('/chapter/:id', async (req, res) => {
+app.delete('/chapter/:id', requireAdmin, async (req, res) => {
   const chapter = await Chapter.findByIdAndDelete(req.params.id);
   res.redirect(`/novel/${chapter.novelId}`);
 });
 
-app.get('/chapter/:id/edit', async (req, res) => {
+app.get('/chapter/:id/edit', requireAdmin, async (req, res) => {
   const chapter = await Chapter.findById(req.params.id);
   res.render('edit', { chapter });
 });
 
-app.put('/chapter/:id', async (req, res) => {
+app.put('/chapter/:id', requireAdmin, async (req, res) => {
   await Chapter.findByIdAndUpdate(req.params.id, {
     chapterNumber: req.body.chapterNumber,
     title: req.body.title,

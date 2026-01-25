@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>เข้าสู่ระบบ Admin</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body style="display: flex; justify-content: center; align-items: center; height: 100vh; background: var(--bg-body, #f0f2f5); margin: 0;">
+    <div class="card" style="width: 100%; max-width: 400px; padding: 40px; box-shadow: 0 4px 20px rgba(0,0,0,0.1);">
+        <h2 style="text-align: center; margin-bottom: 20px; color: var(--primary, #4f46e5);">
+            <i class="fa-solid fa-user-shield"></i> Admin Login
+        </h2>
+        
+        <% if (error) { %>
+            <div style="background: #fee2e2; color: #991b1b; padding: 10px; border-radius: 8px; margin-bottom: 20px; text-align: center;">
+                <i class="fa-solid fa-circle-exclamation"></i> <%= error %>
+            </div>
+        <% } %>
+
+        <form action="/login" method="POST">
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; margin-bottom: 8px; font-weight: bold;">ชื่อผู้ใช้ (Username):</label>
+                <input type="text" name="username" required placeholder="ใส่ชื่อผู้ใช้..." 
+                       style="width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box;">
+            </div>
+
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; margin-bottom: 8px; font-weight: bold;">รหัสผ่าน (Password):</label>
+                <input type="password" name="password" required placeholder="ใส่รหัสผ่าน..." 
+                       style="width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box;">
+            </div>
+            
+            <button type="submit" class="btn btn-primary" style="width: 100%; padding: 12px; font-size: 1.1rem;">
+                เข้าสู่ระบบ
+            </button>
+        </form>
+        
+        <div style="text-align: center; margin-top: 25px;">
+            <a href="/" style="text-decoration: none; color: #666;">
+                <i class="fa-solid fa-arrow-left"></i> กลับหน้าหลัก
+            </a>
+        </div>
+    </div>
+</body>
+</html>
