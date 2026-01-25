@@ -7,139 +7,191 @@
     <link rel="stylesheet" href="/css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        .chapter-list-item {
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 12px 15px; background: var(--bg-body);
-            border: 1px solid var(--border); border-radius: 6px;
-            margin-bottom: 8px; transition: background 0.2s;
+        /* CSS เฉพาะหน้าสำหรับ List View */
+        .chapter-grid.view-list {
+            grid-template-columns: 1fr;
+            gap: 10px;
         }
-        .chapter-list-item:hover { background: var(--bg-card); border-color: var(--accent); }
-        .chapter-list-item.read { opacity: 0.6; }
-        .chapter-list-item.read i.status-icon { color: var(--success); }
+        .chapter-grid.view-list .chapter-item {
+            flex-direction: row;
+            align-items: center;
+            padding: 12px 20px;
+        }
+        .chapter-grid.view-list .chapter-icon {
+            font-size: 1.2rem;
+            width: 40px;
+        }
         
+        /* ปุ่ม Tab เลือกโหมดลงนิยาย */
         .tab-btn {
-            padding: 8px 16px; border: none; background: transparent;
-            font-weight: 600; color: var(--text-muted); cursor: pointer;
+            padding: 10px 20px;
+            border: none;
+            background: transparent;
+            font-weight: 600;
+            color: var(--text-muted);
+            cursor: pointer;
             border-bottom: 2px solid transparent;
+            transition: 0.2s;
         }
-        .tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+        .tab-btn:hover { color: var(--primary); }
+        .tab-btn.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+        }
+
+        /* ปุ่มเลือก View Active */
+        .view-btn.active {
+            background-color: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
     </style>
 </head>
 <body>
-    <div id="loadingOverlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(255,255,255,0.8); z-index:999; flex-direction:column; justify-content:center; align-items:center; color:var(--primary);">
+    <div id="loadingOverlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:999; flex-direction:column; justify-content:center; align-items:center; color:white; backdrop-filter:blur(5px);">
         <i class="fa-solid fa-spinner fa-spin" style="font-size: 3em; margin-bottom: 20px;"></i>
-        <h3>AI กำลังแปลภาษา...</h3>
+        <h3>กำลังประมวลผล...</h3>
     </div>
 
     <header class="main-header">
-        <div class="container header-content">
-            <div class="d-flex align-center gap-2">
-                <a href="/" class="btn btn-outline btn-sm"><i class="fa-solid fa-arrow-left"></i> กลับ</a>
-                <div class="logo" style="font-size: 1rem; color: var(--text-muted);"><%= novel.title %></div>
-            </div>
-            <button onclick="toggleTheme()" class="btn btn-outline btn-sm"><i class="fa-solid fa-moon"></i></button>
+        <div class="container d-flex justify-between align-center">
+            <a href="/" class="btn btn-outline btn-sm" style="border:none; padding-left:0;"><i class="fa-solid fa-chevron-left"></i> กลับหน้าหลัก</a>
+            <button onclick="toggleTheme()" class="btn btn-outline btn-sm" style="border-radius:50%; width:40px; height:40px; padding:0;"><i class="fa-solid fa-moon"></i></button>
         </div>
     </header>
 
-    <div class="container" style="padding-top: 30px;">
-        <div class="card">
-            <div class="d-flex justify-between" style="flex-wrap: wrap; gap: 30px;">
-                <div style="flex: 1; min-width: 300px;">
-                    <h1 style="font-size: 1.8rem; margin-bottom: 10px; color: var(--primary);"><%= novel.title %></h1>
-                    <div style="background: var(--bg-body); padding: 15px; border-radius: 6px; margin-bottom: 20px; font-size: 0.95rem; color: var(--text-muted);">
-                        <%= novel.description || "ไม่มีคำอธิบาย" %>
-                    </div>
-                    <div class="text-muted d-flex gap-2 align-center" style="font-size: 0.9rem;">
-                        <span><i class="fa-solid fa-list-ol"></i> <%= chapters.length %> ตอน</span>
-                        <span>|</span>
-                        <span><i class="fa-regular fa-calendar"></i> <%= new Date(novel.createdAt).toLocaleDateString('th-TH') %></span>
-                    </div>
-                </div>
+    <div class="container" style="padding-top: 40px; padding-bottom: 60px;">
+        
+        <div class="novel-header-grid">
+            <div>
+                <img src="<%= novel.imageUrl || 'https://via.placeholder.com/300x450?text=No+Cover' %>" class="novel-cover-large" alt="Cover">
                 
-                <% if (isAdmin) { %>
-                <div style="display:flex; flex-direction:column; gap:10px;">
-                    <a href="/novel/<%= novel._id %>/edit" class="btn btn-outline"><i class="fa-solid fa-sliders"></i> ตั้งค่า</a>
-                    <form action="/novel/<%= novel._id %>?_method=DELETE" method="POST" onsubmit="return confirm('ยืนยันลบเรื่องนี้?');">
-                        <button type="submit" class="btn btn-danger" style="width:100%;"><i class="fa-solid fa-trash"></i> ลบเรื่อง</button>
-                    </form>
+                <div class="d-flex gap-2" style="margin-top: 20px;">
+                    <button class="btn btn-primary w-100"><i class="fa-solid fa-book-open"></i> เริ่มอ่าน</button>
+                    <button class="btn btn-outline w-100"><i class="fa-regular fa-bookmark"></i></button>
                 </div>
+            </div>
+            
+            <div>
+                <h1 style="font-size: 2rem; margin: 0 0 10px 0; line-height: 1.2;"><%= novel.title %></h1>
+                <div style="font-size: 1.1rem; color: var(--text-muted); margin-bottom: 25px; font-weight: 300;">
+                    <%= novel.originalTitle || "" %>
+                </div>
+
+                <div class="novel-info-table">
+                    <span class="info-label">ผู้แต่ง</span> <span><%= novel.author %></span>
+                    <span class="info-label">ผู้วาด</span> <span><%= novel.artist %></span>
+                    <span class="info-label">สถานะ</span> 
+                    <span style="color: <%= novel.status === 'Completed' ? 'var(--success)' : 'var(--primary)' %>; font-weight:700;"><%= novel.status %></span>
+                    <span class="info-label">ยอดวิว</span> <span><%= (novel.views || 0).toLocaleString() %> ครั้ง</span>
+                </div>
+
+                <div class="d-flex gap-2" style="flex-wrap: wrap; margin-bottom: 25px;">
+                    <% if(novel.tags && novel.tags.length > 0) { %>
+                        <% novel.tags.forEach(tag => { %>
+                            <span style="background:var(--bg-input); border:1px solid var(--border); padding:4px 12px; border-radius:20px; font-size:0.85rem; color:var(--text-muted);">#<%= tag %></span>
+                        <% }) %>
+                    <% } %>
+                </div>
+
+                <div style="background: var(--bg-card); padding: 20px; border-radius: var(--radius); border: 1px solid var(--border); line-height: 1.7; color: var(--text-muted);">
+                    <h4 style="margin-top:0; color:var(--text-main);">เรื่องย่อ</h4>
+                    <%= novel.description || "ไม่มีคำอธิบาย" %>
+                    <% if(novel.originalLink) { %>
+                        <div style="margin-top: 15px;">
+                            <a href="<%= novel.originalLink %>" target="_blank" style="color: var(--accent); font-size: 0.9rem; text-decoration: none;">
+                                <i class="fa-solid fa-link"></i> ไปยังต้นฉบับ
+                            </a>
+                        </div>
+                    <% } %>
+                </div>
+
+                <% if(isAdmin) { %>
+                    <div style="margin-top: 20px;">
+                        <a href="/novel/<%= novel._id %>/edit" class="btn btn-outline btn-sm"><i class="fa-solid fa-pen"></i> แก้ไขข้อมูล</a>
+                    </div>
                 <% } %>
             </div>
         </div>
 
+        <hr style="border: 0; border-top: 1px solid var(--border); margin: 40px 0;">
+
         <% if (isAdmin) { %>
-        <div class="card">
-            <div style="border-bottom: 1px solid var(--border); margin-bottom: 20px; display: flex;">
-                <button id="tabBtnAuto" class="tab-btn active" onclick="switchTab('auto')">✨ AI แปลอัตโนมัติ</button>
-                <button id="tabBtnManual" class="tab-btn" onclick="switchTab('manual')">✍️ ลงเอง</button>
+        <div class="card" style="border: 2px dashed var(--primary); background: rgba(79, 70, 229, 0.02);">
+            <div style="display: flex; border-bottom: 1px solid var(--border); margin-bottom: 20px;">
+                <button class="tab-btn active" id="tabBtnAuto" onclick="switchTab('auto')">✨ AI แปลอัตโนมัติ</button>
+                <button class="tab-btn" id="tabBtnManual" onclick="switchTab('manual')">✍️ เขียน/ลงเอง (Manual)</button>
             </div>
-            
+
             <form id="form-auto" action="/novel/<%= novel._id %>/chapters" method="POST" enctype="multipart/form-data" onsubmit="showLoading()">
                 <input type="hidden" name="mode" value="auto">
+                <div class="d-flex gap-2 mb-4">
+                    <label style="cursor: pointer;"><input type="radio" name="inputType" value="text" checked onclick="toggleInput('text')"> วางข้อความ</label>
+                    <label style="cursor: pointer;"><input type="radio" name="inputType" value="file" onclick="toggleInput('file')"> อัปโหลดไฟล์ .txt</label>
+                </div>
                 
-                <div style="margin-bottom: 15px; display: flex; gap: 20px;">
-                    <label style="cursor: pointer; display: flex; align-items: center; gap: 5px;">
-                        <input type="radio" name="inputType" value="text" checked onclick="toggleInput('text')"> วางข้อความ
-                    </label>
-                    <label style="cursor: pointer; display: flex; align-items: center; gap: 5px;">
-                        <input type="radio" name="inputType" value="file" onclick="toggleInput('file')"> อัปโหลดไฟล์ .txt
-                    </label>
-                </div>
-
                 <div id="input-text-group">
-                    <textarea name="rawText" placeholder="วางเนื้อหาภาษาญี่ปุ่นที่นี่..." style="height: 150px;"></textarea>
+                    <textarea name="rawText" placeholder="วางเนื้อหาภาษาญี่ปุ่น..." style="height:120px;"></textarea>
+                </div>
+                <div id="input-file-group" style="display:none;">
+                    <input type="file" name="txtFile" accept=".txt">
                 </div>
 
-                <div id="input-file-group" style="display: none;">
-                    <div style="border: 2px dashed var(--border); background: var(--bg-body); padding: 30px; text-align: center; border-radius: 6px;">
-                        <i class="fa-solid fa-cloud-arrow-up" style="font-size: 2em; color: var(--text-muted); margin-bottom: 10px;"></i><br>
-                        <input type="file" name="txtFile" accept=".txt" style="display: block; margin: 0 auto;">
+                <button type="submit" class="btn btn-primary w-100" style="margin-top:15px;">แปลและลงทันที</button>
+            </form>
+
+            <form id="form-manual" action="/novel/<%= novel._id %>/chapters" method="POST" style="display:none;" onsubmit="showLoading()">
+                <input type="hidden" name="mode" value="manual">
+                
+                <div style="background: var(--bg-card); padding: 15px; border-radius: 8px; border: 1px solid var(--border); margin-bottom: 15px;">
+                    <label style="font-weight: 600; font-size: 0.9rem;">Smart Paste (วางเพื่อแกะชื่อตอนอัตโนมัติ):</label>
+                    <textarea id="smartPasteInput" style="height: 50px; margin-top: 5px;" placeholder="ตัวอย่าง: ตอนที่ 1 จุดเริ่มต้น..." oninput="detectHeader()"></textarea>
+                </div>
+
+                <div class="d-flex gap-2 mb-4">
+                    <div style="width: 120px;">
+                        <input type="number" step="0.1" id="manualChapterNumber" name="manualChapterNumber" placeholder="เลขตอน" required>
+                    </div>
+                    <div style="flex: 1;">
+                        <input type="text" id="manualTitle" name="manualTitle" placeholder="ชื่อตอน (Title)">
                     </div>
                 </div>
 
-                <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 15px;">แปลและเพิ่มตอน</button>
-            </form>
-
-            <form id="form-manual" action="/novel/<%= novel._id %>/chapters" method="POST" style="display:none;">
-                <input type="hidden" name="mode" value="manual">
-                <div class="mb-4" style="background: var(--bg-body); padding: 15px; border-radius: 6px;">
-                    <label style="color:var(--text-main); font-weight:bold;">Smart Paste (วางแล้วแกะหัวข้ออัตโนมัติ):</label>
-                    <textarea id="smartPasteInput" style="height: 60px; margin-top:5px;" oninput="detectHeader()" placeholder="วาง Title + เนื้อหา..."></textarea>
-                </div>
-                <div class="d-flex gap-2 mb-4">
-                    <input type="number" step="0.1" id="manualChapterNumber" name="manualChapterNumber" placeholder="เลขตอน" style="width: 100px;">
-                    <input type="text" id="manualTitle" name="manualTitle" placeholder="ชื่อตอน (ไม่บังคับ)" style="flex:1;">
-                </div>
-                <textarea id="manualTranslated" name="manualTranslated" style="height: 200px;" placeholder="เนื้อหาภาษาไทย..." required></textarea>
-                <button type="submit" class="btn btn-primary" style="width: 100%; margin-top:15px;">บันทึก</button>
+                <textarea id="manualTranslated" name="manualTranslated" style="height: 200px;" placeholder="เนื้อหานิยายภาษาไทย..." required></textarea>
+                
+                <button type="submit" class="btn btn-primary w-100" style="margin-top:15px;">บันทึกเนื้อหา</button>
             </form>
         </div>
         <% } %>
 
         <div class="d-flex justify-between align-center mb-4">
-            <h3><i class="fa-solid fa-list-ul"></i> สารบัญ</h3>
-            <button class="btn btn-sm btn-outline" onclick="reverseSort()"><i class="fa-solid fa-sort"></i> เรียงใหม่</button>
+            <h3 style="margin:0;">สารบัญตอน (<%= chapters.length %>)</h3>
+            <div class="d-flex gap-2">
+                <button class="btn btn-outline btn-sm view-btn active" id="btn-grid" onclick="setView('grid')"><i class="fa-solid fa-table-cells-large"></i></button>
+                <button class="btn btn-outline btn-sm view-btn" id="btn-list" onclick="setView('list')"><i class="fa-solid fa-list"></i></button>
+                <button class="btn btn-outline btn-sm" onclick="reverseSort()"><i class="fa-solid fa-sort"></i> เรียง</button>
+            </div>
         </div>
 
-        <div id="chapterContainer">
+        <div id="chapterContainer" class="chapter-grid">
             <% chapters.forEach(chapter => { %>
-                <div class="chapter-list-item" id="chapter-<%= chapter._id %>">
-                    <a href="/chapter/<%= chapter._id %>" style="text-decoration: none; color: inherit; flex: 1; display: flex; align-items: center; gap: 15px;">
-                        <span style="background: var(--bg-body); color: var(--text-muted); padding: 2px 8px; border:1px solid var(--border); border-radius: 4px; font-weight: 600; font-size: 0.8rem;">#<%= chapter.chapterNumber %></span>
-                        <span style="font-weight: 500;"><%= chapter.title.replace(/^ตอนที่ \d+[:\s]*/, '') %></span>
-                    </a>
-                    <div class="d-flex gap-2 align-center">
-                        <i class="fa-regular fa-circle status-icon" style="color: var(--border); font-size: 1em;"></i>
-                        <% if (isAdmin) { %>
-                            <a href="/chapter/<%= chapter._id %>/edit" class="btn-sm btn-outline" style="border:none;"><i class="fa-solid fa-pen"></i></a>
-                            <form action="/chapter/<%= chapter._id %>?_method=DELETE" method="POST" onsubmit="return confirm('ยืนยันลบ?');" style="margin:0;">
-                                <button type="submit" style="background:none; border:none; color:var(--text-muted); cursor:pointer;"><i class="fa-solid fa-trash"></i></button>
-                            </form>
-                        <% } %>
+                <a href="/chapter/<%= chapter._id %>" class="chapter-item" id="chapter-<%= chapter._id %>">
+                    <div class="chapter-icon" style="font-size: 1.5rem; color: var(--text-muted); opacity: 0.5;">
+                        <i class="fa-solid fa-file-lines"></i>
                     </div>
-                </div>
+                    <div style="flex: 1; overflow: hidden;">
+                        <div style="font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                            <%= chapter.title.replace(/^ตอนที่ \d+[:\s]*/, '') || `Ep.${chapter.chapterNumber}` %>
+                        </div>
+                        <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 2px;">
+                            Episode <%= chapter.chapterNumber %> • <%= new Date(chapter.createdAt).toLocaleDateString('th-TH') %>
+                        </div>
+                    </div>
+                    <i class="fa-solid fa-chevron-right" style="font-size: 0.8rem; color: var(--border);"></i>
+                </a>
             <% }) %>
         </div>
+
     </div>
 
     <script>
@@ -151,32 +203,52 @@
         }
 
         function showLoading() { document.getElementById('loadingOverlay').style.display = 'flex'; }
-        
+
+        // --- Tab Switching Logic ---
         function switchTab(mode) {
             document.getElementById('form-auto').style.display = mode === 'auto' ? 'block' : 'none';
             document.getElementById('form-manual').style.display = mode === 'manual' ? 'block' : 'none';
+            
             document.getElementById('tabBtnAuto').classList.toggle('active', mode === 'auto');
             document.getElementById('tabBtnManual').classList.toggle('active', mode === 'manual');
         }
 
         function toggleInput(type) {
-            if (type === 'text') {
-                document.getElementById('input-text-group').style.display = 'block';
-                document.getElementById('input-file-group').style.display = 'none';
+            document.getElementById('input-text-group').style.display = type === 'text' ? 'block' : 'none';
+            document.getElementById('input-file-group').style.display = type === 'file' ? 'block' : 'none';
+        }
+
+        // --- View Switching Logic (Grid/List) ---
+        function setView(mode) {
+            const container = document.getElementById('chapterContainer');
+            const btnGrid = document.getElementById('btn-grid');
+            const btnList = document.getElementById('btn-list');
+
+            if(mode === 'list') {
+                container.classList.add('view-list');
+                btnList.classList.add('active');
+                btnGrid.classList.remove('active');
+                localStorage.setItem('chapterView', 'list');
             } else {
-                document.getElementById('input-text-group').style.display = 'none';
-                document.getElementById('input-file-group').style.display = 'block';
+                container.classList.remove('view-list');
+                btnGrid.classList.add('active');
+                btnList.classList.remove('active');
+                localStorage.setItem('chapterView', 'grid');
             }
         }
 
+        // --- Manual Form Header Detection ---
         function detectHeader() {
             const input = document.getElementById('smartPasteInput').value;
             if (!input.trim()) return;
             const lines = input.split('\n');
-            const match = lines[0].trim().match(/^(?:ตอนที่|บทที่|Chapter|Ep|第)?\s*(\d+(\.\d+)?)\s*[話:：.\s]?\s*(.*)$/i);
+            // Regex จับแพทเทิร์น "ตอนที่ 1 ชื่อตอน..."
+            const match = lines[0].trim().match(/^(?:ตอนที่|บทที่|Chapter|Ep|Episode|第)?\s*(\d+(\.\d+)?)\s*[:：.\s]?\s*(.*)$/i);
+            
             if (match) {
                 document.getElementById('manualChapterNumber').value = match[1];
-                document.getElementById('manualTitle').value = match[3];
+                document.getElementById('manualTitle').value = match[3] ? `ตอนที่ ${match[1]} : ${match[3]}` : `ตอนที่ ${match[1]}`;
+                // เอาบรรทัดแรกออก แล้วเอาที่เหลือใส่ในเนื้อหา
                 document.getElementById('manualTranslated').value = lines.slice(1).join('\n').trim();
             } else {
                 document.getElementById('manualTitle').value = lines[0];
@@ -190,14 +262,10 @@
             items.reverse().forEach(item => container.appendChild(item));
         }
 
-        // Check Read Status
-        const readList = JSON.parse(localStorage.getItem('read_chapters') || '[]');
-        document.querySelectorAll('.chapter-list-item').forEach(item => {
-            const id = item.id.replace('chapter-', '');
-            if(readList.includes(id)) {
-                item.classList.add('read');
-                item.querySelector('.status-icon').classList.replace('fa-circle', 'fa-circle-check');
-            }
+        // Restore View on Load
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedView = localStorage.getItem('chapterView') || 'grid';
+            setView(savedView);
         });
     </script>
 </body>

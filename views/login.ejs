@@ -3,52 +3,44 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Login</title>
+    <title>เข้าสู่ระบบแอดมิน</title>
     <link rel="stylesheet" href="/css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body style="display: flex; justify-content: center; align-items: center; min-height: 100vh;">
     
-    <div class="glass-card" style="width: 100%; max-width: 400px; text-align: center; padding: 40px;">
-        <div style="font-size: 3rem; color: var(--primary); margin-bottom: 10px;">
-            <i class="fa-solid fa-fingerprint"></i>
+    <div class="card" style="width: 100%; max-width: 400px; text-align: center; padding: 40px; border-top: 5px solid var(--primary);">
+        <div style="margin-bottom: 20px;">
+            <i class="fa-solid fa-shield-halved" style="font-size: 3rem; color: var(--primary);"></i>
         </div>
-        <h2 class="mb-4">Admin Access</h2>
+        <h2 style="margin-bottom: 5px;">Admin Login</h2>
+        <p class="text-muted" style="margin-bottom: 30px;">เข้าสู่ระบบจัดการห้องสมุด</p>
         
         <% if (error) { %>
             <div style="background: rgba(239, 68, 68, 0.1); color: var(--danger); padding: 10px; border-radius: 8px; margin-bottom: 20px;">
-                <i class="fa-solid fa-circle-exclamation"></i> <%= error %>
+                <%= error %>
             </div>
         <% } %>
 
         <form action="/login" method="POST" style="text-align: left;">
-            <div class="mb-4">
-                <label style="font-weight: 600; font-size: 0.9rem; margin-bottom: 5px; display: block;">Username</label>
-                <div style="position: relative;">
-                    <i class="fa-solid fa-user" style="position: absolute; left: 15px; top: 14px; color: var(--text-muted);"></i>
-                    <input type="text" name="username" placeholder="Admin Username" required style="padding-left: 45px;">
-                </div>
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; margin-bottom: 5px; font-weight: 600;">Username</label>
+                <input type="text" name="username" required>
             </div>
-
-            <div class="mb-4">
-                <label style="font-weight: 600; font-size: 0.9rem; margin-bottom: 5px; display: block;">Password</label>
-                <div style="position: relative;">
-                    <i class="fa-solid fa-lock" style="position: absolute; left: 15px; top: 14px; color: var(--text-muted);"></i>
-                    <input type="password" name="password" placeholder="••••••••" required style="padding-left: 45px;">
-                </div>
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; margin-bottom: 5px; font-weight: 600;">Password</label>
+                <input type="password" name="password" required>
             </div>
-            
-            <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 10px;">
-                Secure Login <i class="fa-solid fa-arrow-right"></i>
-            </button>
+            <button type="submit" class="btn btn-primary w-100">เข้าสู่ระบบ</button>
         </form>
 
-        <div class="mt-4">
-            <a href="/" class="btn btn-outline btn-sm">
-                <i class="fa-solid fa-house"></i> Back to Library
-            </a>
+        <div style="margin-top: 20px;">
+            <a href="/" style="color: var(--text-muted); text-decoration: none; font-size: 0.9rem;">กลับหน้าหลัก</a>
         </div>
     </div>
 
+    <script>
+        document.documentElement.setAttribute('data-theme', localStorage.getItem('theme') || 'light');
+    </script>
 </body>
 </html>

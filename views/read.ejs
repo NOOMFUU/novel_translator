@@ -8,130 +8,81 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="/css/style.css">
     <style>
-        body { padding-top: 60px; }
-        .progress-bar { position: fixed; top: 55px; left: 0; height: 3px; background: var(--accent); width: 0%; z-index: 99; transition: width 0.1s; }
-        
+        .reader-container {
+            max-width: 800px; margin: 0 auto;
+            background: var(--bg-card);
+            min-height: 100vh;
+            box-shadow: 0 0 50px rgba(0,0,0,0.05);
+            position: relative;
+        }
+        .reader-content {
+            padding: 40px 30px 100px 30px;
+            font-size: 18px; line-height: 1.8; color: var(--text-main);
+        }
         .reader-nav {
-            position: fixed; top: 0; left: 0; width: 100%; height: 56px;
+            position: sticky; top: 0; z-index: 100;
             background: var(--bg-card);
             border-bottom: 1px solid var(--border);
-            display: flex; align-items: center; justify-content: space-between; padding: 0 20px;
-            z-index: 100;
+            padding: 10px 20px;
+            display: flex; justify-content: space-between; align-items: center;
         }
-        
-        .reader-paper {
-            max-width: 800px; margin: 30px auto; padding: 50px;
-            background: var(--bg-paper);
-            border: 1px solid var(--border);
-            min-height: 80vh;
-            /* ไม่มี Shadow เพื่อให้ดูแบนราบสบายตา */
-        }
-        
-        .content-text {
-            font-size: 18px; line-height: 1.8; color: var(--text-main);
-            white-space: pre-wrap; text-align: left;
-        }
-
-        .settings-panel {
-            position: fixed; bottom: 80px; right: 20px; width: 220px;
+        .settings-bar {
+            position: fixed; bottom: 0; left: 0; width: 100%;
             background: var(--bg-card);
-            border: 1px solid var(--border); padding: 15px;
-            border-radius: 8px; box-shadow: var(--shadow-md);
-            display: none;
+            border-top: 1px solid var(--border);
+            padding: 15px;
+            display: flex; justify-content: center; gap: 20px;
+            transform: translateY(100%); transition: 0.3s;
+            z-index: 200;
         }
-
-        .fab-menu { position: fixed; bottom: 30px; right: 30px; display: flex; flex-direction: column; gap: 10px; align-items: flex-end; z-index: 900; }
-        .fab { width: 45px; height: 45px; border-radius: 50%; background: var(--primary); color: white; display: flex; align-items: center; justify-content: center; box-shadow: var(--shadow-md); cursor: pointer; border: none; font-size: 1.1rem; }
-        .fab:hover { background: var(--primary-hover); }
-        .fab-secondary { width: 40px; height: 40px; background: var(--bg-card); color: var(--text-main); border: 1px solid var(--border); }
-
-        @media (max-width: 600px) {
-            .reader-paper { padding: 30px 20px; margin-top: 0; border: none; }
-            .reader-nav span.title { display: none; }
-        }
+        .settings-bar.show { transform: translateY(0); }
     </style>
 </head>
-<body>
-    <div class="progress-bar" id="progressBar"></div>
-
-    <nav class="reader-nav">
-        <div class="d-flex align-center gap-2">
-            <a href="/novel/<%= chapter.novelId._id %>" class="btn btn-outline btn-sm" style="border:none;"><i class="fa-solid fa-arrow-left"></i> กลับ</a>
-            <span class="title" style="font-weight: 500; font-size: 0.9rem; color: var(--text-muted);">
-                <%= chapter.title.replace(/^ตอนที่ \d+[:\s]*/, '') %>
+<body style="background: #e5e5e5;"> <div class="reader-container">
+        <div class="reader-nav">
+            <a href="/novel/<%= chapter.novelId._id %>" class="btn btn-sm btn-outline" style="border:none;"><i class="fa-solid fa-arrow-left"></i></a>
+            <span style="font-weight: 600; font-size: 0.9rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 200px;">
+                <%= chapter.title %>
             </span>
+            <button onclick="toggleSettings()" class="btn btn-sm btn-outline" style="border:none;"><i class="fa-solid fa-font"></i></button>
         </div>
-        <div class="d-flex gap-2">
-            <button class="btn btn-outline btn-sm" id="markReadBtn" onclick="toggleRead()"><i class="fa-regular fa-eye"></i></button>
-            <button class="btn btn-outline btn-sm" onclick="toggleSettings()"><i class="fa-solid fa-font"></i></button>
-        </div>
-    </nav>
 
-    <div class="reader-paper">
-        <div class="text-center mb-4" style="border-bottom: 1px solid var(--border); padding-bottom: 20px;">
-            <span style="color: var(--text-muted); font-size: 0.9rem; letter-spacing: 1px;">EPISODE <%= chapter.chapterNumber %></span>
-            <h2 style="margin-top: 5px; color: var(--primary);"><%= chapter.title.replace(/^ตอนที่ \d+[:\s]*/, '') %></h2>
+        <div class="reader-content" id="content">
+            <h2 style="margin-bottom: 30px; color: var(--primary); text-align: center;"><%= chapter.title %></h2>
+            <%- chapter.translatedContent.replace(/\n/g, '<br>') %>
         </div>
-        
-        <div id="content" class="content-text"><%- chapter.translatedContent.replace(/\n/g, '<br>') %></div>
 
-        <div class="d-flex justify-between mt-4" style="border-top: 1px solid var(--border); padding-top: 30px;">
+        <div style="padding: 20px; border-top: 1px solid var(--border); display: flex; justify-content: space-between; background: var(--bg-card);">
             <% if (prevChapter) { %>
-                <a href="/chapter/<%= prevChapter._id %>" class="btn btn-outline">ตอนก่อนหน้า</a>
-            <% } else { %> 
-                <button class="btn btn-outline" disabled style="opacity:0.5;">ตอนก่อนหน้า</button>
+                <a href="/chapter/<%= prevChapter._id %>" class="btn btn-outline">ตอนก่อน</a>
+            <% } else { %>
+                <button class="btn btn-outline" disabled>ตอนแรก</button>
             <% } %>
 
             <% if (nextChapter) { %>
-                <a href="/chapter/<%= nextChapter._id %>" class="btn btn-primary" onclick="markAsRead('<%= chapter._id %>')">ตอนถัดไป <i class="fa-solid fa-arrow-right"></i></a>
+                <a href="/chapter/<%= nextChapter._id %>" class="btn btn-primary">ตอนถัดไป <i class="fa-solid fa-arrow-right"></i></a>
             <% } else { %>
-                <button class="btn btn-primary" onclick="markAsRead('<%= chapter._id %>')">อ่านจบแล้ว <i class="fa-solid fa-check"></i></button>
+                <a href="/novel/<%= chapter.novelId._id %>" class="btn btn-primary">สารบัญ</a>
             <% } %>
         </div>
     </div>
 
-    <div class="settings-panel" id="settingsPanel">
-        <div class="mb-4">
-            <label class="text-muted" style="font-size:0.8rem;">ขนาดตัวอักษร</label>
-            <div class="d-flex gap-2 mt-4">
-                <button class="btn btn-outline btn-sm" style="flex:1" onclick="adjustFont(-2)">เล็ก</button>
-                <button class="btn btn-outline btn-sm" style="flex:1" onclick="adjustFont(2)">ใหญ่</button>
-            </div>
-        </div>
-        <div>
-            <label class="text-muted" style="font-size:0.8rem;">ธีม</label>
-            <button class="btn btn-outline btn-sm" style="width:100%; margin-top:5px;" onclick="toggleGlobalTheme()">
-                <i class="fa-solid fa-moon"></i> โหมดมืด/สว่าง
-            </button>
-        </div>
-    </div>
-
-    <div class="fab-menu">
-        <button class="fab fab-secondary" onclick="window.scrollTo({top:0, behavior:'smooth'})"><i class="fa-solid fa-arrow-up"></i></button>
-        <button class="fab" onclick="toggleSettings()"><i class="fa-solid fa-gear"></i></button>
+    <div class="settings-bar" id="settingsBar">
+        <button class="btn btn-outline" onclick="adjustFont(-2)">A-</button>
+        <button class="btn btn-outline" onclick="adjustFont(2)">A+</button>
+        <button class="btn btn-outline" onclick="toggleTheme()"><i class="fa-solid fa-moon"></i></button>
+        <button class="btn btn-primary" onclick="toggleSettings()">ปิด</button>
     </div>
 
     <script>
+        // Init Settings
         let fontSize = parseInt(localStorage.getItem('fontSize')) || 18;
         const content = document.getElementById('content');
-        const currentId = '<%= chapter._id %>';
-
-        document.addEventListener('DOMContentLoaded', () => {
-            content.style.fontSize = fontSize + 'px';
-            document.documentElement.setAttribute('data-theme', localStorage.getItem('theme') || 'light');
-            
-            // Auto Mark Read
-            let readList = JSON.parse(localStorage.getItem('read_chapters') || '[]');
-            if(!readList.includes(currentId)) {
-                readList.push(currentId);
-                localStorage.setItem('read_chapters', JSON.stringify(readList));
-            }
-            updateReadBtn();
-        });
+        content.style.fontSize = fontSize + 'px';
+        document.documentElement.setAttribute('data-theme', localStorage.getItem('theme') || 'light');
 
         function toggleSettings() {
-            const panel = document.getElementById('settingsPanel');
-            panel.style.display = panel.style.display === 'block' ? 'none' : 'block';
+            document.getElementById('settingsBar').classList.toggle('show');
         }
 
         function adjustFont(delta) {
@@ -140,51 +91,11 @@
             localStorage.setItem('fontSize', fontSize);
         }
 
-        function toggleGlobalTheme() {
-            const current = document.documentElement.getAttribute('data-theme');
-            const next = current === 'light' ? 'dark' : 'light';
+        function toggleTheme() {
+            const next = document.documentElement.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
             document.documentElement.setAttribute('data-theme', next);
             localStorage.setItem('theme', next);
         }
-
-        function markAsRead(id) {
-            let list = JSON.parse(localStorage.getItem('read_chapters') || '[]');
-            if(!list.includes(id)) list.push(id);
-            localStorage.setItem('read_chapters', JSON.stringify(list));
-        }
-
-        function toggleRead() {
-            let list = JSON.parse(localStorage.getItem('read_chapters') || '[]');
-            if(list.includes(currentId)) {
-                list = list.filter(i => i !== currentId);
-            } else {
-                list.push(currentId);
-            }
-            localStorage.setItem('read_chapters', JSON.stringify(list));
-            updateReadBtn();
-        }
-
-        function updateReadBtn() {
-            const list = JSON.parse(localStorage.getItem('read_chapters') || '[]');
-            const btn = document.getElementById('markReadBtn');
-            const icon = btn.querySelector('i');
-            if(list.includes(currentId)) {
-                btn.style.borderColor = 'var(--success)';
-                btn.style.color = 'var(--success)';
-                icon.className = 'fa-solid fa-check';
-            } else {
-                btn.style.borderColor = 'var(--border)';
-                btn.style.color = 'var(--text-main)';
-                icon.className = 'fa-regular fa-eye';
-            }
-        }
-
-        window.onscroll = function() {
-            let winScroll = document.body.scrollTop || document.documentElement.scrollTop;
-            let height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
-            let scrolled = (winScroll / height) * 100;
-            document.getElementById("progressBar").style.width = scrolled + "%";
-        };
     </script>
 </body>
 </html>

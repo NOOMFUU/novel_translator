@@ -3,27 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ห้องสมุดนิยาย</title>
+    <title>Novel Library</title>
     <link rel="stylesheet" href="/css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
     <header class="main-header">
-        <div class="container header-content">
+        <div class="container d-flex justify-between align-center">
             <a href="/" class="logo">
-                <i class="fa-solid fa-book"></i> 
-                <span>Novel<span style="font-weight:400; color:var(--text-muted);">Translator</span></span>
+                <i class="fa-solid fa-book-bookmark"></i>
+                <span>Novel<span style="font-weight:300; opacity:0.7;">Hub</span></span>
             </a>
             
-            <form action="/" method="GET" style="flex: 1; max-width: 400px; margin: 0 20px; position: relative;">
-                <input type="text" name="q" placeholder="ค้นหาชื่อเรื่อง..." value="<%= locals.query || '' %>" style="padding-right: 40px;">
-                <button type="submit" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--text-muted); cursor: pointer;">
-                    <i class="fa-solid fa-magnifying-glass"></i>
-                </button>
+            <form action="/" method="GET" style="flex: 1; max-width: 350px; margin: 0 20px; position: relative;" class="d-none-mobile">
+                <input type="text" name="q" placeholder="ค้นหานิยาย..." value="<%= locals.query || '' %>" style="border-radius: 50px; padding-left: 45px;">
+                <i class="fa-solid fa-magnifying-glass" style="position: absolute; left: 18px; top: 50%; transform: translateY(-50%); color: var(--text-muted);"></i>
             </form>
 
             <div class="d-flex align-center gap-2">
-                <button onclick="toggleTheme()" class="btn btn-outline btn-sm" title="เปลี่ยนโหมดสี"><i class="fa-solid fa-moon"></i></button>
+                <button onclick="toggleTheme()" class="btn btn-outline btn-sm" style="border-radius:50%; width:40px; height:40px; padding:0;"><i class="fa-solid fa-moon"></i></button>
                 <% if (isAdmin) { %>
                     <a href="/logout" class="btn btn-sm btn-outline" style="color:var(--danger); border-color:var(--border);">Logout</a>
                 <% } else { %>
@@ -33,42 +31,57 @@
         </div>
     </header>
 
-    <div class="container" style="padding-top: 30px; padding-bottom: 40px;">
+    <div class="container" style="padding-top: 30px; padding-bottom: 50px;">
         
         <% if (isAdmin) { %>
-        <div class="card">
-            <h3 class="mb-4" style="font-size: 1.1rem;"><i class="fa-solid fa-plus-circle"></i> เพิ่มนิยายเรื่องใหม่</h3>
-            <form action="/novels" method="POST" class="d-flex gap-2" style="flex-wrap: wrap;">
-                <input type="text" name="title" placeholder="ชื่อนิยาย..." required style="flex: 1; min-width: 250px;">
-                <input type="text" name="description" placeholder="เรื่องย่อ..." style="flex: 2; min-width: 250px;">
-                <button type="submit" class="btn btn-primary" style="white-space: nowrap;">สร้างโปรเจกต์</button>
+        <div class="card" style="border-left: 4px solid var(--primary); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 20px;">
+            <div>
+                <h3 style="margin:0;"><i class="fa-solid fa-folder-plus"></i> จัดการนิยาย</h3>
+                <p class="text-muted" style="margin:5px 0 0 0; font-size:0.9rem;">เพิ่มเรื่องใหม่เข้าระบบห้องสมุด</p>
+            </div>
+            <form action="/novels" method="POST" class="d-flex gap-2" style="flex: 1; max-width: 600px;">
+                <input type="text" name="title" placeholder="ชื่อนิยายเรื่องใหม่..." required>
+                <button type="submit" class="btn btn-primary" style="white-space: nowrap;">สร้าง</button>
             </form>
         </div>
         <% } %>
 
         <div class="d-flex justify-between align-center mb-4">
-            <h2 style="font-size: 1.5rem; color: var(--primary);">
-                นิยายทั้งหมด <span class="text-muted" style="font-size: 0.6em; font-weight: 400;">(<%= novels.length %> เรื่อง)</span>
+            <h2 style="font-size: 1.5rem; margin: 0; border-left: 4px solid var(--accent); padding-left: 15px;">
+                อัปเดตล่าสุด
             </h2>
+            <span class="text-muted"><%= novels.length %> เรื่อง</span>
         </div>
-        
+
         <% if (novels.length === 0) { %>
-            <div class="card text-center" style="padding: 60px 20px; background: transparent; border: 2px dashed var(--border); box-shadow: none;">
-                <i class="fa-regular fa-folder-open" style="font-size: 3em; color: var(--border); margin-bottom: 15px;"></i>
-                <p class="text-muted">ยังไม่มีนิยายในคลัง</p>
+            <div class="card text-center" style="padding: 80px 20px; border: 2px dashed var(--border); background: transparent;">
+                <i class="fa-regular fa-face-sad-tear" style="font-size: 3em; color: var(--text-muted); margin-bottom: 15px;"></i>
+                <p class="text-muted">ไม่พบข้อมูลนิยาย</p>
             </div>
         <% } %>
 
-        <div class="novel-grid">
+        <div class="novel-poster-grid">
             <% novels.forEach(novel => { %>
-                <a href="/novel/<%= novel._id %>" class="novel-card">
-                    <div class="novel-card-body">
-                        <div class="novel-card-title"><%= novel.title %></div>
-                        <div class="novel-card-desc"><%= novel.description || "ไม่มีคำอธิบาย" %></div>
+                <a href="/novel/<%= novel._id %>" class="novel-poster-card">
+                    <div class="novel-poster-img-wrapper">
+                        <% 
+                            let statusClass = 'status-ongoing';
+                            let statusText = 'ON GOING';
+                            if(novel.status === 'Completed') { statusClass = 'status-completed'; statusText = 'END'; }
+                            if(novel.status === 'Hiatus') { statusClass = 'status-hiatus'; statusText = 'HIATUS'; }
+                        %>
+                        <div class="status-badge <%= statusClass %>"><%= statusText %></div>
+                        
+                        <img src="<%= novel.imageUrl || 'https://via.placeholder.com/300x450?text=NO+IMAGE' %>" class="novel-poster-img" alt="<%= novel.title %>">
+                        
+                        <div class="novel-poster-overlay"></div>
                     </div>
-                    <div class="novel-card-footer">
-                        <span><i class="fa-regular fa-clock"></i> <%= new Date(novel.createdAt).toLocaleDateString('th-TH') %></span>
-                        <span style="color: var(--accent); font-weight: 600;">อ่านเลย <i class="fa-solid fa-arrow-right"></i></span>
+                    
+                    <div class="novel-poster-title" title="<%= novel.title %>">
+                        <%= novel.title %>
+                    </div>
+                    <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 4px;">
+                        <i class="fa-regular fa-eye"></i> <%= (novel.views || 0).toLocaleString() %>
                     </div>
                 </a>
             <% }) %>
