@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>แก้ไข: <%= chapter.title %></title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <a href="/chapter/<%= chapter._id %>" class="btn btn-outline">
+                <i class="fa-solid fa-times"></i> ยกเลิก
+            </a>
+            <h2>แก้ไขตอน</h2>
+        </header>
+
+        <div class="card">
+            <form action="/chapter/<%= chapter._id %>?_method=PUT" method="POST">
+                
+                <div style="display: flex; gap: 20px; margin-bottom: 15px;">
+                    <div style="flex: 1;">
+                        <label><strong>ลำดับตอน (ตัวเลข):</strong></label>
+                        <input type="number" step="0.1" name="chapterNumber" value="<%= chapter.chapterNumber %>" required 
+                               style="background: #f9f9f9; border-color: var(--primary);">
+                        <small style="color: #888;">ใช้สำหรับเรียงลำดับ (ใส่ทศนิยมได้ เช่น 1.5)</small>
+                    </div>
+                    
+                    <div style="flex: 4;">
+                        <label><strong>ชื่อตอน:</strong></label>
+                        <input type="text" name="title" value="<%= chapter.title %>" required>
+                    </div>
+                </div>
+
+                <label><strong>เนื้อหา (HTML Supported):</strong></label>
+                <textarea name="translatedContent" style="height: 500px; font-family: 'Sarabun'; line-height: 1.6;"><%= chapter.translatedContent %></textarea>
+
+                <div style="margin-top: 20px; display: flex; gap: 10px;">
+                    <button type="submit" class="btn">
+                        <i class="fa-solid fa-save"></i> บันทึกการแก้ไข
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

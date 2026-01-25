@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= chapter.title %> - อ่านนิยาย</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+    <style>
+        :root {
+            /* Fallback Variables */
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+            --primary-light: #eef2ff;
+            --bg-body: #f8fafc;
+            --bg-card: #ffffff;
+            --text-main: #334155;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --success: #10b981;
+        }
+
+        /* Dark Mode */
+        [data-theme='dark'] {
+            --bg-body: #0f172a;
+            --bg-card: #1e293b;
+            --text-main: #e2e8f0;
+            --text-muted: #94a3b8;
+            --border: #334155;
+            --primary-light: #1e293b;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
+        }
+
+        body {
+            font-family: 'Sarabun', sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            transition: background 0.3s ease, color 0.3s ease;
+            padding-top: 70px;
+            margin: 0;
+            line-height: 1.6;
+        }
+
+        /* --- Scroll Progress Bar --- */
+        .progress-container {
+            position: fixed;
+            top: 60px;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: transparent;
+            z-index: 899;
+        }
+        .progress-bar {
+            height: 100%;
+            background: var(--primary);
+            width: 0%;
+            transition: width 0.1s;
+        }
+
+        /* --- Navbar --- */
+        .reader-navbar {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 60px;
+            background-color: var(--bg-card);
+            border-bottom: 1px solid var(--border);
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 0 20px; z-index: 900;
+            box-shadow: var(--shadow);
+            transition: transform 0.3s;
+            box-sizing: border-box;
+        }
+
+        .nav-title {
+            font-weight: 600;
+            font-size: 1.1rem;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+            max-width: 40%;
+            color: var(--text-main);
+            text-align: center;
+        }
+
+        /* --- Content Layout --- */
+        .reader-container {
+            max-width: 800px;
+            margin: 30px auto;
+            padding: 0 20px;
+            min-height: 100vh;
+        }
+
+        .paper {
+            background-color: var(--bg-card);
+            color: var(--text-main);
+            padding: 60px 50px;
+            box-shadow: var(--shadow);
+            border-radius: 16px;
+            margin-bottom: 50px;
+            border: 1px solid var(--border);
+            transition: all 0.3s ease;
+        }
+
+        /* --- Typography (แก้ไขส่วนนี้ให้ไม่ตัดคำมั่ว) --- */
+        .chapter-header {
+            text-align: center;
+            margin-bottom: 50px;
+            border-bottom: 2px dashed var(--border);
+            padding-bottom: 30px;
+        }
+        .chapter-label {
+            color: var(--primary);
+            font-weight: 700;
+            font-size: 1rem; 
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            display: block; margin-bottom: 10px;
+        }
+        h1 { 
+            margin: 0;
+            font-size: 2rem; 
+            color: var(--text-main); 
+            line-height: 1.3;
+        }
+        
+        .content { 
+            font-size: 18px; 
+            line-height: 1.8; 
+            color: var(--text-main);
+            
+            /* --- แก้ไข: กลับมาใช้ค่าปกติเพื่อไม่ให้คำฉีก --- */
+            white-space: pre-wrap;  /* รักษาย่อหน้าและการเว้นวรรค */
+            text-align: left;       /* ชิดซ้ายปกติ อ่านง่ายสุดสำหรับภาษาไทยบนเว็บ */
+            word-wrap: break-word;  /* ตัดบรรทัดเมื่อสุดขอบเท่านั้น */
+        }
+
+        /* --- Sidebar --- */
+        .sidebar {
+            position: fixed;
+            top: 0; left: 0; height: 100%; width: 300px;
+            background: var(--bg-card); 
+            border-right: 1px solid var(--border);
+            transform: translateX(-100%);
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 1000; overflow-y: auto; 
+            box-shadow: 5px 0 15px rgba(0,0,0,0.05);
+        }
+        .sidebar.active { transform: translateX(0); }
+        
+        .sidebar-header {
+            padding: 20px; 
+            background: var(--bg-card);
+            position: sticky; top: 0;
+            border-bottom: 1px solid var(--border);
+            z-index: 2;
+            display: flex; justify-content: space-between; align-items: center;
+            font-weight: bold; font-size: 1.1rem;
+        }
+
+        .sidebar-link {
+            display: flex;
+            justify-content: space-between; align-items: center;
+            padding: 15px 20px; 
+            text-decoration: none;
+            color: var(--text-main); 
+            border-bottom: 1px solid var(--border);
+            transition: all 0.2s;
+            font-size: 0.95rem;
+        }
+        .sidebar-link:hover { 
+            background: var(--primary-light); 
+            color: var(--primary);
+            padding-left: 25px;
+        }
+        .sidebar-link.active { 
+            background: var(--primary);
+            color: white; 
+            border-left: 5px solid var(--primary-hover);
+        }
+        .sidebar-link.is-read { opacity: 0.6; }
+        .sidebar-link i.read-icon { display: none; color: var(--success); }
+        .sidebar-link.is-read i.read-icon { display: inline-block; }
+        .sidebar-link.active i.read-icon { color: rgba(255,255,255,0.8); }
+
+        /* --- UI Elements --- */
+        .overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.4); 
+            backdrop-filter: blur(2px);
+            z-index: 999; display: none; opacity: 0; transition: opacity 0.3s;
+        }
+        .overlay.active { display: block; opacity: 1; }
+
+        .btn {
+            border-radius: 50px;
+            padding: 8px 16px;
+            font-family: inherit;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.9rem;
+            display: inline-flex; align-items: center; gap: 8px;
+            text-decoration: none;
+            border: 1px solid transparent;
+        }
+        .btn-sm { padding: 6px 12px; font-size: 0.85rem; }
+        
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-main);
+        }
+        .btn-outline:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+            background: var(--primary-light);
+        }
+        
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 4px 6px rgba(79, 70, 229, 0.2);
+        }
+        .btn-primary:hover {
+            background: var(--primary-hover);
+            transform: translateY(-1px);
+            box-shadow: 0 6px 10px rgba(79, 70, 229, 0.3);
+        }
+
+        .btn-read-status.read {
+            background-color: var(--success);
+            color: white;
+            border-color: var(--success);
+        }
+
+        /* --- Floating Menu & Settings --- */
+        .floating-menu {
+            position: fixed;
+            bottom: 40px; right: 40px; z-index: 950;
+            display: flex; flex-direction: column; align-items: flex-end; gap: 15px;
+        }
+        .fab {
+            width: 55px; height: 55px; border-radius: 50%;
+            background: var(--primary); color: white;
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            cursor: pointer; border: none;
+            text-decoration: none; font-size: 1.4rem; 
+            transition: transform 0.2s, background 0.2s;
+        }
+        .fab:hover { transform: scale(1.1); background: var(--primary-hover); }
+        .fab-sub { 
+            width: 45px; height: 45px; font-size: 1.1rem; 
+            background: var(--bg-card); color: var(--text-main); 
+            border: 1px solid var(--border);
+        }
+        .fab-sub:hover { background: var(--bg-body); color: var(--primary); }
+
+        .settings-panel {
+            background: var(--bg-card);
+            padding: 20px; border-radius: 16px;
+            box-shadow: var(--shadow); border: 1px solid var(--border);
+            margin-bottom: 10px; display: none; width: 240px;
+        }
+        .settings-panel.show { display: block; animation: fadeInUp 0.2s; }
+        
+        .settings-row {
+            display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;
+        }
+        .settings-label { font-size: 0.9rem; color: var(--text-muted); }
+
+        @keyframes fadeInUp { 
+            from { opacity: 0; transform: translateY(10px); } 
+            to { opacity: 1; transform: translateY(0); } 
+        }
+
+        /* --- Navigation Footer --- */
+        .nav-footer {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 15px;
+            margin-top: 40px;
+        }
+        .btn-nav-large {
+            padding: 15px;
+            border-radius: 12px;
+            text-align: center;
+            font-weight: 600;
+            justify-content: center;
+        }
+
+        @media (max-width: 600px) { 
+            .paper { padding: 30px 20px; border-radius: 0; border: none; box-shadow: none; margin-bottom: 20px; } 
+            .reader-container { padding: 0; margin: 0; max-width: 100%; }
+            .nav-title { display: none; } 
+            .fab { width: 50px; height: 50px; }
+            .nav-footer { grid-template-columns: 1fr 1fr; }
+            .btn-text-hide { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="progress-container">
+        <div class="progress-bar" id="progressBar"></div>
+    </div>
+
+    <div class="overlay" onclick="toggleSidebar()"></div>
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <span><i class="fa-solid fa-book-open"></i> สารบัญ</span>
+            <button onclick="toggleSidebar()" class="btn-icon" style="background:none; border:none; color:inherit; cursor:pointer;">
+                <i class="fa-solid fa-times fa-lg"></i>
+            </button>
+        </div>
+        <div id="sidebarContent">
+            <% allChapters.forEach(c => { %>
+                <a href="/chapter/<%= c._id %>" class="sidebar-link <%= (String(c._id) === String(chapter._id)) ? 'active' : '' %>" id="link-<%= c._id %>" data-id="<%= c._id %>">
+                    <div style="display:flex; flex-direction:column;">
+                        <span style="font-size:0.8em; opacity:0.8;">ตอนที่ <%= c.chapterNumber %></span>
+                        <span style="font-weight:500;"><%= c.title.replace(/^ตอนที่ \d+[:\s]*/, '') %></span>
+                    </div>
+                    <i class="fa-solid fa-check-circle read-icon"></i>
+                </a>
+            <% }) %>
+        </div>
+    </aside>
+
+    <nav class="reader-navbar" id="readerNavbar">
+        <div style="display: flex; gap: 8px; align-items: center;">
+            <a href="/novel/<%= chapter.novelId._id %>" class="btn btn-outline btn-sm" title="กลับหน้าหลัก">
+                <i class="fa-solid fa-arrow-left"></i> <span class="btn-text-hide">กลับ</span>
+            </a>
+            <button onclick="toggleSidebar()" class="btn btn-outline btn-sm" title="เปิดสารบัญ">
+                <i class="fa-solid fa-list-ul"></i>
+            </button>
+        </div>
+
+        <div class="nav-title">
+            ตอนที่ <%= chapter.chapterNumber %> : <%= chapter.title.replace(/^ตอนที่ \d+[:\s]*/, '') %>
+        </div>
+
+        <div style="display: flex; gap: 8px;">
+            <button id="markReadBtn" onclick="toggleReadStatus('<%= chapter._id %>')" class="btn btn-outline btn-sm btn-read-status">
+                <i class="fa-regular fa-eye"></i> <span id="markReadText" class="btn-text-hide">Check</span>
+            </button>
+            <button onclick="toggleGlobalTheme()" class="btn btn-outline btn-sm">
+                <i class="fa-solid fa-moon"></i>
+            </button>
+            <button onclick="toggleSettings()" class="btn btn-outline btn-sm">
+                <i class="fa-solid fa-font"></i>
+            </button>
+        </div>
+    </nav>
+
+    <div class="reader-container">
+        <div class="paper">
+            <div class="chapter-header">
+                <span class="chapter-label">EPISODE <%= chapter.chapterNumber %></span>
+                <h1><%= chapter.title.replace(/^ตอนที่ \d+[:\s]*/, '') %></h1>
+            </div>
+
+            <div id="readerContent" class="content"><%- chapter.translatedContent.replace(/\n/g, '<br>') %></div>
+        </div>
+
+        <div class="nav-footer">
+            <% if (prevChapter) { %>
+                <a href="/chapter/<%= prevChapter._id %>" class="btn btn-outline btn-nav-large">
+                    <i class="fa-solid fa-arrow-left"></i> <span style="margin-left:5px;">ตอนก่อน</span>
+                </a>
+            <% } else { %> 
+                <button class="btn btn-outline btn-nav-large" disabled style="opacity: 0.5; cursor: not-allowed;">
+                    ไม่มีตอนก่อนหน้า
+                </button> 
+            <% } %>
+
+            <% if (nextChapter) { %>
+                <a href="/chapter/<%= nextChapter._id %>" class="btn btn-primary btn-nav-large" onclick="markAsReadAndNext('<%= chapter._id %>')">
+                    ตอนถัดไป <i class="fa-solid fa-arrow-right" style="margin-left:5px;"></i>
+                </a>
+            <% } else { %>
+                <button class="btn btn-primary btn-nav-large" data-id="<%= chapter._id %>" onclick="markAsReadAndNext(this.getAttribute('data-id'))">
+                    อ่านจบแล้ว <i class="fa-solid fa-check" style="margin-left:5px;"></i>
+                </button>
+            <% } %>
+        </div>
+    </div>
+
+    <div class="floating-menu">
+        <div class="settings-panel" id="settingsPanel">
+            <div class="settings-row">
+                <span class="settings-label">ขนาดตัวอักษร</span>
+                <span id="fontSizeDisplay" style="font-weight:bold; font-size:0.9em;">18px</span>
+            </div>
+            <div class="d-flex gap-2" style="display:flex; gap:10px;">
+                <button class="btn btn-outline btn-sm" style="flex:1;" onclick="adjustFont(-2)">A-</button>
+                <button class="btn btn-outline btn-sm" style="flex:1;" onclick="adjustFont(2)">A+</button>
+            </div>
+            <hr style="border:0; border-top:1px solid var(--border); margin:15px 0;">
+            <div class="settings-row">
+                <span class="settings-label">รีเซ็ตค่าทั้งหมด</span>
+                <button class="btn btn-outline btn-sm" onclick="resetSettings()"><i class="fa-solid fa-rotate-right"></i></button>
+            </div>
+        </div>
+        
+        <button class="fab fab-sub" onclick="window.scrollTo({top: 0, behavior: 'smooth'})" title="ขึ้นบนสุด">
+            <i class="fa-solid fa-arrow-up"></i>
+        </button>
+    </div>
+
+    <script>
+        const currentChapterId = '<%= chapter._id %>';
+        const prevUrl = "<%= prevChapter ? '/chapter/' + prevChapter._id : '' %>";
+        const nextUrl = "<%= nextChapter ? '/chapter/' + nextChapter._id : '' %>";
+
+        // --- 1. Read Status Logic ---
+        function getReadChapters() {
+            return JSON.parse(localStorage.getItem('read_chapters') || '[]');
+        }
+
+        function saveReadChapters(list) {
+            localStorage.setItem('read_chapters', JSON.stringify(list));
+            updateReadUI();
+        }
+
+        function toggleReadStatus(id) {
+            let list = getReadChapters();
+            if (list.includes(id)) {
+                list = list.filter(item => item !== id);
+            } else {
+                list.push(id);
+            }
+            saveReadChapters(list);
+        }
+
+        function markAsReadAndNext(id) {
+            let list = getReadChapters();
+            if (!list.includes(id)) {
+                list.push(id);
+                saveReadChapters(list);
+            }
+        }
+
+        function updateReadUI() {
+            const list = getReadChapters();
+            const btn = document.getElementById('markReadBtn');
+            const btnText = document.getElementById('markReadText');
+            const btnIcon = btn.querySelector('i');
+
+            if (list.includes(currentChapterId)) {
+                btn.classList.add('read');
+                btn.classList.remove('btn-outline');
+                if(btnText) btnText.innerText = 'อ่านแล้ว';
+                btnIcon.className = 'fa-solid fa-check';
+            } else {
+                btn.classList.remove('read');
+                btn.classList.add('btn-outline');
+                if(btnText) btnText.innerText = 'Check';
+                btnIcon.className = 'fa-regular fa-eye';
+            }
+
+            document.querySelectorAll('.sidebar-link').forEach(link => {
+                const id = link.getAttribute('data-id');
+                if (list.includes(id)) {
+                    link.classList.add('is-read');
+                } else {
+                    link.classList.remove('is-read');
+                }
+            });
+        }
+
+        // --- 2. UI/UX Interactions ---
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.querySelector('.overlay');
+            sidebar.classList.toggle('active');
+            overlay.classList.toggle('active');
+
+            if (sidebar.classList.contains('active')) {
+                setTimeout(() => {
+                    const activeLink = sidebar.querySelector('.sidebar-link.active');
+                    if (activeLink) activeLink.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }, 300);
+            }
+        }
+
+        function toggleSettings() {
+            document.getElementById('settingsPanel').classList.toggle('show');
+        }
+
+        // --- 3. Settings (Theme & Font) ---
+        let fontSize = parseInt(localStorage.getItem('fontSize')) || 18;
+        
+        function applyReaderSettings() {
+            const currentTheme = localStorage.getItem('theme') || 'light';
+            document.documentElement.setAttribute('data-theme', currentTheme);
+            
+            const content = document.getElementById('readerContent');
+            content.style.fontSize = fontSize + 'px';
+            
+            const display = document.getElementById('fontSizeDisplay');
+            if(display) display.innerText = fontSize + 'px';
+        }
+
+        function toggleGlobalTheme() {
+            const current = document.documentElement.getAttribute('data-theme') || 'light';
+            const next = current === 'light' ? 'dark' : 'light';
+            document.documentElement.setAttribute('data-theme', next);
+            localStorage.setItem('theme', next);
+        }
+
+        function adjustFont(delta) {
+            fontSize = Math.max(14, Math.min(32, fontSize + delta));
+            localStorage.setItem('fontSize', fontSize);
+            applyReaderSettings();
+        }
+
+        function resetSettings() {
+            fontSize = 18;
+            localStorage.setItem('fontSize', fontSize);
+            localStorage.setItem('theme', 'light');
+            applyReaderSettings();
+        }
+
+        // --- 4. Scroll Progress ---
+        window.onscroll = function() {
+            let winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+            let height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+            let scrolled = (winScroll / height) * 100;
+            document.getElementById("progressBar").style.width = scrolled + "%";
+        };
+
+        // --- Init & Key Events ---
+        document.addEventListener('DOMContentLoaded', () => {
+            applyReaderSettings();
+            
+            let list = getReadChapters();
+            if (!list.includes(currentChapterId)) {
+                list.push(currentChapterId);
+                saveReadChapters(list);
+            }
+            updateReadUI();
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (e.target.matches('input, textarea')) return;
+            if (e.key === 'ArrowLeft' && prevUrl) window.location.href = prevUrl;
+            if (e.key === 'ArrowRight' && nextUrl) {
+                markAsReadAndNext(currentChapterId);
+                window.location.href = nextUrl;
+            }
+        });
+    </script>
+</body>
+</html>

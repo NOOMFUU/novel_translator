@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Novel Library</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .novel-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 24px; }
+        .novel-card { 
+            display: flex; flex-direction: column; height: 100%; text-decoration: none; color: inherit; 
+            background: var(--bg-card); border-radius: var(--radius); border: 1px solid var(--border); overflow: hidden; 
+            transition: all 0.3s ease; 
+        }
+        .novel-card:hover { transform: translateY(-5px); box-shadow: var(--shadow); border-color: var(--primary); }
+        .novel-card-body { padding: 20px; flex: 1; }
+        .novel-card-title { font-size: 1.2rem; font-weight: 700; margin-bottom: 0.5rem; line-height: 1.4; }
+        .novel-card-desc { font-size: 0.9rem; color: var(--text-muted); display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+        .novel-card-footer { padding: 15px 20px; border-top: 1px solid var(--border); background: var(--bg-body); display: flex; justify-content: space-between; font-size: 0.85rem; color: var(--text-muted); }
+    </style>
+</head>
+<body>
+    <header class="main-header">
+        <div class="container header-content">
+            <div class="logo"><i class="fa-solid fa-book-open-reader"></i> Novel Translator AI</div>
+            <button onclick="toggleTheme()" class="btn btn-outline btn-sm"><i class="fa-solid fa-moon"></i></button>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="card">
+            <h3 class="mb-2"><i class="fa-solid fa-plus-circle"></i> เริ่มโปรเจกต์ใหม่</h3>
+            <form action="/novels" method="POST" class="d-flex gap-2" style="flex-wrap: wrap;">
+                <input type="text" name="title" placeholder="ชื่อนิยาย..." required style="flex: 1; min-width: 200px;">
+                <input type="text" name="description" placeholder="เรื่องย่อสั้นๆ..." style="flex: 2; min-width: 200px;">
+                <button type="submit" class="btn btn-primary">สร้างเลย</button>
+            </form>
+        </div>
+
+        <div class="d-flex align-center justify-between mb-4 mt-4">
+            <h2><i class="fa-solid fa-layer-group"></i> นิยายในคลัง (<%= novels.length %>)</h2>
+        </div>
+        
+        <% if (novels.length === 0) { %>
+            <div style="text-align: center; padding: 60px; color: var(--text-muted);">
+                <i class="fa-regular fa-folder-open" style="font-size: 4em; margin-bottom: 20px; opacity: 0.3;"></i>
+                <p>ยังไม่มีนิยาย เริ่มต้นด้วยการเพิ่มเรื่องใหม่ด้านบน!</p>
+            </div>
+        <% } %>
+
+        <div class="novel-grid">
+            <% novels.forEach(novel => { %>
+                <a href="/novel/<%= novel._id %>" class="novel-card">
+                    <div class="novel-card-body">
+                        <div class="novel-card-title"><%= novel.title %></div>
+                        <div class="novel-card-desc"><%= novel.description || "ไม่มีคำอธิบาย" %></div>
+                    </div>
+                    <div class="novel-card-footer">
+                        <span><i class="fa-regular fa-clock"></i> <%= new Date(novel.createdAt).toLocaleDateString('th-TH') %></span>
+                        <span style="color: var(--primary); font-weight: 600;">จัดการ <i class="fa-solid fa-arrow-right"></i></span>
+                    </div>
+                </a>
+            <% }) %>
+        </div>
+    </div>
+
+    <script>
+        document.documentElement.setAttribute('data-theme', localStorage.getItem('theme') || 'light');
+        function toggleTheme() {
+            const next = document.documentElement.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+            document.documentElement.setAttribute('data-theme', next);
+            localStorage.setItem('theme', next);
+        }
+    </script>
+</body>
+</html>

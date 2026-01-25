@@ -1,0 +1,173 @@
+@import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap');
+
+:root {
+    /* ☀️ Light Theme (ค่าเริ่มต้น) */
+    --primary: #4f46e5;
+    --primary-hover: #4338ca;
+    --primary-light: #eef2ff;
+    --bg-body: #f8fafc;
+    --bg-card: #ffffff;
+    --text-main: #1e293b;
+    --text-muted: #64748b;
+    --border: #e2e8f0;
+    --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+    --radius: 12px;
+    --danger: #ef4444;
+    --warning: #f59e0b;
+    --success: #10b981;
+}
+
+/* 🌙 Dark Theme (ส่วนที่เพิ่มเข้ามาใหม่) */
+[data-theme="dark"] {
+    --primary: #818cf8;
+    --primary-hover: #6366f1;
+    --primary-light: #1e1b4b; /* สีพื้นหลังกล่องข้อความตอน Dark */
+    --bg-body: #0f172a;       /* สีพื้นหลังเว็บ */
+    --bg-card: #1e293b;       /* สีการ์ด */
+    --text-main: #f1f5f9;     /* สีตัวอักษรหลัก */
+    --text-muted: #94a3b8;    /* สีตัวอักษรรอง */
+    --border: #334155;        /* สีเส้นขอบ */
+    --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.5);
+}
+
+* { box-sizing: border-box; }
+
+body {
+    font-family: 'Sarabun', sans-serif;
+    background-color: var(--bg-body);
+    color: var(--text-main);
+    margin: 0;
+    line-height: 1.6;
+    transition: background-color 0.3s, color 0.3s; /* เพิ่ม Transition ให้เปลี่ยนสีนุ่มนวล */
+}
+
+.container { max-width: 1000px; margin: 0 auto; padding: 20px; }
+
+/* Header */
+.main-header {
+    background: var(--bg-card);
+    padding: 15px 0;
+    box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);
+    margin-bottom: 30px;
+    position: sticky; top: 0; z-index: 50;
+    border-bottom: 1px solid var(--border);
+}
+.header-content { display: flex; justify-content: space-between; align-items: center; padding: 0 20px; }
+.logo { font-size: 1.25rem; font-weight: 700; color: var(--primary); display: flex; align-items: center; gap: 8px; }
+
+/* Cards */
+.card {
+    background: var(--bg-card);
+    border-radius: var(--radius);
+    padding: 24px;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border);
+    margin-bottom: 24px;
+}
+
+/* Typography */
+h1, h2, h3 { margin-top: 0; color: var(--text-main); }
+.novel-title-large { font-size: 1.8rem; font-weight: 700; margin-bottom: 10px; line-height: 1.3; }
+.novel-desc-box { 
+    background: var(--bg-body); 
+    padding: 15px; 
+    border-radius: 8px; 
+    border-left: 4px solid var(--primary);
+    color: var(--text-muted);
+    font-size: 0.95rem;
+    margin-bottom: 20px;
+}
+
+/* Buttons */
+.btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    padding: 10px 18px; border-radius: 8px; font-weight: 600; cursor: pointer;
+    transition: all 0.2s; border: none; text-decoration: none; font-size: 0.95rem;
+}
+.btn-primary { background: var(--primary); color: white; }
+.btn-primary:hover { background: var(--primary-hover); transform: translateY(-1px); }
+.btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text-main); }
+.btn-outline:hover { background: var(--border); }
+.btn-danger { background: var(--danger); color: white; }
+.btn-danger:hover { opacity: 0.9; }
+.btn-sm { padding: 6px 12px; font-size: 0.85rem; }
+.btn-icon { width: 36px; height: 36px; padding: 0; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: transparent; color: var(--text-muted); border: none; cursor: pointer; transition: 0.2s; }
+.btn-icon:hover { background: var(--border); color: var(--primary); }
+.btn.active { background: var(--border); color: var(--primary); box-shadow: inset 0 2px 4px rgba(0,0,0,0.05); }
+
+/* Forms */
+.form-group { margin-bottom: 1.5rem; }
+.form-label { display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--text-main); }
+input, textarea, select {
+    width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 8px;
+    background: var(--bg-card); color: var(--text-main); font-family: inherit; font-size: 1rem;
+    transition: 0.2s;
+}
+input:focus, textarea:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-light); }
+
+/* Utility */
+.d-flex { display: flex; }
+.align-center { align-items: center; }
+.justify-between { justify-content: space-between; }
+.gap-2 { gap: 10px; }
+.mb-2 { margin-bottom: 1rem; }
+.mt-4 { margin-top: 1.5rem; }
+.text-muted { color: var(--text-muted); }
+
+/* Novel Detail Specific */
+.novel-header-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 15px; }
+.chapter-list { list-style: none; padding: 0; margin: 0; }
+.chapter-item {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 15px; border-bottom: 1px solid var(--border); transition: background 0.1s;
+}
+.chapter-item:last-child { border-bottom: none; }
+.chapter-item:hover { background: var(--bg-body); }
+.chapter-link { text-decoration: none; color: var(--text-main); font-weight: 500; display: flex; gap: 15px; align-items: center; flex: 1; }
+.chapter-tag { background: var(--primary-light); color: var(--primary); padding: 2px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: 700; }
+
+/* Tabs */
+.tabs { display: flex; gap: 5px; margin-bottom: 20px; border-bottom: 2px solid var(--border); }
+.tab-btn {
+    padding: 10px 20px; background: transparent; border: none; font-weight: 600; color: var(--text-muted); cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -2px;
+}
+.tab-btn.active { color: var(--primary); border-bottom-color: var(--primary); }
+
+/* Grid View CSS */
+.chapter-container.grid-view {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 15px;
+    padding: 15px;
+}
+.chapter-container.grid-view .chapter-item {
+    flex-direction: column;
+    align-items: flex-start;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 15px;
+    height: 100%;
+    background: var(--bg-card);
+    justify-content: space-between;
+}
+.chapter-container.grid-view .chapter-item:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow);
+    border-color: var(--primary);
+}
+.chapter-container.grid-view .chapter-link {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 5px;
+    width: 100%;
+}
+.chapter-container.grid-view .chapter-tag { margin-bottom: 5px; }
+
+/* View Controls Toolbar */
+.view-controls {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 15px; padding: 10px; 
+    background: var(--bg-card); /* แก้ให้เข้ากับ Dark Mode */
+    border: 1px solid var(--border);
+    border-radius: 8px;
+}
