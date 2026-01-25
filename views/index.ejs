@@ -58,10 +58,6 @@
             </form>
         </div>
         <% } %>
-
-        <div class="d-flex align-center justify-between mb-4 mt-4">
-            <h2><i class="fa-solid fa-layer-group"></i> นิยายในคลัง (<%= novels.length %>)</h2>
-        </div>
         
         <% if (novels.length === 0) { %>
             <div style="text-align: center; padding: 60px; color: var(--text-muted);">
@@ -69,6 +65,23 @@
                 <p>ยังไม่มีนิยาย <%= isAdmin ? 'เริ่มต้นด้วยการเพิ่มเรื่องใหม่ด้านบน!' : 'รอแอดมินอัปเดตนิยายใหม่เร็วๆ นี้' %></p>
             </div>
         <% } %>
+        
+        <div class="d-flex align-center justify-between mb-4 mt-4" style="flex-wrap: wrap; gap: 10px;">
+            <h2><i class="fa-solid fa-layer-group"></i> นิยายในคลัง (<%= novels.length %>)</h2>
+            
+            <form action="/" method="GET" style="display: flex; gap: 5px; flex: 1; max-width: 400px;">
+                <input type="text" name="q" placeholder="ค้นหาชื่อนิยาย..." value="<%= locals.query || '' %>" 
+                    style="padding: 8px 15px; border-radius: 20px 0 0 20px; border-right: none;">
+                <button type="submit" class="btn btn-primary" style="border-radius: 0 20px 20px 0;">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                </button>
+                <% if (locals.query) { %>
+                    <a href="/" class="btn btn-outline" style="border-radius: 20px; margin-left: 5px;">
+                        <i class="fa-solid fa-times"></i> ล้าง
+                    </a>
+                <% } %>
+            </form>
+        </div>
 
         <div class="novel-grid">
             <% novels.forEach(novel => { %>

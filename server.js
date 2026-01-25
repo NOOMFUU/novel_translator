@@ -7,6 +7,8 @@ const bodyParser = require('body-parser');
 const methodOverride = require('method-override');
 const session = require('express-session');
 const { GoogleGenerativeAI } = require('@google/generative-ai');
+const multer = require('multer');
+const upload = multer({ storage: multer.memoryStorage() }); // Store in memory to read text immediately
 
 const Novel = require('./models/Novel');
 const Chapter = require('./models/Chapter');
@@ -120,8 +122,15 @@ app.get('/logout', (req, res) => {
 // --- Public Routes ---
 
 app.get('/', async (req, res) => {
-  const novels = await Novel.find().sort({ createdAt: -1 });
-  res.render('index', { novels });
+  const query = req.query.q;
+  let filter = {};
+  
+  if (query) {
+    filter = { title: { $regex: query, $options: 'i' } }; // Case-insensitive search
+  }
+
+  const novels = await Novel.find(filter).sort({ createdAt: -1 });
+  res.render('index', { novels, query }); // Pass 'query' back to view to keep input filled
 });
 
 app.get('/novel/:id', async (req, res) => {
@@ -183,16 +192,29 @@ app.post('/api/translate-snippet', requireAdmin, async (req, res) => {
     }
 });
 
-app.post('/novel/:id/chapters', requireAdmin, async (req, res) => {
+app.post('/novel/:id/chapters', requireAdmin, upload.single('txtFile'), async (req, res) => {
   const novelId = req.params.id;
-  const { mode, manualTitle, manualChapterNumber, manualTranslated, manualOriginal, rawText } = req.body;
+  // 1. Determine Input Source (File vs Text Area)
+  let rawText = req.body.rawText;
+
+  if (req.file) {
+      // If file uploaded, convert buffer to string (assuming UTF-8)
+      rawText = req.file.buffer.toString('utf-8');
+  }
+
+  if (!rawText && req.body.mode === 'auto') {
+      return res.send(`<h3>Error: No content provided (Text or File required)</h3><a href="/novel/${novelId}">Back</a>`);
+  }
+
+  const { mode, manualTitle, manualChapterNumber, manualTranslated, manualOriginal } = req.body;
 
   try {
     const lastChapter = await Chapter.findOne({ novelId }).sort({ chapterNumber: -1 });
     const nextNumber = lastChapter ? lastChapter.chapterNumber + 1 : 1;
 
     if (mode === 'manual') {
-        await Chapter.create({
+        // ... (Keep your existing manual logic here) ...
+         await Chapter.create({
             novelId,
             chapterNumber: manualChapterNumber || nextNumber,
             title: manualTitle || `ตอนที่ ${manualChapterNumber || nextNumber}`,
@@ -202,7 +224,7 @@ app.post('/novel/:id/chapters', requireAdmin, async (req, res) => {
         return res.redirect(`/novel/${novelId}`);
     }
 
-    // Auto Mode
+    // Auto Mode (Enhanced)
     const novel = await Novel.findById(novelId);
     const systemInstruction = novel.customPrompt || "Translate into natural Thai suitable for Light Novels.";
     const glossaryText = novel.glossary ? `[STRICT GLOSSARY]:\n${novel.glossary}` : "";
@@ -211,7 +233,7 @@ app.post('/novel/:id/chapters', requireAdmin, async (req, res) => {
       Analyze the following Japanese Web Novel text.
       [STYLE]: ${systemInstruction}
       ${glossaryText}
-      
+
       Task:
       1. Extract chapter number (float/int). If not found, return null.
       2. Extract title line ONLY if explicit. Else null.
@@ -223,16 +245,17 @@ app.post('/novel/:id/chapters', requireAdmin, async (req, res) => {
         "translatedContent": "Content...",
         "originalTitle": "JP Title"
       }
-      Japanese Text:
-      ${rawText}
-    `;
+      Japanese Text (Limit 15000 chars):
+      ${rawText.substring(0, 30000)} 
+    `; // Added simple truncation to prevent token overflow if file is huge
 
     const data = await generateWithRetry(prompt);
 
+    // ... (Keep your existing logic for saving data) ...
     const finalChapterNumber = (data.chapterNumber !== null && data.chapterNumber !== undefined) 
                                 ? data.chapterNumber 
                                 : nextNumber;
-    
+
     let aiTitle = data.title || data.originalTitle || "";
     aiTitle = aiTitle.trim();
     const cleanedTitle = aiTitle.replace(/^(ตอนที่|บทที่|Chapter|Episode|Ep|第)?\s*[\d\.]+\s*[話]?\s*[:：]?\s*/ig, "");
@@ -253,9 +276,7 @@ app.post('/novel/:id/chapters', requireAdmin, async (req, res) => {
 
   } catch (error) {
     console.error(error);
-    let errorMsg = error.message;
-    if (error.message.includes('429')) errorMsg = "โควตาเต็มชั่วคราว (Too Many Requests)";
-    res.send(`<h3>Error: ${errorMsg}</h3><a href="/novel/${novelId}">กลับ</a>`);
+    res.send(`<h3>Error: ${error.message}</h3><a href="/novel/${novelId}">Back</a>`);
   }
 });
 

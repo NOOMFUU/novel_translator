@@ -68,13 +68,45 @@
                 <button id="tabBtnManual" class="tab-btn" onclick="switchTab('manual')">✍️ Manual</button>
             </div>
             
-            <form id="form-auto" action="/novel/<%= novel._id %>/chapters" method="POST" onsubmit="showLoading()">
+            <form id="form-auto" action="/novel/<%= novel._id %>/chapters" method="POST" enctype="multipart/form-data" onsubmit="showLoading()">
                 <input type="hidden" name="mode" value="auto">
-                <div class="form-group">
-                    <textarea name="rawText" placeholder="วางเนื้อหาภาษาญี่ปุ่นที่นี่..." style="height: 120px; width: 100%; padding: 10px;" required></textarea>
+                
+                <div style="margin-bottom: 10px; display: flex; gap: 10px;">
+                    <label style="cursor: pointer;">
+                        <input type="radio" name="inputType" value="text" checked onclick="toggleInput('text')"> วางข้อความ
+                    </label>
+                    <label style="cursor: pointer;">
+                        <input type="radio" name="inputType" value="file" onclick="toggleInput('file')"> อัปโหลดไฟล์ (.txt)
+                    </label>
                 </div>
+
+                <div id="input-text-group" class="form-group">
+                    <textarea name="rawText" placeholder="วางเนื้อหาภาษาญี่ปุ่นที่นี่..." style="height: 120px; width: 100%; padding: 10px;"></textarea>
+                </div>
+
+                <div id="input-file-group" class="form-group" style="display: none;">
+                    <div style="border: 2px dashed var(--border); padding: 20px; text-align: center; border-radius: 8px;">
+                        <i class="fa-solid fa-file-arrow-up" style="font-size: 2em; color: var(--primary); margin-bottom: 10px;"></i><br>
+                        <input type="file" name="txtFile" accept=".txt" style="display: block; margin: 0 auto;">
+                        <small class="text-muted">รองรับไฟล์ .txt (UTF-8)</small>
+                    </div>
+                </div>
+
                 <button type="submit" class="btn btn-primary" style="width: 100%;">แปลและเพิ่มตอน</button>
             </form>
+
+            <script>
+                // Add this simple toggle script inside your existing <script> tag
+                function toggleInput(type) {
+                    if (type === 'text') {
+                        document.getElementById('input-text-group').style.display = 'block';
+                        document.getElementById('input-file-group').style.display = 'none';
+                    } else {
+                        document.getElementById('input-text-group').style.display = 'none';
+                        document.getElementById('input-file-group').style.display = 'block';
+                    }
+                }
+            </script>
 
             <form id="form-manual" action="/novel/<%= novel._id %>/chapters" method="POST" style="display:none;">
                 <input type="hidden" name="mode" value="manual">
