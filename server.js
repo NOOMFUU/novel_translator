@@ -288,6 +288,9 @@ app.delete('/chapter/:id', requireAdmin, async (req, res) => {
     res.redirect(`/novel/${chapter.novelId}`);
 });
 
-
+// หน้าพิเศษสำหรับปลุกเซิร์ฟเวอร์ (Keep-alive)
+app.get('/ping', (req, res) => {
+    res.status(200).send('ok');
+});
 
 app.listen(port, () => console.log(`Server running on port ${port}`));
