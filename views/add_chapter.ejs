@@ -21,7 +21,22 @@
 
     <div class="container" style="padding-top: 40px; padding-bottom: 80px; max-width: 900px;">
         <div class="card">
-            <h2 class="mb-4"><i class="fa-solid fa-plus-circle"></i> เพิ่มตอนใหม่</h2>
+            <div class="d-flex justify-between align-center mb-4">
+                <h2 style="margin: 0;"><i class="fa-solid fa-plus-circle"></i> เพิ่มตอนใหม่</h2>
+                
+                <div style="text-align: right; max-width: 300px;">
+                    <span class="text-muted" style="font-size: 0.85rem;">ล่าสุด</span>
+                    <div style="font-weight: 700; color: var(--primary); font-size: 1.1rem; line-height: 1.4;">
+                        <% if (locals.lastChapter) { %>
+                            <div style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                                Ep.<%= lastChapter.chapterNumber %> : <%= lastChapter.title.replace(/^ตอนที่ \d+[:\s]*/, '') %>
+                            </div>
+                            <% } else { %>
+                            -
+                        <% } %>
+                    </div>
+                </div>
+            </div>
 
             <div style="display: flex; border-bottom: 1px solid var(--border); margin-bottom: 20px;">
                 <button class="tab-btn active" id="tabBtnAuto" onclick="switchTab('auto')">✨ AI Translate</button>

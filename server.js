@@ -165,11 +165,15 @@ app.post('/novels', requireAdmin, async (req, res) => {
 app.get('/novel/:id/add', requireAdmin, async (req, res) => {
     try {
         const novel = await Novel.findById(req.params.id);
-        // หาตอนล่าสุดเพื่อคำนวณเลขตอนถัดไปให้เลย
+        
+        // หาตอนล่าสุด
         const lastChapter = await Chapter.findOne({ novelId: req.params.id }).sort({ chapterNumber: -1 });
+        
+        // คำนวณตอนถัดไป
         const nextChapterNumber = lastChapter ? lastChapter.chapterNumber + 1 : 1;
         
-        res.render('add_chapter', { novel, nextChapterNumber });
+        // [แก้ไข] เพิ่ม lastChapter เข้าไปใน object ที่ render
+        res.render('add_chapter', { novel, nextChapterNumber, lastChapter }); 
     } catch (err) {
         console.error(err);
         res.redirect('/');
