@@ -6,6 +6,100 @@
     <title>Novel Library</title>
     <link rel="stylesheet" href="/css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* --- Hero & Ranking Layout --- */
+        .featured-grid {
+            display: grid;
+            grid-template-columns: 1.5fr 1fr;
+            gap: 24px;
+            margin-bottom: 40px;
+        }
+
+        /* Hero Card */
+        .hero-card {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+            border-radius: var(--radius);
+            padding: 30px;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(99, 102, 241, 0.3);
+            height: 100%;
+        }
+        .hero-bg-icon {
+            position: absolute; right: -20px; bottom: -20px;
+            font-size: 15rem; opacity: 0.1; transform: rotate(-15deg);
+            color: white; pointer-events: none;
+        }
+        .hero-content { z-index: 2; flex: 1; }
+        .hero-image {
+            width: 140px; height: 210px; object-fit: cover;
+            border-radius: 8px; box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+            transform: rotate(3deg); border: 2px solid rgba(255,255,255,0.2);
+            flex-shrink: 0;
+        }
+
+        /* Ranking Section */
+        .ranking-card {
+            background: var(--glass-bg);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 20px;
+            height: 100%;
+            display: flex; flex-direction: column;
+        }
+        .rank-tabs {
+            display: flex; gap: 5px; margin-bottom: 15px;
+            background: rgba(0,0,0,0.05); padding: 4px; border-radius: 50px;
+        }
+        .rank-tab {
+            flex: 1; text-align: center; padding: 6px; border-radius: 50px;
+            font-size: 0.85rem; cursor: pointer; font-weight: 600;
+            color: var(--text-muted); transition: all 0.2s; border: none; background: transparent;
+        }
+        .rank-tab.active { background: var(--bg-body); color: var(--primary); box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        
+        .rank-list { list-style: none; padding: 0; margin: 0; flex: 1; overflow-y: auto; max-height: 280px; }
+        .rank-item {
+            display: flex; align-items: center; gap: 15px;
+            padding: 10px; border-bottom: 1px solid var(--border);
+            transition: 0.2s;
+        }
+        .rank-item:last-child { border-bottom: none; }
+        .rank-item:hover { background: rgba(99, 102, 241, 0.05); }
+        .rank-num {
+            font-size: 1.2rem; font-weight: 800; color: var(--text-muted); opacity: 0.5;
+            width: 25px; text-align: center;
+        }
+        .rank-item:nth-child(1) .rank-num { color: #FFD700; opacity: 1; } /* Gold */
+        .rank-item:nth-child(2) .rank-num { color: #C0C0C0; opacity: 1; } /* Silver */
+        .rank-item:nth-child(3) .rank-num { color: #CD7F32; opacity: 1; } /* Bronze */
+
+        /* Category Bar (Existing) */
+        .category-bar {
+            display: flex; gap: 10px; overflow-x: auto; padding-bottom: 5px; margin-bottom: 30px;
+            -webkit-overflow-scrolling: touch; scrollbar-width: none;
+        }
+        .category-bar::-webkit-scrollbar { display: none; }
+        .cat-pill {
+            white-space: nowrap; padding: 8px 20px; border-radius: 50px;
+            background: var(--glass-bg); border: 1px solid var(--border);
+            color: var(--text-muted); text-decoration: none; font-weight: 500;
+            transition: all 0.2s;
+        }
+        .cat-pill:hover, .cat-pill.active {
+            background: var(--primary); color: white; border-color: var(--primary);
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+        }
+
+        @media (max-width: 900px) {
+            .featured-grid { grid-template-columns: 1fr; }
+            .hero-card { min-height: 250px; }
+        }
+    </style>
 </head>
 <body>
     <header class="main-header">
@@ -16,11 +110,13 @@
             </a>
             
             <form action="/" method="GET" style="flex: 1; max-width: 400px; margin: 0 20px; position: relative;">
-                <input type="text" name="q" placeholder="ค้นหานิยาย..." value="<%= locals.query || '' %>" style="border-radius: 50px; padding-left: 45px; background: rgba(255,255,255,0.5);">
+                <% if(locals.currentCategory) { %> <input type="hidden" name="category" value="<%= currentCategory %>"> <% } %>
+                <input type="text" name="q" placeholder="ค้นหานิยาย..." value="<%= locals.query || '' %>" style="border-radius: 50px; padding-left: 45px;">
                 <i class="fa-solid fa-magnifying-glass" style="position: absolute; left: 18px; top: 50%; transform: translateY(-50%); color: var(--text-muted);"></i>
             </form>
 
             <div class="d-flex align-center gap-2">
+                <a href="/random" class="btn btn-outline btn-sm" title="สุ่มเรื่องอ่าน"><i class="fa-solid fa-shuffle"></i> <span style="display:none; @media(min-width:768px){display:inline;}">สุ่ม</span></a>
                 <button onclick="toggleTheme()" class="btn btn-outline btn-sm" style="border-radius:50%; width:40px; height:40px; padding:0;"><i class="fa-solid fa-moon"></i></button>
                 <% if (isAdmin) { %>
                     <a href="/logout" class="btn btn-sm btn-outline" style="color:var(--danger); border-color:var(--danger);">Logout</a>
@@ -31,31 +127,103 @@
         </div>
     </header>
 
-    <div class="container" style="padding-top: 40px; padding-bottom: 60px;">
+    <div class="container" style="padding-top: 30px; padding-bottom: 60px;">
         
-        <% if (isAdmin) { %>
-        <div class="card" style="border-left: 4px solid var(--primary); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 20px;">
-            <div>
-                <h3 style="margin:0;"><i class="fa-solid fa-wand-magic-sparkles"></i> สร้างโปรเจกต์แปลใหม่</h3>
-                <p class="text-muted" style="margin:5px 0 0 0; font-size:0.9rem;">เพิ่มนิยายเรื่องใหม่เข้าสู่ระบบของคุณ</p>
+        <% if (!locals.query && !locals.currentCategory) { %> <div class="featured-grid">
+            <% if (locals.recommended) { %>
+            <div class="hero-card">
+                <i class="fa-solid fa-crown hero-bg-icon"></i>
+                <div class="hero-content">
+                    <span style="background: rgba(255,255,255,0.2); padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 600; margin-bottom: 10px; display: inline-block;">RECOMMENDED</span>
+                    <h1 style="margin: 10px 0; font-size: 1.8rem; text-shadow: 0 2px 4px rgba(0,0,0,0.2);"><%= recommended.title %></h1>
+                    <div style="display: flex; gap: 10px; margin-bottom: 15px; font-size: 0.9rem; opacity: 0.9;">
+                        <span><i class="fa-solid fa-pen-nib"></i> <%= recommended.author %></span>
+                        <span><i class="fa-solid fa-list"></i> <%= recommended.category || 'General' %></span>
+                    </div>
+                    <p style="opacity: 0.9; margin-bottom: 20px; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; font-size: 0.95rem;">
+                        <%= recommended.description || 'ไม่มีคำอธิบาย...' %>
+                    </p>
+                    <a href="/novel/<%= recommended._id %>" class="btn" style="background: white; color: var(--primary); padding: 10px 25px; border-radius: 50px; font-weight: 700; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">อ่านเลย <i class="fa-solid fa-arrow-right"></i></a>
+                </div>
+                <img src="<%= recommended.imageUrl || 'https://via.placeholder.com/300x450' %>" class="hero-image" alt="Cover">
             </div>
-            <form action="/novels" method="POST" class="d-flex gap-2" style="flex: 1; max-width: 500px;">
-                <input type="text" name="title" placeholder="ชื่อนิยาย..." required>
+            <% } %>
+
+            <div class="ranking-card">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                    <h3 style="margin:0; font-size:1.1rem;"><i class="fa-solid fa-chart-simple" style="color:var(--primary);"></i> ยอดนิยม</h3>
+                </div>
+                
+                <div class="rank-tabs">
+                    <button class="rank-tab active" onclick="switchRank('daily')">รายวัน</button>
+                    <button class="rank-tab" onclick="switchRank('weekly')">รายสัปดาห์</button>
+                    <button class="rank-tab" onclick="switchRank('monthly')">รายเดือน</button>
+                </div>
+
+                <ul class="rank-list" id="rankList">
+                    <% if (locals.topNovels) { %>
+                        <% topNovels.forEach((novel, index) => { %>
+                            <li>
+                                <a href="/novel/<%= novel._id %>" class="rank-item" style="text-decoration:none; color:inherit;">
+                                    <div class="rank-num"><%= index + 1 %></div>
+                                    <img src="<%= novel.imageUrl || 'https://via.placeholder.com/60' %>" style="width:40px; height:60px; object-fit:cover; border-radius:4px;">
+                                    <div style="flex:1; overflow:hidden;">
+                                        <div style="font-weight:600; font-size:0.9rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;"><%= novel.title %></div>
+                                        <div class="text-muted" style="font-size:0.75rem;">
+                                            <i class="fa-regular fa-eye"></i> <%= (novel.views || 0).toLocaleString() %> วิว
+                                        </div>
+                                    </div>
+                                </a>
+                            </li>
+                        <% }) %>
+                    <% } %>
+                </ul>
+            </div>
+        </div>
+        <% } %>
+
+        <% if (isAdmin) { %>
+        <div class="card" style="border-left: 4px solid var(--primary); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 20px; margin-bottom: 30px; padding: 20px;">
+            <div style="display:flex; align-items:center; gap:15px;">
+                <div style="background: rgba(99, 102, 241, 0.1); width: 50px; height: 50px; border-radius: 50%; display:flex; align-items:center; justify-content:center; color:var(--primary); font-size:1.5rem;">
+                    <i class="fa-solid fa-plus"></i>
+                </div>
+                <div>
+                    <h3 style="margin:0; font-size:1.1rem;">สร้างโปรเจกต์ใหม่</h3>
+                    <p class="text-muted" style="margin:0; font-size:0.85rem;">เพิ่มนิยายแปลเรื่องใหม่</p>
+                </div>
+            </div>
+            <form action="/novels" method="POST" class="d-flex gap-2" style="flex: 1; max-width: 500px; flex-wrap: wrap;">
+                <input type="text" name="title" placeholder="ชื่อนิยาย..." required style="flex: 2; min-width: 150px;">
+                <input list="categoryList" name="categories" placeholder="หมวดหมู่..." style="flex: 1; min-width: 120px;">
+                <datalist id="categoryList">
+                    <% categories.forEach(cat => { %>
+                        <option value="<%= cat %>">
+                    <% }) %>
+                </datalist>
                 <button type="submit" class="btn btn-primary" style="white-space: nowrap;">Create</button>
             </form>
         </div>
         <% } %>
 
         <div class="d-flex justify-between align-center mb-4">
-            <h2 style="font-size: 1.8rem; margin: 0; font-weight: 700;">
-                <span style="color: var(--primary);">#</span> อัปเดตล่าสุด
+            <h2 style="font-size: 1.5rem; margin: 0; font-weight: 700; display:flex; align-items:center; gap:10px;">
+                <span style="background:var(--primary); width:5px; height:25px; border-radius:10px; display:inline-block;"></span>
+                <%= currentCategory ? currentCategory : 'อัปเดตล่าสุด' %>
             </h2>
         </div>
 
+        <div class="category-bar">
+            <a href="/" class="cat-pill <%= !currentCategory ? 'active' : '' %>">ทั้งหมด</a>
+            <% categories.forEach(cat => { %>
+                <a href="/?category=<%= cat %>" class="cat-pill <%= currentCategory === cat ? 'active' : '' %>"><%= cat %></a>
+            <% }) %>
+        </div>
+
         <% if (novels.length === 0) { %>
-            <div class="card text-center" style="padding: 80px 20px; border: 2px dashed var(--border); background: transparent;">
+            <div class="card text-center" style="padding: 60px 20px; border: 2px dashed var(--border); background: transparent;">
                 <i class="fa-solid fa-box-open" style="font-size: 3em; color: var(--text-muted); margin-bottom: 15px; opacity: 0.5;"></i>
-                <p class="text-muted">ยังไม่มีข้อมูลนิยายในระบบ</p>
+                <p class="text-muted">ไม่พบข้อมูลนิยาย</p>
             </div>
         <% } %>
 
@@ -64,22 +232,31 @@
                 <a href="/novel/<%= novel._id %>" class="novel-poster-card">
                     <div class="novel-poster-img-wrapper">
                         <% 
-                            let statusClass = 'status-ongoing';
+                            let statusClass = 'badge-on';
                             let statusText = 'ON GOING';
-                            if(novel.status === 'Completed') { statusClass = 'status-completed'; statusText = 'END'; }
-                            if(novel.status === 'Hiatus') { statusClass = 'status-hiatus'; statusText = 'HIATUS'; }
+                            if(novel.status === 'Completed') { statusClass = 'badge-completed'; statusText = 'END'; }
+                            if(novel.status === 'Hiatus') { statusClass = 'badge-hiatus'; statusText = 'HIATUS'; }
                         %>
-                        <div class="status-badge <%= statusClass %>"><%= statusText %></div>
+                        <div class="badge <%= statusClass %>" style="position: absolute; top: 10px; left: 10px; z-index: 5;"><%= statusText %></div>
                         <img src="<%= novel.imageUrl || 'https://via.placeholder.com/300x450?text=NO+IMAGE' %>" class="novel-poster-img" loading="lazy" alt="<%= novel.title %>">
                     </div>
                     
-                    <div style="font-weight: 700; font-size: 1.1rem; line-height: 1.4; margin-bottom: 6px; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;">
+                    <div style="font-weight: 700; font-size: 1.05rem; line-height: 1.4; margin-bottom: 6px; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;">
                         <%= novel.title %>
                     </div>
                     
-                    <div class="d-flex align-center justify-between text-muted" style="font-size: 0.85rem;">
+                    <div class="d-flex align-center justify-between text-muted" style="font-size: 0.8rem;">
                         <span><i class="fa-regular fa-eye"></i> <%= (novel.views || 0).toLocaleString() %></span>
-                        <span><i class="fa-solid fa-layer-group"></i> นิยายแปล</span>
+                        <div style="display:flex; gap:4px; overflow:hidden; max-width: 60%;">
+                            <% if(novel.categories && novel.categories.length > 0) { %>
+                                <% novel.categories.slice(0, 1).forEach(cat => { %>
+                                    <span style="background: rgba(99, 102, 241, 0.1); color: var(--primary); padding: 2px 8px; border-radius: 4px; font-size: 0.7rem; white-space: nowrap;"><%= cat %></span>
+                                <% }) %>
+                                <% if(novel.categories.length > 1) { %><span style="font-size:0.7rem;">+<%= novel.categories.length-1 %></span><% } %>
+                            <% } else { %>
+                                <span style="font-size: 0.7rem;">General</span>
+                            <% } %>
+                        </div>
                     </div>
                 </a>
             <% }) %>
@@ -87,7 +264,7 @@
     </div>
 
     <script>
-        // Theme Logic
+        // Theme Toggle
         const currentTheme = localStorage.getItem('theme') || 'light';
         document.documentElement.setAttribute('data-theme', currentTheme);
 
@@ -96,6 +273,22 @@
             const next = current === 'light' ? 'dark' : (current === 'dark' ? 'sepia' : 'light');
             document.documentElement.setAttribute('data-theme', next);
             localStorage.setItem('theme', next);
+        }
+
+        // Ranking Tab Logic
+        function switchRank(period) {
+            // Update active styling
+            document.querySelectorAll('.rank-tab').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+
+            // ในอนาคต: เรียก API หรือกรองข้อมูลจริง
+            // ตอนนี้: แค่ Animation ให้รู้ว่าเปลี่ยน
+            const list = document.getElementById('rankList');
+            list.style.opacity = '0.5';
+            setTimeout(() => {
+                list.style.opacity = '1';
+                // ถ้ามีข้อมูลจริงให้ update innerHTML ตรงนี้
+            }, 200);
         }
     </script>
 </body>

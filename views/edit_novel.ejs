@@ -25,6 +25,32 @@
                 </div>
 
                 <div class="d-flex gap-2 mb-4" style="flex-wrap: wrap;">
+                    <div style="flex: 1; min-width: 200px;">
+                        <label class="text-muted">หมวดหมู่หลัก (Categories)</label>
+                        <input list="categoryList" name="categories" value="<%= (novel.categories || []).join(', ') %>" placeholder="เลือกหรือพิมพ์เพิ่ม (คั่นด้วย , )">
+                        <datalist id="categoryList">
+                            <% if(locals.allCategories) { %>
+                                <% allCategories.forEach(cat => { %>
+                                    <option value="<%= cat %>">
+                                <% }) %>
+                            <% } %>
+                            <option value="Fantasy">
+                            <option value="Romance">
+                            <option value="Action">
+                            <option value="Drama">
+                        </datalist>
+                    </div>
+                    <div style="flex: 1;">
+                        <label class="text-muted">สถานะ</label>
+                        <select name="status" style="width: 100%; padding: 10px; border-radius: 12px; border: 1px solid var(--border); background: rgba(255,255,255,0.5); color: var(--text-main);">
+                            <option value="On Going" <%= novel.status === 'On Going' ? 'selected' : '' %>>On Going</option>
+                            <option value="Completed" <%= novel.status === 'Completed' ? 'selected' : '' %>>Completed</option>
+                            <option value="Hiatus" <%= novel.status === 'Hiatus' ? 'selected' : '' %>>Hiatus</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="d-flex gap-2 mb-4" style="flex-wrap: wrap;">
                     <div style="flex: 1;">
                         <label class="text-muted">ผู้แต่ง (Author)</label>
                         <input type="text" name="author" value="<%= novel.author %>">
@@ -32,14 +58,6 @@
                     <div style="flex: 1;">
                         <label class="text-muted">นักวาด (Artist)</label>
                         <input type="text" name="artist" value="<%= novel.artist %>">
-                    </div>
-                    <div style="flex: 1;">
-                        <label class="text-muted">สถานะ</label>
-                        <select name="status" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg-body); color: var(--text-main);">
-                            <option value="On Going" <%= novel.status === 'On Going' ? 'selected' : '' %>>On Going</option>
-                            <option value="Completed" <%= novel.status === 'Completed' ? 'selected' : '' %>>Completed</option>
-                            <option value="Hiatus" <%= novel.status === 'Hiatus' ? 'selected' : '' %>>Hiatus</option>
-                        </select>
                     </div>
                 </div>
 
@@ -54,7 +72,7 @@
 
                 <div class="mb-4">
                     <label class="text-muted">Tags (คั่นด้วยลูกน้ำ , )</label>
-                    <input type="text" name="tags" value="<%= novel.tags.join(', ') %>" placeholder="Comedy, Romance, School Life">
+                    <input type="text" name="tags" value="<%= novel.tags.join(', ') %>" placeholder="Magic, School Life, Harem">
                 </div>
 
                 <div class="mb-4">

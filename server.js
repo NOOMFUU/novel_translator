@@ -41,9 +41,11 @@ app.use(session({
     cookie: { maxAge: 24 * 60 * 60 * 1000 }
 }));
 
-app.use((req, res, next) => {
+app.use(async (req, res, next) => {
     res.locals.isAdmin = req.session.isAdmin || false;
     res.locals.currentUrl = req.path;
+    // [แก้ไข] ดึงหมวดหมู่ทั้งหมดจากฟิลด์ categories (จะแตก array ออกมาเป็น list เดียว)
+    res.locals.allCategories = await Novel.distinct('categories'); 
     next();
 });
 
@@ -68,6 +70,19 @@ async function generateWithRetry(prompt, retries = 3) {
 }
 
 // Routes
+app.get('/random', async (req, res) => {
+    try {
+        const count = await Novel.countDocuments();
+        if (count === 0) return res.redirect('/');
+        const random = Math.floor(Math.random() * count);
+        const novel = await Novel.findOne().skip(random);
+        res.redirect(`/novel/${novel._id}`);
+    } catch (err) {
+        console.error(err);
+        res.redirect('/');
+    }
+});
+
 app.get('/login', (req, res) => res.render('login', { error: null }));
 
 app.post('/login', async (req, res) => {
@@ -85,9 +100,38 @@ app.get('/logout', (req, res) => req.session.destroy(() => res.redirect('/')));
 
 app.get('/', async (req, res) => {
     const query = req.query.q;
-    const filter = query ? { title: { $regex: query, $options: 'i' } } : {};
+    const category = req.query.category;
+
+    let filter = {};
+    if (query) filter.title = { $regex: query, $options: 'i' };
+    if (category) filter.categories = category;
+
+    // 1. นิยายทั้งหมด (สำหรับ Grid ด้านล่าง)
     const novels = await Novel.find(filter).sort({ createdAt: -1 });
-    res.render('index', { novels, query });
+    
+    // 2. หมวดหมู่ทั้งหมด (สำหรับ Menu)
+    const categories = await Novel.distinct('categories');
+
+    // 3. [ใหม่] นิยายแนะนำ (สุ่มมา 1 เรื่อง หรือเลือกจากยอดวิวสูงสุด)
+    const count = await Novel.countDocuments();
+    let recommended = null;
+    if (count > 0) {
+        // ตัวอย่าง: สุ่มเรื่องแนะนำ
+        const random = Math.floor(Math.random() * count);
+        recommended = await Novel.findOne().skip(random);
+    }
+
+    // 4. [ใหม่] จัดอันดับ Top 5 (เรียงตามยอดวิว)
+    const topNovels = await Novel.find().sort({ views: -1 }).limit(5);
+
+    res.render('index', { 
+        novels, 
+        query, 
+        currentCategory: category, 
+        categories,
+        recommended, // ส่งตัวแปรนี้ไป
+        topNovels    // ส่งตัวแปรนี้ไป
+    });
 });
 
 app.get('/novel/:id', async (req, res) => {
@@ -101,9 +145,20 @@ app.get('/novel/:id', async (req, res) => {
     }
 });
 
+// [แก้ไข] POST: แยก string เป็น array
 app.post('/novels', requireAdmin, async (req, res) => {
     const tagsArray = req.body.tags ? req.body.tags.split(',').map(t => t.trim()) : [];
-    await Novel.create({ ...req.body, tags: tagsArray });
+    
+    // แยก Categories ด้วยเครื่องหมายจุลภาค
+    const categoriesArray = req.body.categories 
+        ? req.body.categories.split(',').map(c => c.trim()).filter(c => c) 
+        : ['General'];
+
+    await Novel.create({ 
+        ...req.body, 
+        tags: tagsArray,
+        categories: categoriesArray
+    });
     res.redirect('/');
 });
 
@@ -112,9 +167,19 @@ app.get('/novel/:id/edit', requireAdmin, async (req, res) => {
     res.render('edit_novel', { novel });
 });
 
+// [แก้ไข] PUT: แยก string เป็น array
 app.put('/novel/:id', requireAdmin, async (req, res) => {
     const tagsArray = req.body.tags ? req.body.tags.split(',').map(t => t.trim()) : [];
-    await Novel.findByIdAndUpdate(req.params.id, { ...req.body, tags: tagsArray });
+    
+    const categoriesArray = req.body.categories 
+        ? req.body.categories.split(',').map(c => c.trim()).filter(c => c) 
+        : ['General'];
+
+    await Novel.findByIdAndUpdate(req.params.id, { 
+        ...req.body, 
+        tags: tagsArray,
+        categories: categoriesArray
+    });
     res.redirect(`/novel/${req.params.id}`);
 });
 
@@ -128,7 +193,6 @@ app.post('/novel/:id/chapters', requireAdmin, upload.single('txtFile'), async (r
     const novelId = req.params.id;
     let rawText = req.body.rawText;
     if (req.file) rawText = req.file.buffer.toString('utf-8');
-
     const isAjax = req.headers.accept && req.headers.accept.includes('application/json');
 
     try {
@@ -179,18 +243,11 @@ app.post('/novel/:id/chapters', requireAdmin, upload.single('txtFile'), async (r
     }
 });
 
-// [UPDATED] Route for Reading Page with Sidebar Data
 app.get('/chapter/:id', async (req, res) => {
     const chapter = await Chapter.findById(req.params.id).populate('novelId');
     const prevChapter = await Chapter.findOne({ novelId: chapter.novelId._id, chapterNumber: { $lt: chapter.chapterNumber } }).sort({ chapterNumber: -1 });
     const nextChapter = await Chapter.findOne({ novelId: chapter.novelId._id, chapterNumber: { $gt: chapter.chapterNumber } }).sort({ chapterNumber: 1 });
-    
-    // ดึงข้อมูลตอนทั้งหมดมาแสดงใน Sidebar (เรียงตามลำดับตอน)
-    // เลือกเฉพาะ field ที่จำเป็นเพื่อประสิทธิภาพ (title, chapterNumber, id)
-    const allChapters = await Chapter.find({ novelId: chapter.novelId._id })
-        .select('title chapterNumber _id')
-        .sort({ chapterNumber: 1 });
-
+    const allChapters = await Chapter.find({ novelId: chapter.novelId._id }).select('title chapterNumber _id').sort({ chapterNumber: 1 });
     res.render('read', { chapter, prevChapter, nextChapter, allChapters });
 });
 
