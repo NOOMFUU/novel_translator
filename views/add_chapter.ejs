@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>เพิ่มตอนใหม่: <%= novel.title %></title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div id="toast-container" class="toast-container"></div>
+
+    <header class="main-header">
+        <div class="container d-flex justify-between align-center">
+            <div class="d-flex align-center gap-2">
+                <a href="/novel/<%= novel._id %>" class="btn btn-outline btn-sm"><i class="fa-solid fa-chevron-left"></i> กลับหน้านิยาย</a>
+                <span style="font-weight: 600; font-size: 1.1rem;"><%= novel.title %></span>
+            </div>
+        </div>
+    </header>
+
+    <div class="container" style="padding-top: 40px; padding-bottom: 80px; max-width: 900px;">
+        <div class="card">
+            <h2 class="mb-4"><i class="fa-solid fa-plus-circle"></i> เพิ่มตอนใหม่</h2>
+
+            <div style="display: flex; border-bottom: 1px solid var(--border); margin-bottom: 20px;">
+                <button class="tab-btn active" id="tabBtnAuto" onclick="switchTab('auto')">✨ AI Translate</button>
+                <button class="tab-btn" id="tabBtnManual" onclick="switchTab('manual')">✍️ Manual Upload</button>
+            </div>
+
+            <div id="section-auto">
+                <div id="ai-skeleton" style="display: none; padding: 20px; background: rgba(99, 102, 241, 0.05); border-radius: 8px;">
+                    <div class="d-flex align-center gap-2 mb-4" style="color: var(--primary);">
+                        <i class="fa-solid fa-circle-notch fa-spin"></i>
+                        <strong>AI กำลังแปลและเรียบเรียง... (โปรดรอสักครู่)</strong>
+                    </div>
+                    <div class="skeleton sk-text short"></div>
+                    <div class="skeleton sk-text"></div>
+                    <div class="skeleton sk-text"></div>
+                </div>
+
+                <form id="form-auto" onsubmit="handleSubmit(event, 'auto')">
+                    <div class="d-flex gap-2 mb-4">
+                        <label style="cursor: pointer; display: flex; align-items: center; gap: 5px;">
+                            <input type="radio" name="inputType" value="text" checked onclick="toggleInput('text')"> Text Paste
+                        </label>
+                        <label style="cursor: pointer; display: flex; align-items: center; gap: 5px;">
+                            <input type="radio" name="inputType" value="file" onclick="toggleInput('file')"> File Upload (.txt)
+                        </label>
+                    </div>
+                    
+                    <div id="input-text-group">
+                        <textarea name="rawText" placeholder="วางเนื้อหาภาษาญี่ปุ่นที่นี่..." style="height:250px; font-family: monospace; padding: 15px;"></textarea>
+                    </div>
+                    <div id="input-file-group" style="display:none;">
+                        <input type="file" name="txtFile" accept=".txt" style="padding: 10px;">
+                    </div>
+
+                    <div class="d-flex justify-between align-center" style="margin-top: 20px;">
+                        <span class="text-muted" style="font-size: 0.9rem;">* ระบบจะสร้างชื่อตอนและลำดับให้เองโดยอัตโนมัติ</span>
+                        <button type="submit" class="btn btn-primary" style="min-width: 150px;">
+                            <i class="fa-solid fa-wand-magic-sparkles"></i> แปลและบันทึก
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <form id="form-manual" onsubmit="handleSubmit(event, 'manual')" style="display:none;">
+                <input type="hidden" name="mode" value="manual">
+                
+                <div style="background: rgba(255,255,255,0.5); padding: 15px; border-radius: 8px; border: 1px solid var(--border); margin-bottom: 20px;">
+                    <label style="font-weight: 600; font-size: 0.9rem; color: var(--accent);">💡 Smart Paste</label>
+                    <textarea id="smartPasteInput" style="height: 60px; margin-top: 5px;" 
+                        placeholder="วางทั้งหัวข้อและเนื้อหาที่นี่ เพื่อให้ระบบแยกให้อัตโนมัติ (เช่น: ตอนที่ 1 จุดเริ่มต้น...)" 
+                        oninput="detectHeader()"></textarea>
+                </div>
+
+                <div class="d-flex gap-2 mb-4">
+                    <div style="width: 150px;">
+                        <label class="text-muted">ลำดับตอน</label>
+                        <input type="number" step="0.1" id="manualChapterNumber" name="manualChapterNumber" value="<%= nextChapterNumber %>" required>
+                    </div>
+                    <div style="flex: 1;">
+                        <label class="text-muted">ชื่อตอน</label>
+                        <input type="text" id="manualTitle" name="manualTitle" placeholder="เช่น: การผจญภัยเริ่มต้น" required>
+                    </div>
+                </div>
+
+                <label class="text-muted">เนื้อหา (รองรับ HTML)</label>
+                <textarea id="manualTranslated" name="manualTranslated" style="height: 400px; font-family: 'Sarabun', sans-serif;" required></textarea>
+
+                <div class="d-flex justify-between align-center" style="margin-top: 20px;">
+                    <button type="button" class="btn btn-outline" onclick="clearManualForm()">ล้างข้อมูล</button>
+                    <button type="submit" class="btn btn-primary" style="min-width: 150px;">
+                        <i class="fa-solid fa-save"></i> บันทึก
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const novelId = "<%= novel._id %>";
+        let nextChapterNum = parseFloat("<%= nextChapterNumber %>");
+
+        function switchTab(mode) {
+            document.getElementById('section-auto').style.display = mode === 'auto' ? 'block' : 'none';
+            document.getElementById('form-manual').style.display = mode === 'manual' ? 'block' : 'none';
+            document.getElementById('tabBtnAuto').classList.toggle('active', mode === 'auto');
+            document.getElementById('tabBtnManual').classList.toggle('active', mode === 'manual');
+        }
+
+        function toggleInput(type) {
+            document.getElementById('input-text-group').style.display = type === 'text' ? 'block' : 'none';
+            document.getElementById('input-file-group').style.display = type === 'file' ? 'block' : 'none';
+        }
+
+        async function handleSubmit(e, mode) {
+            e.preventDefault();
+            const form = e.target;
+            const formData = new FormData(form);
+            
+            if(mode === 'auto') {
+                formData.append('mode', 'auto');
+                document.getElementById('form-auto').style.display = 'none';
+                document.getElementById('ai-skeleton').style.display = 'block';
+            }
+
+            try {
+                const res = await fetch(`/novel/${novelId}/chapters`, {
+                    method: 'POST',
+                    headers: { 'Accept': 'application/json' },
+                    body: formData
+                });
+                const result = await res.json();
+
+                if(result.success) {
+                    showToast(`✅ บันทึกสำเร็จ!`);
+                    
+                    if(mode === 'auto') {
+                        document.getElementById('form-auto').style.display = 'block';
+                        document.getElementById('ai-skeleton').style.display = 'none';
+                        form.reset();
+                    } else {
+                        // Manual: เพิ่มเลขตอนถัดไปให้อัตโนมัติ เพื่อลงตอนต่อได้เลย
+                        nextChapterNum += 1;
+                        document.getElementById('manualChapterNumber').value = nextChapterNum;
+                        document.getElementById('manualTitle').value = "";
+                        document.getElementById('manualTranslated').value = "";
+                        document.getElementById('smartPasteInput').value = "";
+                        document.getElementById('manualTitle').focus();
+                    }
+                } else {
+                    throw new Error(result.message);
+                }
+            } catch(err) {
+                showToast('❌ Error: ' + err.message, 'error');
+                if(mode === 'auto') {
+                    document.getElementById('form-auto').style.display = 'block';
+                    document.getElementById('ai-skeleton').style.display = 'none';
+                }
+            }
+        }
+
+        function detectHeader() {
+            const input = document.getElementById('smartPasteInput').value;
+            if (!input.trim()) return;
+            const lines = input.split('\n');
+            const match = lines[0].trim().match(/^(?:ตอนที่|บทที่|Chapter|Ep|Episode|第)?\s*(\d+(\.\d+)?)\s*[:：.\s]?\s*(.*)$/i);
+            
+            if (match) {
+                document.getElementById('manualChapterNumber').value = match[1];
+                document.getElementById('manualTitle').value = match[3] ? `ตอนที่ ${match[1]} : ${match[3]}` : `ตอนที่ ${match[1]}`;
+                document.getElementById('manualTranslated').value = lines.slice(1).join('\n').trim();
+            } else {
+                document.getElementById('manualTitle').value = lines[0];
+                document.getElementById('manualTranslated').value = lines.slice(1).join('\n').trim();
+            }
+        }
+
+        function clearManualForm() {
+            if(confirm('ล้างข้อมูลทั้งหมด?')) {
+                document.getElementById('form-manual').reset();
+                document.getElementById('manualChapterNumber').value = nextChapterNum;
+            }
+        }
+
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.innerHTML = `<span>${message}</span>`;
+            container.appendChild(toast);
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+        
+        // CSS เพิ่มเติมสำหรับ Tab (ใส่ไว้ในนี้หรือ style.css ก็ได้)
+        const style = document.createElement('style');
+        style.textContent = `
+            .tab-btn {
+                padding: 12px 24px; border: none; background: transparent;
+                font-weight: 600; color: var(--text-muted); cursor: pointer;
+                border-bottom: 3px solid transparent; transition: 0.3s;
+                font-size: 1rem;
+            }
+            .tab-btn.active { color: var(--primary); border-bottom-color: var(--primary); }
+        `;
+        document.head.appendChild(style);
+
+        document.documentElement.setAttribute('data-theme', localStorage.getItem('theme') || 'light');
+    </script>
+</body>
+</html>

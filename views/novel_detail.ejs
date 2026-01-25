@@ -88,60 +88,19 @@
         </div>
 
         <% if (isAdmin) { %>
-        <div class="card" style="border: 1px dashed var(--primary); background: rgba(99, 102, 241, 0.03);">
-            <div style="display: flex; border-bottom: 1px solid var(--border); margin-bottom: 20px;">
-                <button class="tab-btn active" id="tabBtnAuto" onclick="switchTab('auto')">✨ AI Translate</button>
-                <button class="tab-btn" id="tabBtnManual" onclick="switchTab('manual')">✍️ Manual Upload</button>
+        <div class="card d-flex align-center justify-between" style="border: 1px dashed var(--primary); background: rgba(99, 102, 241, 0.03);">
+            <div class="d-flex align-center gap-2">
+                <div style="background: var(--primary); color: white; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                    <i class="fa-solid fa-plus"></i>
+                </div>
+                <div>
+                    <h4 style="margin: 0;">เพิ่มตอนใหม่</h4>
+                    <span class="text-muted" style="font-size: 0.9rem;">แปลด้วย AI หรือลงเนื้อหาเอง</span>
+                </div>
             </div>
-
-            <div id="ai-skeleton" style="display: none; padding: 20px;">
-                <div class="d-flex align-center gap-2 mb-4" style="color: var(--primary);">
-                    <i class="fa-solid fa-circle-notch fa-spin"></i>
-                    <strong>AI กำลังแปลและเรียบเรียง...</strong>
-                </div>
-                <div class="skeleton sk-text short"></div>
-                <div class="skeleton sk-text"></div>
-                <div class="skeleton sk-text"></div>
-                <div class="skeleton sk-text"></div>
-            </div>
-
-            <form id="form-auto" onsubmit="handleAiSubmit(event)">
-                <div class="d-flex gap-2 mb-4">
-                    <label style="cursor: pointer;"><input type="radio" name="inputType" value="text" checked onclick="toggleInput('text')"> Text Paste</label>
-                    <label style="cursor: pointer;"><input type="radio" name="inputType" value="file" onclick="toggleInput('file')"> File Upload (.txt)</label>
-                </div>
-                
-                <div id="input-text-group">
-                    <textarea name="rawText" placeholder="วางเนื้อหาภาษาญี่ปุ่นที่นี่..." style="height:150px; font-family: monospace;"></textarea>
-                </div>
-                <div id="input-file-group" style="display:none;">
-                    <input type="file" name="txtFile" accept=".txt">
-                </div>
-
-                <button type="submit" class="btn btn-primary w-100" style="margin-top:15px;">
-                    <i class="fa-solid fa-wand-magic-sparkles"></i> แปลและลงทันที
-                </button>
-            </form>
-
-            <form id="form-manual" action="/novel/<%= novel._id %>/chapters" method="POST" style="display:none;">
-                <input type="hidden" name="mode" value="manual">
-                <div style="background: rgba(255,255,255,0.5); padding: 15px; border-radius: 8px; border: 1px solid var(--border); margin-bottom: 15px;">
-                    <label style="font-weight: 600; font-size: 0.9rem;">Smart Paste:</label>
-                    <textarea id="smartPasteInput" style="height: 60px; margin-top: 5px;" placeholder="Ex: ตอนที่ 1 จุดเริ่มต้น..." oninput="detectHeader()"></textarea>
-                </div>
-
-                <div class="d-flex gap-2 mb-4">
-                    <div style="width: 140px;">
-                        <input type="number" step="0.1" id="manualChapterNumber" name="manualChapterNumber" placeholder="Chapter No." required>
-                    </div>
-                    <div style="flex: 1;">
-                        <input type="text" id="manualTitle" name="manualTitle" placeholder="Chapter Title">
-                    </div>
-                </div>
-
-                <textarea id="manualTranslated" name="manualTranslated" style="height: 250px;" placeholder="Content..." required></textarea>
-                <button type="submit" class="btn btn-primary w-100" style="margin-top:15px;">Publish</button>
-            </form>
+            <a href="/novel/<%= novel._id %>/add" class="btn btn-primary">
+                ไปยังหน้าเพิ่มตอน <i class="fa-solid fa-arrow-right"></i>
+            </a>
         </div>
         <% } %>
 
@@ -157,7 +116,7 @@
         <div id="chapterContainer" class="chapter-grid">
             <% chapters.forEach(chapter => { %>
                 <div class="chapter-item-wrapper" style="position: relative;">
-                    <a href="/chapter/<%= chapter._id %>" class="chapter-item" id="chapter-<%= chapter._id %>" onclick="markAsRead('<%= chapter._id %>')">
+                    <a href="/chapter/<%= chapter._id %>" class="chapter-item" id="chapter-<%= chapter._id %>">
                         <div style="flex: 1;">
                             <div style="font-weight: 600; font-size: 1.05rem;">
                                Ep.<%= chapter.chapterNumber %> : <%= chapter.title.replace(/^ตอนที่ \d+[:\s]*/, '') %>
@@ -183,20 +142,32 @@
     <script>
         const novelId = "<%= novel._id %>";
         
-        // --- UX: Continue Reading ---
+        // --- UX: Read History System (View Only) ---
+        function getReadHistory() {
+            const raw = localStorage.getItem(`readHistory-${novelId}`);
+            return raw ? JSON.parse(raw) : [];
+        }
+
+        // เช็คสถานะอย่างเดียว ไม่บันทึกที่หน้านี้
         function checkReadHistory() {
+            // 1. ปุ่มอ่านต่อ (Last Read)
             const lastRead = localStorage.getItem(`lastRead-${novelId}`);
             if (lastRead) {
                 const btn = document.getElementById('continue-reading-btn');
                 btn.style.display = 'inline-flex';
                 btn.onclick = () => window.location.href = `/chapter/${lastRead}`;
-                const chapterItem = document.getElementById(`chapter-${lastRead}`);
-                if(chapterItem) chapterItem.classList.add('read');
             }
-        }
-        function markAsRead(chapterId) { localStorage.setItem(`lastRead-${novelId}`, chapterId); }
 
-        // --- UI: Toast Notification ---
+            // 2. แสดงเครื่องหมายถูก (Read List)
+            const history = getReadHistory();
+            history.forEach(id => {
+                const chapterItem = document.getElementById(`chapter-${id}`);
+                if (chapterItem) {
+                    chapterItem.classList.add('read');
+                }
+            });
+        }
+
         function showToast(message, type = 'success') {
             const container = document.getElementById('toast-container');
             const toast = document.createElement('div');
@@ -210,7 +181,6 @@
             }, 3000);
         }
 
-        // --- AI Submit with Skeleton ---
         async function handleAiSubmit(e) {
             e.preventDefault();
             const form = document.getElementById('form-auto');
@@ -218,7 +188,6 @@
             formData.append('mode', 'auto');
             form.style.display = 'none';
             document.getElementById('ai-skeleton').style.display = 'block';
-
             try {
                 const response = await fetch(`/novel/${novelId}/chapters`, {
                     method: 'POST',
@@ -252,7 +221,6 @@
             document.getElementById('form-manual').style.display = mode === 'manual' ? 'block' : 'none';
             document.getElementById('tabBtnAuto').classList.toggle('active', mode === 'auto');
             document.getElementById('tabBtnManual').classList.toggle('active', mode === 'manual');
-
             localStorage.setItem(`activeTab-${novelId}`, mode);
         }
 
@@ -297,11 +265,9 @@
         }
 
         document.addEventListener('DOMContentLoaded', () => {
-            checkReadHistory();
+            checkReadHistory(); 
             const savedView = localStorage.getItem('chapterView') || 'grid';
             setView(savedView);
-
-            // เพิ่มส่วนนี้: ดึงสถานะแท็บจาก localStorage มาแสดงผล
             const savedMode = localStorage.getItem(`activeTab-${novelId}`) || 'auto';
             switchTab(savedMode);
         });

@@ -13,9 +13,9 @@
             --reader-bg: #ffffff;
             --reader-text: #111111;
             --sidebar-bg: #ffffff;
-            --sidebar-border: #eeeeee; /* เส้นคั่นสีเทาจางๆ แบบญี่ปุ่น */
+            --sidebar-border: #eeeeee;
             --sidebar-text: #444444;
-            --accent-color: #2bace4; /* สีฟ้าสไตล์ Kakuyomu */
+            --accent-color: #2bace4;
             --hover-bg: #f9f9f9;
             --nav-bg: rgba(255, 255, 255, 0.98);
         }
@@ -80,7 +80,8 @@
         }
 
         .sidebar-title-link {
-            text-decoration: none; color: var(--sidebar-text); 
+            text-decoration: none;
+            color: var(--sidebar-text); 
             font-weight: 700; font-size: 1rem; 
             display: flex; align-items: center; gap: 8px;
             overflow: hidden; white-space: nowrap; text-overflow: ellipsis;
@@ -95,27 +96,20 @@
             list-style: none;
         }
 
-        /* Scrollbar บางๆ */
         .chapter-list::-webkit-scrollbar { width: 4px; }
         .chapter-list::-webkit-scrollbar-thumb { background: #ccc; border-radius: 2px; }
 
-        .chapter-item { 
-            margin: 0;
-            padding: 0;
-        }
+        .chapter-item { margin: 0; padding: 0; }
         
-        /* --- The specific Kakuyomu-like Link Style --- */
         .chapter-link {
             display: flex;
             align-items: center;
-            justify-content: space-between; /* ตาม CSS ที่ขอมา */
+            justify-content: space-between;
             gap: 8px;
-            
             width: 100%;
             box-sizing: border-box;
-            padding: 14px 20px; /* ระยะห่างที่พอดี */
-            border-bottom: 1px solid var(--sidebar-border); /* เส้นคั่นบางๆ */
-            
+            padding: 14px 20px;
+            border-bottom: 1px solid var(--sidebar-border);
             text-decoration: none;
             color: var(--sidebar-text);
             font-size: 0.9rem;
@@ -129,13 +123,25 @@
             color: var(--accent-color);
         }
         
-        /* Active State: เน้น Text สีฟ้า และพื้นหลังจางๆ */
         .chapter-link.active {
             color: var(--accent-color);
             background: var(--hover-bg);
             font-weight: 600;
-            border-left: 4px solid var(--accent-color); /* แถบสีด้านซ้าย */
-            padding-left: 16px; /* ชดเชย border-left */
+            border-left: 4px solid var(--accent-color);
+            padding-left: 16px;
+        }
+
+        /* --- Style สำหรับตอนที่อ่านแล้ว --- */
+        .chapter-link.read {
+            opacity: 0.6;
+        }
+        .chapter-link.read .chapter-title-text::before {
+            content: '✓ ';
+            color: var(--accent-color);
+            font-weight: bold;
+        }
+        .chapter-link.active.read {
+            opacity: 1; 
         }
 
         .chapter-info {
@@ -146,7 +152,7 @@
         }
 
         .ep-badge { 
-            font-size: 0.75em; 
+            font-size: 0.75em;
             opacity: 0.6; 
             font-weight: 400; 
             margin-bottom: 2px;
@@ -155,18 +161,20 @@
         }
         
         .chapter-title-text {
-            white-space: nowrap; 
+            white-space: nowrap;
             overflow: hidden; 
             text-overflow: ellipsis;
         }
 
         /* --- Main Content --- */
         .main-content {
-            flex: 1; display: flex; flex-direction: column; min-width: 0;
+            flex: 1;
+            display: flex; flex-direction: column; min-width: 0;
         }
 
         .reader-navbar {
-            height: 60px; background: var(--nav-bg); backdrop-filter: blur(5px);
+            height: 60px;
+            background: var(--nav-bg); backdrop-filter: blur(5px);
             border-bottom: 1px solid var(--sidebar-border);
             display: flex; align-items: center; justify-content: space-between;
             padding: 0 24px; z-index: 50;
@@ -174,27 +182,30 @@
         }
 
         .reader-scroll-area {
-            flex: 1; overflow-y: auto; padding: 0; scroll-behavior: smooth;
+            flex: 1;
+            overflow-y: auto; padding: 0; scroll-behavior: smooth;
         }
 
         .reader-container {
-            max-width: 800px; margin: 0 auto; padding: 60px 24px 140px 24px;
+            max-width: 800px;
+            margin: 0 auto; padding: 60px 24px 140px 24px;
         }
 
         .reader-text {
-            font-size: 1.2rem; line-height: 2.2; /* Line height สูงขึ้นให้อ่านสบาย */
+            font-size: 1.2rem;
+            line-height: 2.2;
             font-family: 'Sarabun', sans-serif;
             color: var(--reader-text);
         }
 
-        /* --- Footer Nav Buttons (Clean Style) --- */
         .nav-footer {
-            margin-top: 100px; 
+            margin-top: 100px;
             display: grid; grid-template-columns: 1fr 1fr; gap: 20px;
         }
 
         .nav-btn-lg {
-            display: flex; flex-direction: column; justify-content: center;
+            display: flex;
+            flex-direction: column; justify-content: center;
             padding: 20px; min-height: 80px;
             text-align: left; text-decoration: none;
             border-radius: 8px; 
@@ -204,7 +215,7 @@
             transition: all 0.2s;
         }
         .nav-btn-lg:hover { 
-            border-color: var(--accent-color); 
+            border-color: var(--accent-color);
             background: var(--hover-bg);
             color: var(--accent-color);
         }
@@ -215,16 +226,19 @@
 
         /* Settings Popup */
         .settings-overlay {
-            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
             background: rgba(0,0,0,0.3); z-index: 900;
             display: none; opacity: 0; transition: opacity 0.3s;
         }
         .settings-overlay.show { display: block; opacity: 1; }
 
         .settings-popup {
-            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0.95);
+            position: fixed;
+            top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0.95);
             background: var(--reader-bg); border: 1px solid var(--sidebar-border);
-            padding: 30px; border-radius: 12px; box-shadow: 0 15px 40px rgba(0,0,0,0.1);
+            padding: 30px; border-radius: 12px;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.1);
             z-index: 1000; width: 300px;
             display: none; opacity: 0; transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
         }
@@ -304,7 +318,7 @@
                             <%- chapter.translatedContent.replace(/\n/g, '<br>') %>
                         </div>
                     
-                        <div class="nav-footer">
+                        <div class="nav-footer" id="chapterFooter">
                             <% if (prevChapter) { %>
                                 <a href="/chapter/<%= prevChapter._id %>" class="nav-btn-lg">
                                     <span class="nav-label">Ep.<%= prevChapter.chapterNumber %></span>
@@ -361,8 +375,57 @@
     <script>
         const novelId = "<%= chapter.novelId._id %>";
         const chapterId = "<%= chapter._id %>";
-        localStorage.setItem(`lastRead-${novelId}`, chapterId);
+        
+        // --- System 1: บันทึก Last Read ทันที (เพื่อให้ปุ่ม 'อ่านต่อ' ทำงาน) ---
+        function saveLastRead() {
+             localStorage.setItem(`lastRead-${novelId}`, chapterId);
+        }
 
+        // --- System 2: บันทึกว่า "อ่านจบแล้ว" (History Checkmark) เมื่อเลื่อนถึงท้าย ---
+        function markAsFinished() {
+            // ดึงประวัติเก่า
+            let history = localStorage.getItem(`readHistory-${novelId}`);
+            history = history ? JSON.parse(history) : [];
+            
+            // ถ้ายังไม่มีในประวัติ ให้เพิ่มเข้าไป
+            if (!history.includes(chapterId)) {
+                history.push(chapterId);
+                localStorage.setItem(`readHistory-${novelId}`, JSON.stringify(history));
+                
+                // อัปเดต UI ทันที (เพิ่มเครื่องหมายถูกที่ Sidebar)
+                const currentLink = document.getElementById(`link-${chapterId}`);
+                if (currentLink) currentLink.classList.add('read');
+            }
+        }
+
+        // --- ตั้งค่า Observer เพื่อตรวจจับการเลื่อนถึง Footer ---
+        function setupScrollObserver() {
+            const footer = document.getElementById('chapterFooter');
+            const observer = new IntersectionObserver((entries) => {
+                if (entries[0].isIntersecting) {
+                    markAsFinished();
+                    observer.disconnect(); // ทำงานครั้งเดียวพอ
+                }
+            }, {
+                root: document.getElementById('scrollArea'), // ตัว scroll container
+                threshold: 0.1 // ให้เห็น Footer นิดเดียวก็ถือว่าจบแล้ว
+            });
+
+            if (footer) observer.observe(footer);
+        }
+
+        // --- โหลดสถานะของตอนอื่นๆ ใน Sidebar ---
+        function loadSidebarHistory() {
+            let history = localStorage.getItem(`readHistory-${novelId}`);
+            if (history) {
+                JSON.parse(history).forEach(id => {
+                    const link = document.getElementById(`link-${id}`);
+                    if (link) link.classList.add('read');
+                });
+            }
+        }
+
+        // --- General Settings ---
         let fontSize = parseInt(localStorage.getItem('fontSize')) || 20;
         const textBody = document.getElementById('text-body');
         const fontSizeDisplay = document.getElementById('fontSizeDisplay');
@@ -391,7 +454,8 @@
                 overlay.classList.remove('show');
                 setTimeout(() => { popup.style.display = 'none'; overlay.style.display = 'none'; }, 200);
             } else {
-                popup.style.display = 'block'; overlay.style.display = 'block';
+                popup.style.display = 'block';
+                overlay.style.display = 'block';
                 setTimeout(() => { popup.classList.add('show'); overlay.classList.add('show'); }, 10);
             }
         }
@@ -409,7 +473,11 @@
         }
 
         document.addEventListener('DOMContentLoaded', () => {
+            saveLastRead();      // 1. บันทึกว่าอยู่ตอนนี้ทันที
+            setupScrollObserver(); // 2. รอเลื่อนถึงล่างสุดค่อยบันทึกว่าอ่านจบ
+            loadSidebarHistory();  // 3. โหลดเครื่องหมายถูกของตอนเก่าๆ
             applySettings();
+            
             const activeLink = document.querySelector('.chapter-link.active');
             if(activeLink) activeLink.scrollIntoView({ block: 'center', behavior: 'smooth' });
         });

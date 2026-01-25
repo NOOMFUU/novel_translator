@@ -162,6 +162,20 @@ app.post('/novels', requireAdmin, async (req, res) => {
     res.redirect('/');
 });
 
+app.get('/novel/:id/add', requireAdmin, async (req, res) => {
+    try {
+        const novel = await Novel.findById(req.params.id);
+        // หาตอนล่าสุดเพื่อคำนวณเลขตอนถัดไปให้เลย
+        const lastChapter = await Chapter.findOne({ novelId: req.params.id }).sort({ chapterNumber: -1 });
+        const nextChapterNumber = lastChapter ? lastChapter.chapterNumber + 1 : 1;
+        
+        res.render('add_chapter', { novel, nextChapterNumber });
+    } catch (err) {
+        console.error(err);
+        res.redirect('/');
+    }
+});
+
 app.get('/novel/:id/edit', requireAdmin, async (req, res) => {
     const novel = await Novel.findById(req.params.id);
     res.render('edit_novel', { novel });
@@ -269,5 +283,7 @@ app.delete('/chapter/:id', requireAdmin, async (req, res) => {
     const chapter = await Chapter.findByIdAndDelete(req.params.id);
     res.redirect(`/novel/${chapter.novelId}`);
 });
+
+
 
 app.listen(port, () => console.log(`Server running on port ${port}`));
