@@ -8,55 +8,91 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="/css/style.css">
     <style>
+        /* Reader Specific Variables */
+        :root {
+            --reader-bg: #ffffff;
+            --reader-text: #111827;
+            --reader-nav-bg: rgba(255, 255, 255, 0.9);
+        }
+        [data-theme="dark"] {
+            --reader-bg: #1e293b;
+            --reader-text: #e2e8f0;
+            --reader-nav-bg: rgba(30, 41, 59, 0.9);
+        }
+        [data-theme="sepia"] {
+            --reader-bg: #f4ecd8;
+            --reader-text: #433422;
+            --reader-nav-bg: rgba(244, 236, 216, 0.9);
+        }
+
+        body {
+            /* Force body to match reader theme in read mode */
+            background-color: var(--reader-bg) !important;
+            background-image: none !important; 
+        }
+
         .reader-container {
-            max-width: 800px; margin: 0 auto;
-            background: var(--bg-card);
+            max-width: 860px; margin: 0 auto;
+            background: var(--reader-bg);
+            color: var(--reader-text);
             min-height: 100vh;
-            box-shadow: 0 0 50px rgba(0,0,0,0.05);
-            position: relative;
+            box-shadow: 0 0 100px rgba(0,0,0,0.05);
+            transition: background 0.3s, color 0.3s;
         }
         .reader-content {
-            padding: 40px 30px 100px 30px;
-            font-size: 18px; line-height: 1.8; color: var(--text-main);
+            padding: 60px 40px 120px 40px;
+            font-size: 1.25rem; line-height: 2; 
+            font-family: 'Sarabun', sans-serif;
         }
         .reader-nav {
             position: sticky; top: 0; z-index: 100;
-            background: var(--bg-card);
+            background: var(--reader-nav-bg);
+            backdrop-filter: blur(10px);
             border-bottom: 1px solid var(--border);
-            padding: 10px 20px;
+            padding: 12px 24px;
             display: flex; justify-content: space-between; align-items: center;
+            color: var(--reader-text);
         }
-        .settings-bar {
-            position: fixed; bottom: 0; left: 0; width: 100%;
-            background: var(--bg-card);
-            border-top: 1px solid var(--border);
-            padding: 15px;
-            display: flex; justify-content: center; gap: 20px;
-            transform: translateY(100%); transition: 0.3s;
+        
+        .settings-panel {
+            position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(150%);
+            background: var(--glass-bg); backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            padding: 15px 25px; border-radius: 50px;
+            display: flex; gap: 15px; box-shadow: var(--glass-shadow);
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             z-index: 200;
         }
-        .settings-bar.show { transform: translateY(0); }
+        .settings-panel.show { transform: translateX(-50%) translateY(0); }
     </style>
 </head>
-<body style="background: #e5e5e5;"> <div class="reader-container">
+<body>
+    <div class="reader-container">
         <div class="reader-nav">
-            <a href="/novel/<%= chapter.novelId._id %>" class="btn btn-sm btn-outline" style="border:none;"><i class="fa-solid fa-arrow-left"></i></a>
-            <span style="font-weight: 600; font-size: 0.9rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 200px;">
+            <a href="/novel/<%= chapter.novelId._id %>" class="btn btn-sm btn-outline" style="border:none; color: inherit;"><i class="fa-solid fa-arrow-left"></i></a>
+            <span style="font-weight: 600; font-size: 0.95rem; opacity: 0.8; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 200px;">
                 <%= chapter.title %>
             </span>
-            <button onclick="toggleSettings()" class="btn btn-sm btn-outline" style="border:none;"><i class="fa-solid fa-font"></i></button>
+            <div style="display: flex; gap: 10px;">
+                <% if(isAdmin) { %>
+                    <a href="/chapter/<%= chapter._id %>/edit" class="btn btn-sm btn-outline" style="border:none; color: inherit;" title="แก้ไขตอน"><i class="fa-solid fa-pen"></i></a>
+                <% } %>
+                <button onclick="toggleSettings()" class="btn btn-sm btn-outline" style="border:none; font-size:1.1rem; color: inherit;"><i class="fa-solid fa-font"></i></button>
+            </div>
         </div>
 
         <div class="reader-content" id="content">
-            <h2 style="margin-bottom: 30px; color: var(--primary); text-align: center;"><%= chapter.title %></h2>
-            <%- chapter.translatedContent.replace(/\n/g, '<br>') %>
+            <h2 style="margin-bottom: 40px; color: var(--primary); text-align: center; font-weight:800;"><%= chapter.title %></h2>
+            <div id="text-body">
+                <%- chapter.translatedContent.replace(/\n/g, '<br>') %>
+            </div>
         </div>
 
-        <div style="padding: 20px; border-top: 1px solid var(--border); display: flex; justify-content: space-between; background: var(--bg-card);">
+        <div style="padding: 40px; border-top: 1px solid var(--border); display: flex; justify-content: space-between;">
             <% if (prevChapter) { %>
-                <a href="/chapter/<%= prevChapter._id %>" class="btn btn-outline">ตอนก่อน</a>
+                <a href="/chapter/<%= prevChapter._id %>" class="btn btn-outline" style="color: var(--reader-text); border-color: var(--border);">ตอนก่อนหน้า</a>
             <% } else { %>
-                <button class="btn btn-outline" disabled>ตอนแรก</button>
+                <button class="btn btn-outline" disabled style="opacity: 0.5;">ตอนแรก</button>
             <% } %>
 
             <% if (nextChapter) { %>
@@ -67,35 +103,54 @@
         </div>
     </div>
 
-    <div class="settings-bar" id="settingsBar">
-        <button class="btn btn-outline" onclick="adjustFont(-2)">A-</button>
-        <button class="btn btn-outline" onclick="adjustFont(2)">A+</button>
-        <button class="btn btn-outline" onclick="toggleTheme()"><i class="fa-solid fa-moon"></i></button>
-        <button class="btn btn-primary" onclick="toggleSettings()">ปิด</button>
+    <div class="settings-panel" id="settingsPanel">
+        <button class="btn btn-outline" onclick="adjustFont(-1)"><i class="fa-solid fa-minus"></i></button>
+        <span style="display:flex; align-items:center; font-weight:bold; width:30px; justify-content:center;">T</span>
+        <button class="btn btn-outline" onclick="adjustFont(1)"><i class="fa-solid fa-plus"></i></button>
+        <div style="width:1px; background:var(--border); margin:0 5px;"></div>
+        <button class="btn btn-outline" onclick="setTheme('light')" style="background: #ffffff; color: #000;">☀️</button>
+        <button class="btn btn-outline" onclick="setTheme('sepia')" style="background: #f4ecd8; color: #433422;">📜</button>
+        <button class="btn btn-outline" onclick="setTheme('dark')" style="background: #1e293b; color: #fff;">🌙</button>
     </div>
 
     <script>
-        // Init Settings
-        let fontSize = parseInt(localStorage.getItem('fontSize')) || 18;
-        const content = document.getElementById('content');
-        content.style.fontSize = fontSize + 'px';
-        document.documentElement.setAttribute('data-theme', localStorage.getItem('theme') || 'light');
+        const novelId = "<%= chapter.novelId._id %>";
+        const chapterId = "<%= chapter._id %>";
+        localStorage.setItem(`lastRead-${novelId}`, chapterId);
+
+        let fontSize = parseInt(localStorage.getItem('fontSize')) || 20;
+        const textBody = document.getElementById('text-body');
+        
+        function applySettings() {
+            textBody.style.fontSize = fontSize + 'px';
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+        }
 
         function toggleSettings() {
-            document.getElementById('settingsBar').classList.toggle('show');
+            document.getElementById('settingsPanel').classList.toggle('show');
         }
 
         function adjustFont(delta) {
-            fontSize = Math.max(14, Math.min(32, fontSize + delta));
-            content.style.fontSize = fontSize + 'px';
+            fontSize = Math.max(16, Math.min(32, fontSize + delta));
+            textBody.style.fontSize = fontSize + 'px';
             localStorage.setItem('fontSize', fontSize);
         }
 
-        function toggleTheme() {
-            const next = document.documentElement.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
-            document.documentElement.setAttribute('data-theme', next);
-            localStorage.setItem('theme', next);
+        function setTheme(theme) {
+            document.documentElement.setAttribute('data-theme', theme);
+            localStorage.setItem('theme', theme);
         }
+
+        document.addEventListener('click', (e) => {
+            const panel = document.getElementById('settingsPanel');
+            const btn = document.querySelector('.reader-nav button');
+            if (!panel.contains(e.target) && !btn.contains(e.target)) {
+                panel.classList.remove('show');
+            }
+        });
+
+        applySettings();
     </script>
 </body>
 </html>

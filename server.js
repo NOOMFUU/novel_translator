@@ -35,7 +35,7 @@ app.use(express.static('public'));
 app.use(methodOverride('_method'));
 
 app.use(session({
-    secret: 'secret_key_change_me',
+    secret: process.env.SESSION_SECRET || 'secret_key_change_me',
     resave: false,
     saveUninitialized: false,
     cookie: { maxAge: 24 * 60 * 60 * 1000 }
@@ -43,6 +43,7 @@ app.use(session({
 
 app.use((req, res, next) => {
     res.locals.isAdmin = req.session.isAdmin || false;
+    res.locals.currentUrl = req.path;
     next();
 });
 
@@ -59,6 +60,7 @@ async function generateWithRetry(prompt, retries = 3) {
             const response = await result.response;
             return JSON.parse(response.text());
         } catch (error) {
+            console.error(`AI Error (Attempt ${i+1}):`, error);
             if (i === retries - 1) throw error;
             await new Promise(resolve => setTimeout(resolve, 2000));
         }
@@ -88,10 +90,8 @@ app.get('/', async (req, res) => {
     res.render('index', { novels, query });
 });
 
-// [อัปเดต] GET Novel Detail + นับยอดวิว (Increment Views)
 app.get('/novel/:id', async (req, res) => {
     try {
-        // ค้นหาและบวกยอดวิวเพิ่ม 1
         const novel = await Novel.findByIdAndUpdate(req.params.id, { $inc: { views: 1 } }, { new: true });
         const chapters = await Chapter.find({ novelId: req.params.id }).sort({ chapterNumber: -1 });
         res.render('novel_detail', { novel, chapters });
@@ -101,48 +101,20 @@ app.get('/novel/:id', async (req, res) => {
     }
 });
 
-// [อัปเดต] Create Novel (รับข้อมูลใหม่)
 app.post('/novels', requireAdmin, async (req, res) => {
-    // แปลง Tags จาก String คั่นด้วยคอมม่า เป็น Array
     const tagsArray = req.body.tags ? req.body.tags.split(',').map(t => t.trim()) : [];
-    
-    await Novel.create({
-        title: req.body.title,
-        originalTitle: req.body.originalTitle,
-        description: req.body.description,
-        author: req.body.author,
-        artist: req.body.artist,
-        status: req.body.status,
-        originalLink: req.body.originalLink,
-        imageUrl: req.body.imageUrl,
-        tags: tagsArray
-    });
+    await Novel.create({ ...req.body, tags: tagsArray });
     res.redirect('/');
 });
 
-// [อัปเดต] Edit Novel Page
 app.get('/novel/:id/edit', requireAdmin, async (req, res) => {
     const novel = await Novel.findById(req.params.id);
     res.render('edit_novel', { novel });
 });
 
-// [อัปเดต] Update Novel (PUT)
 app.put('/novel/:id', requireAdmin, async (req, res) => {
     const tagsArray = req.body.tags ? req.body.tags.split(',').map(t => t.trim()) : [];
-    
-    await Novel.findByIdAndUpdate(req.params.id, {
-        title: req.body.title,
-        originalTitle: req.body.originalTitle,
-        description: req.body.description,
-        author: req.body.author,
-        artist: req.body.artist,
-        status: req.body.status,
-        originalLink: req.body.originalLink,
-        imageUrl: req.body.imageUrl,
-        tags: tagsArray,
-        customPrompt: req.body.customPrompt,
-        glossary: req.body.glossary
-    });
+    await Novel.findByIdAndUpdate(req.params.id, { ...req.body, tags: tagsArray });
     res.redirect(`/novel/${req.params.id}`);
 });
 
@@ -152,30 +124,31 @@ app.delete('/novel/:id', requireAdmin, async (req, res) => {
     res.redirect('/');
 });
 
+// [Updated] Chapter Translation with JSON Support for AJAX
 app.post('/novel/:id/chapters', requireAdmin, upload.single('txtFile'), async (req, res) => {
     const novelId = req.params.id;
     let rawText = req.body.rawText;
     if (req.file) rawText = req.file.buffer.toString('utf-8');
 
-    if (!rawText && req.body.mode === 'auto') {
-        return res.send(`<h3>Error: No content</h3><a href="/novel/${novelId}">Back</a>`);
-    }
-
-    const { mode, manualTitle, manualChapterNumber, manualTranslated } = req.body;
+    const isAjax = req.headers.accept && req.headers.accept.includes('application/json');
 
     try {
+        const { mode, manualTitle, manualChapterNumber, manualTranslated } = req.body;
         const lastChapter = await Chapter.findOne({ novelId }).sort({ chapterNumber: -1 });
         const nextNumber = lastChapter ? lastChapter.chapterNumber + 1 : 1;
 
         if (mode === 'manual') {
-             await Chapter.create({
+            await Chapter.create({
                 novelId,
                 chapterNumber: manualChapterNumber || nextNumber,
                 title: manualTitle || `ตอนที่ ${manualChapterNumber || nextNumber}`,
                 translatedContent: manualTranslated
             });
+            if (isAjax) return res.json({ success: true, message: 'บันทึกสำเร็จ' });
             return res.redirect(`/novel/${novelId}`);
         }
+
+        if (!rawText) throw new Error("No content to translate");
 
         const novel = await Novel.findById(novelId);
         const prompt = `
@@ -197,25 +170,21 @@ app.post('/novel/:id/chapters', requireAdmin, upload.single('txtFile'), async (r
           translatedContent: data.translatedContent
         });
     
+        if (isAjax) return res.json({ success: true, message: 'แปลและบันทึกสำเร็จ' });
         res.redirect(`/novel/${novelId}`);
+
     } catch (error) {
         console.error(error);
-        res.send(`<h3>Error: ${error.message}</h3><a href="/novel/${novelId}">Back</a>`);
+        if (isAjax) return res.status(500).json({ success: false, message: error.message });
+        res.send(`Error: ${error.message}`);
     }
 });
 
-// Chapter Routes
 app.get('/chapter/:id', async (req, res) => {
     const chapter = await Chapter.findById(req.params.id).populate('novelId');
-    const allChapters = await Chapter.find({ novelId: chapter.novelId._id }).select('title chapterNumber _id').sort({ chapterNumber: 1 });
     const prevChapter = await Chapter.findOne({ novelId: chapter.novelId._id, chapterNumber: { $lt: chapter.chapterNumber } }).sort({ chapterNumber: -1 });
     const nextChapter = await Chapter.findOne({ novelId: chapter.novelId._id, chapterNumber: { $gt: chapter.chapterNumber } }).sort({ chapterNumber: 1 });
-    res.render('read', { chapter, allChapters, prevChapter, nextChapter });
-});
-
-app.delete('/chapter/:id', requireAdmin, async (req, res) => {
-    const chapter = await Chapter.findByIdAndDelete(req.params.id);
-    res.redirect(`/novel/${chapter.novelId}`);
+    res.render('read', { chapter, prevChapter, nextChapter });
 });
 
 app.get('/chapter/:id/edit', requireAdmin, async (req, res) => {
@@ -225,15 +194,17 @@ app.get('/chapter/:id/edit', requireAdmin, async (req, res) => {
 
 app.put('/chapter/:id', requireAdmin, async (req, res) => {
     await Chapter.findByIdAndUpdate(req.params.id, req.body);
-    res.redirect(`/chapter/${req.params.id}`);
+    // Return JSON for the Live Edit page if handled via fetch, else redirect
+    if (req.xhr || req.headers.accept.indexOf('json') > -1) {
+        res.json({ success: true });
+    } else {
+        res.redirect(`/chapter/${req.params.id}`);
+    }
 });
 
-app.post('/api/translate-snippet', requireAdmin, async (req, res) => {
-    try {
-        const { text } = req.body;
-        const data = await generateWithRetry(`Translate to Thai: "${text}". Return JSON: {"translatedText": "..."}`);
-        res.json(data);
-    } catch (e) { res.status(500).json({error: e.message}); }
+app.delete('/chapter/:id', requireAdmin, async (req, res) => {
+    const chapter = await Chapter.findByIdAndDelete(req.params.id);
+    res.redirect(`/novel/${chapter.novelId}`);
 });
 
 app.listen(port, () => console.log(`Server running on port ${port}`));
