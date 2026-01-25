@@ -124,7 +124,6 @@ app.delete('/novel/:id', requireAdmin, async (req, res) => {
     res.redirect('/');
 });
 
-// [Updated] Chapter Translation with JSON Support for AJAX
 app.post('/novel/:id/chapters', requireAdmin, upload.single('txtFile'), async (req, res) => {
     const novelId = req.params.id;
     let rawText = req.body.rawText;
@@ -180,11 +179,19 @@ app.post('/novel/:id/chapters', requireAdmin, upload.single('txtFile'), async (r
     }
 });
 
+// [UPDATED] Route for Reading Page with Sidebar Data
 app.get('/chapter/:id', async (req, res) => {
     const chapter = await Chapter.findById(req.params.id).populate('novelId');
     const prevChapter = await Chapter.findOne({ novelId: chapter.novelId._id, chapterNumber: { $lt: chapter.chapterNumber } }).sort({ chapterNumber: -1 });
     const nextChapter = await Chapter.findOne({ novelId: chapter.novelId._id, chapterNumber: { $gt: chapter.chapterNumber } }).sort({ chapterNumber: 1 });
-    res.render('read', { chapter, prevChapter, nextChapter });
+    
+    // ดึงข้อมูลตอนทั้งหมดมาแสดงใน Sidebar (เรียงตามลำดับตอน)
+    // เลือกเฉพาะ field ที่จำเป็นเพื่อประสิทธิภาพ (title, chapterNumber, id)
+    const allChapters = await Chapter.find({ novelId: chapter.novelId._id })
+        .select('title chapterNumber _id')
+        .sort({ chapterNumber: 1 });
+
+    res.render('read', { chapter, prevChapter, nextChapter, allChapters });
 });
 
 app.get('/chapter/:id/edit', requireAdmin, async (req, res) => {
@@ -194,7 +201,6 @@ app.get('/chapter/:id/edit', requireAdmin, async (req, res) => {
 
 app.put('/chapter/:id', requireAdmin, async (req, res) => {
     await Chapter.findByIdAndUpdate(req.params.id, req.body);
-    // Return JSON for the Live Edit page if handled via fetch, else redirect
     if (req.xhr || req.headers.accept.indexOf('json') > -1) {
         res.json({ success: true });
     } else {

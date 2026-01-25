@@ -8,109 +8,354 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="/css/style.css">
     <style>
-        /* Reader Specific Variables */
+        /* --- Theme Variables (Kakuyomu Inspired) --- */
         :root {
             --reader-bg: #ffffff;
-            --reader-text: #111827;
-            --reader-nav-bg: rgba(255, 255, 255, 0.9);
+            --reader-text: #111111;
+            --sidebar-bg: #ffffff;
+            --sidebar-border: #eeeeee; /* เส้นคั่นสีเทาจางๆ แบบญี่ปุ่น */
+            --sidebar-text: #444444;
+            --accent-color: #2bace4; /* สีฟ้าสไตล์ Kakuyomu */
+            --hover-bg: #f9f9f9;
+            --nav-bg: rgba(255, 255, 255, 0.98);
         }
         [data-theme="dark"] {
-            --reader-bg: #1e293b;
-            --reader-text: #e2e8f0;
-            --reader-nav-bg: rgba(30, 41, 59, 0.9);
+            --reader-bg: #121212;
+            --reader-text: #e0e0e0;
+            --sidebar-bg: #1a1a1a;
+            --sidebar-border: #333333;
+            --sidebar-text: #b0b0b0;
+            --accent-color: #60cdff;
+            --hover-bg: #252525;
+            --nav-bg: rgba(18, 18, 18, 0.98);
         }
         [data-theme="sepia"] {
-            --reader-bg: #f4ecd8;
-            --reader-text: #433422;
-            --reader-nav-bg: rgba(244, 236, 216, 0.9);
+            --reader-bg: #faf7f0;
+            --reader-text: #5f4b32;
+            --sidebar-bg: #f4f0e6;
+            --sidebar-border: #e0d8c8;
+            --sidebar-text: #5f4b32;
+            --accent-color: #d35400;
+            --hover-bg: #ebe5d5;
+            --nav-bg: rgba(250, 247, 240, 0.98);
         }
 
         body {
-            /* Force body to match reader theme in read mode */
+            margin: 0;
             background-color: var(--reader-bg) !important;
-            background-image: none !important; 
+            color: var(--reader-text);
+            overflow: hidden;
+            height: 100vh;
+            font-family: 'Sarabun', sans-serif;
+        }
+
+        /* --- Layout --- */
+        .layout-container {
+            display: flex;
+            height: 100vh;
+            width: 100vw;
+            transition: all 0.3s ease;
+        }
+
+        /* --- Sidebar Style (Kakuyomu Clean Style) --- */
+        .sidebar {
+            width: 320px;
+            background: var(--sidebar-bg);
+            border-right: 1px solid var(--sidebar-border);
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            flex-shrink: 0;
+            z-index: 100;
+        }
+        
+        .sidebar.collapsed { width: 0; overflow: hidden; border: none; }
+
+        .sidebar-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--sidebar-border);
+            display: flex; justify-content: space-between; align-items: center;
+            background: var(--sidebar-bg);
+            z-index: 10;
+        }
+
+        .sidebar-title-link {
+            text-decoration: none; color: var(--sidebar-text); 
+            font-weight: 700; font-size: 1rem; 
+            display: flex; align-items: center; gap: 8px;
+            overflow: hidden; white-space: nowrap; text-overflow: ellipsis;
+        }
+        .sidebar-title-link:hover { color: var(--accent-color); }
+
+        .chapter-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 0;
+            margin: 0;
+            list-style: none;
+        }
+
+        /* Scrollbar บางๆ */
+        .chapter-list::-webkit-scrollbar { width: 4px; }
+        .chapter-list::-webkit-scrollbar-thumb { background: #ccc; border-radius: 2px; }
+
+        .chapter-item { 
+            margin: 0;
+            padding: 0;
+        }
+        
+        /* --- The specific Kakuyomu-like Link Style --- */
+        .chapter-link {
+            display: flex;
+            align-items: center;
+            justify-content: space-between; /* ตาม CSS ที่ขอมา */
+            gap: 8px;
+            
+            width: 100%;
+            box-sizing: border-box;
+            padding: 14px 20px; /* ระยะห่างที่พอดี */
+            border-bottom: 1px solid var(--sidebar-border); /* เส้นคั่นบางๆ */
+            
+            text-decoration: none;
+            color: var(--sidebar-text);
+            font-size: 0.9rem;
+            line-height: 1.5;
+            transition: all 0.15s ease-in-out;
+            background: transparent;
+        }
+        
+        .chapter-link:hover { 
+            background: var(--hover-bg);
+            color: var(--accent-color);
+        }
+        
+        /* Active State: เน้น Text สีฟ้า และพื้นหลังจางๆ */
+        .chapter-link.active {
+            color: var(--accent-color);
+            background: var(--hover-bg);
+            font-weight: 600;
+            border-left: 4px solid var(--accent-color); /* แถบสีด้านซ้าย */
+            padding-left: 16px; /* ชดเชย border-left */
+        }
+
+        .chapter-info {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            overflow: hidden;
+        }
+
+        .ep-badge { 
+            font-size: 0.75em; 
+            opacity: 0.6; 
+            font-weight: 400; 
+            margin-bottom: 2px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .chapter-title-text {
+            white-space: nowrap; 
+            overflow: hidden; 
+            text-overflow: ellipsis;
+        }
+
+        /* --- Main Content --- */
+        .main-content {
+            flex: 1; display: flex; flex-direction: column; min-width: 0;
+        }
+
+        .reader-navbar {
+            height: 60px; background: var(--nav-bg); backdrop-filter: blur(5px);
+            border-bottom: 1px solid var(--sidebar-border);
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 0 24px; z-index: 50;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+        }
+
+        .reader-scroll-area {
+            flex: 1; overflow-y: auto; padding: 0; scroll-behavior: smooth;
         }
 
         .reader-container {
-            max-width: 860px; margin: 0 auto;
-            background: var(--reader-bg);
-            color: var(--reader-text);
-            min-height: 100vh;
-            box-shadow: 0 0 100px rgba(0,0,0,0.05);
-            transition: background 0.3s, color 0.3s;
+            max-width: 800px; margin: 0 auto; padding: 60px 24px 140px 24px;
         }
-        .reader-content {
-            padding: 60px 40px 120px 40px;
-            font-size: 1.25rem; line-height: 2; 
+
+        .reader-text {
+            font-size: 1.2rem; line-height: 2.2; /* Line height สูงขึ้นให้อ่านสบาย */
             font-family: 'Sarabun', sans-serif;
-        }
-        .reader-nav {
-            position: sticky; top: 0; z-index: 100;
-            background: var(--reader-nav-bg);
-            backdrop-filter: blur(10px);
-            border-bottom: 1px solid var(--border);
-            padding: 12px 24px;
-            display: flex; justify-content: space-between; align-items: center;
             color: var(--reader-text);
         }
-        
-        .settings-panel {
-            position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(150%);
-            background: var(--glass-bg); backdrop-filter: blur(20px);
-            border: 1px solid var(--glass-border);
-            padding: 15px 25px; border-radius: 50px;
-            display: flex; gap: 15px; box-shadow: var(--glass-shadow);
-            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            z-index: 200;
+
+        /* --- Footer Nav Buttons (Clean Style) --- */
+        .nav-footer {
+            margin-top: 100px; 
+            display: grid; grid-template-columns: 1fr 1fr; gap: 20px;
         }
-        .settings-panel.show { transform: translateX(-50%) translateY(0); }
+
+        .nav-btn-lg {
+            display: flex; flex-direction: column; justify-content: center;
+            padding: 20px; min-height: 80px;
+            text-align: left; text-decoration: none;
+            border-radius: 8px; 
+            border: 1px solid var(--sidebar-border);
+            background: transparent;
+            color: var(--sidebar-text);
+            transition: all 0.2s;
+        }
+        .nav-btn-lg:hover { 
+            border-color: var(--accent-color); 
+            background: var(--hover-bg);
+            color: var(--accent-color);
+        }
+        .nav-btn-lg.next { text-align: right; align-items: flex-end; }
+
+        .nav-label { font-size: 0.8rem; opacity: 0.5; margin-bottom: 5px; font-weight: 500; }
+        .nav-title { font-size: 1rem; font-weight: 600; line-height: 1.4; }
+
+        /* Settings Popup */
+        .settings-overlay {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.3); z-index: 900;
+            display: none; opacity: 0; transition: opacity 0.3s;
+        }
+        .settings-overlay.show { display: block; opacity: 1; }
+
+        .settings-popup {
+            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0.95);
+            background: var(--reader-bg); border: 1px solid var(--sidebar-border);
+            padding: 30px; border-radius: 12px; box-shadow: 0 15px 40px rgba(0,0,0,0.1);
+            z-index: 1000; width: 300px;
+            display: none; opacity: 0; transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .settings-popup.show { display: block; opacity: 1; transform: translate(-50%, -50%) scale(1); }
+
+        @media (max-width: 768px) {
+            .sidebar { position: absolute; height: 100%; box-shadow: 5px 0 20px rgba(0,0,0,0.1); transform: translateX(-100%); width: 280px; }
+            .sidebar.active { transform: translateX(0); }
+            .sidebar.collapsed { width: 280px; }
+            .nav-footer { grid-template-columns: 1fr; gap: 15px; }
+            .nav-btn-lg { text-align: center !important; align-items: center; }
+        }
     </style>
 </head>
 <body>
-    <div class="reader-container">
-        <div class="reader-nav">
-            <a href="/novel/<%= chapter.novelId._id %>" class="btn btn-sm btn-outline" style="border:none; color: inherit;"><i class="fa-solid fa-arrow-left"></i></a>
-            <span style="font-weight: 600; font-size: 0.95rem; opacity: 0.8; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 200px;">
-                <%= chapter.title %>
-            </span>
-            <div style="display: flex; gap: 10px;">
-                <% if(isAdmin) { %>
-                    <a href="/chapter/<%= chapter._id %>/edit" class="btn btn-sm btn-outline" style="border:none; color: inherit;" title="แก้ไขตอน"><i class="fa-solid fa-pen"></i></a>
-                <% } %>
-                <button onclick="toggleSettings()" class="btn btn-sm btn-outline" style="border:none; font-size:1.1rem; color: inherit;"><i class="fa-solid fa-font"></i></button>
+
+    <div class="layout-container">
+        
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <a href="/novel/<%= chapter.novelId._id %>" class="sidebar-title-link" title="<%= chapter.novelId.title %>">
+                    <i class="fa-solid fa-book"></i> 
+                    <span><%= chapter.novelId.title %></span>
+                </a>
+                <button onclick="toggleSidebar()" class="btn btn-sm btn-outline" style="border:none; color: var(--sidebar-text); opacity: 0.5;">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
             </div>
-        </div>
+            
+            <ul class="chapter-list" id="chapterList">
+                <% allChapters.forEach(c => { %>
+                    <li class="chapter-item">
+                        <a href="/chapter/<%= c._id %>" class="chapter-link <%= c._id.toString() === chapter._id.toString() ? 'active' : '' %>" id="link-<%= c._id %>">
+                            <div class="chapter-info">
+                                <span class="ep-badge">Ep.<%= c.chapterNumber %></span>
+                                <span class="chapter-title-text"><%= c.title.replace(/^ตอนที่ \d+[:\s]*/, '') %></span>
+                            </div>
+                            <% if (c._id.toString() === chapter._id.toString()) { %>
+                                <i class="fa-solid fa-chevron-right" style="font-size: 0.7rem; opacity: 0.5;"></i>
+                            <% } %>
+                        </a>
+                    </li>
+                <% }) %>
+            </ul>
+        </aside>
 
-        <div class="reader-content" id="content">
-            <h2 style="margin-bottom: 40px; color: var(--primary); text-align: center; font-weight:800;"><%= chapter.title %></h2>
-            <div id="text-body">
-                <%- chapter.translatedContent.replace(/\n/g, '<br>') %>
+        <main class="main-content">
+            <nav class="reader-navbar">
+                <div style="display:flex; align-items:center; gap:15px;">
+                    <button onclick="toggleSidebar()" class="btn btn-outline" style="border:none; font-size:1.1rem; color: var(--sidebar-text);">
+                        <i class="fa-solid fa-bars"></i>
+                    </button>
+                    <div style="font-weight:600; font-size:1rem; max-width: 320px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; color: var(--sidebar-text);">
+                        <span style="color:var(--accent-color); margin-right:5px;">Ep.<%= chapter.chapterNumber %></span> 
+                        <%= chapter.title.replace(/^ตอนที่ \d+[:\s]*/, '') %>
+                    </div>
+                </div>
+                <div style="display:flex; gap:10px;">
+                    <% if(isAdmin) { %>
+                        <a href="/chapter/<%= chapter._id %>/edit" class="btn btn-outline btn-sm" style="color: var(--sidebar-text); border:none;"><i class="fa-solid fa-pen"></i></a>
+                    <% } %>
+                    <button onclick="toggleSettings()" class="btn btn-outline btn-sm" style="border:1px solid var(--sidebar-border); border-radius: 20px; padding: 4px 12px; color: var(--sidebar-text);">
+                        <i class="fa-solid fa-font"></i> <span style="font-size:0.8em; margin-left:4px;">Aa</span>
+                    </button>
+                </div>
+            </nav>
+
+            <div class="reader-scroll-area" id="scrollArea">
+                <div class="reader-container">
+                    <article class="reader-text" id="text-body">
+                        <h2 style="text-align:center; margin-bottom:60px; font-weight: 700; font-size: 1.8rem; line-height: 1.4;">
+                            <span style="color:var(--accent-color);">Ep.<%= chapter.chapterNumber %></span> 
+                            <%= chapter.title.replace(/^ตอนที่ \d+[:\s]*/, '') %>
+                        </h2>
+                        
+                        <div style="margin-bottom: 60px;">
+                            <%- chapter.translatedContent.replace(/\n/g, '<br>') %>
+                        </div>
+                    
+                        <div class="nav-footer">
+                            <% if (prevChapter) { %>
+                                <a href="/chapter/<%= prevChapter._id %>" class="nav-btn-lg">
+                                    <span class="nav-label">Ep.<%= prevChapter.chapterNumber %></span>
+                                    <span class="nav-title"><i class="fa-solid fa-arrow-left" style="font-size:0.8em; margin-right:5px;"></i> <%= prevChapter.title.replace(/^ตอนที่ \d+[:\s]*/, '') %></span>
+                                </a>
+                            <% } else { %>
+                                <div></div>
+                            <% } %>
+
+                            <% if (nextChapter) { %>
+                                <a href="/chapter/<%= nextChapter._id %>" class="nav-btn-lg next">
+                                    <span class="nav-label">Ep.<%= nextChapter.chapterNumber %></span>
+                                    <span class="nav-title"><%= nextChapter.title.replace(/^ตอนที่ \d+[:\s]*/, '') %> <i class="fa-solid fa-arrow-right" style="font-size:0.8em; margin-left:5px;"></i></span>
+                                </a>
+                            <% } else { %>
+                                <a href="/novel/<%= chapter.novelId._id %>" class="nav-btn-lg next">
+                                    <span class="nav-label">End</span>
+                                    <span class="nav-title">สารบัญหลัก <i class="fa-solid fa-home" style="font-size:0.8em; margin-left:5px;"></i></span>
+                                </a>
+                            <% } %>
+                        </div>
+                    </article>
+                </div>
             </div>
-        </div>
-
-        <div style="padding: 40px; border-top: 1px solid var(--border); display: flex; justify-content: space-between;">
-            <% if (prevChapter) { %>
-                <a href="/chapter/<%= prevChapter._id %>" class="btn btn-outline" style="color: var(--reader-text); border-color: var(--border);">ตอนก่อนหน้า</a>
-            <% } else { %>
-                <button class="btn btn-outline" disabled style="opacity: 0.5;">ตอนแรก</button>
-            <% } %>
-
-            <% if (nextChapter) { %>
-                <a href="/chapter/<%= nextChapter._id %>" class="btn btn-primary">ตอนถัดไป <i class="fa-solid fa-arrow-right"></i></a>
-            <% } else { %>
-                <a href="/novel/<%= chapter.novelId._id %>" class="btn btn-primary">สารบัญ</a>
-            <% } %>
-        </div>
+        </main>
     </div>
 
-    <div class="settings-panel" id="settingsPanel">
-        <button class="btn btn-outline" onclick="adjustFont(-1)"><i class="fa-solid fa-minus"></i></button>
-        <span style="display:flex; align-items:center; font-weight:bold; width:30px; justify-content:center;">T</span>
-        <button class="btn btn-outline" onclick="adjustFont(1)"><i class="fa-solid fa-plus"></i></button>
-        <div style="width:1px; background:var(--border); margin:0 5px;"></div>
-        <button class="btn btn-outline" onclick="setTheme('light')" style="background: #ffffff; color: #000;">☀️</button>
-        <button class="btn btn-outline" onclick="setTheme('sepia')" style="background: #f4ecd8; color: #433422;">📜</button>
-        <button class="btn btn-outline" onclick="setTheme('dark')" style="background: #1e293b; color: #fff;">🌙</button>
+    <div class="settings-overlay" id="settingsOverlay" onclick="toggleSettings()"></div>
+    <div class="settings-popup" id="settingsPopup">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:25px;">
+            <h3 style="margin:0; font-size:1rem; font-weight:600; color:var(--reader-text);">Display Settings</h3>
+            <button onclick="toggleSettings()" style="background:none; border:none; cursor:pointer; color:var(--reader-text); opacity:0.5;"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+
+        <div style="margin-bottom: 25px;">
+            <div style="font-size: 0.85rem; opacity: 0.7; margin-bottom: 10px;">Font Size</div>
+            <div style="display:flex; align-items:center; gap:10px; background:var(--sidebar-border); padding:4px; border-radius:8px;">
+                <button onclick="adjustFont(-2)" style="flex:1; height: 32px; border:none; background:var(--reader-bg); border-radius: 6px; cursor: pointer; color:var(--reader-text);"><i class="fa-solid fa-minus"></i></button>
+                <div style="width: 40px; text-align: center; font-weight: 600; font-size: 0.9rem; color:var(--reader-text);" id="fontSizeDisplay">20</div>
+                <button onclick="adjustFont(2)" style="flex:1; height: 32px; border:none; background:var(--reader-bg); border-radius: 6px; cursor: pointer; color:var(--reader-text);"><i class="fa-solid fa-plus"></i></button>
+            </div>
+        </div>
+
+        <div>
+            <div style="font-size: 0.85rem; opacity: 0.7; margin-bottom: 10px;">Theme</div>
+            <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:10px;">
+                <button onclick="setTheme('light')" style="height: 40px; border: 1px solid #ddd; background:#fff; color:#333; border-radius: 8px; cursor: pointer;">Light</button>
+                <button onclick="setTheme('sepia')" style="height: 40px; border: 1px solid #d7ccc8; background:#f6f1e1; color:#5f4b32; border-radius: 8px; cursor: pointer;">Sepia</button>
+                <button onclick="setTheme('dark')" style="height: 40px; border: 1px solid #444; background:#1a1a1a; color:#ccc; border-radius: 8px; cursor: pointer;">Dark</button>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -120,20 +365,41 @@
 
         let fontSize = parseInt(localStorage.getItem('fontSize')) || 20;
         const textBody = document.getElementById('text-body');
-        
+        const fontSizeDisplay = document.getElementById('fontSizeDisplay');
+
         function applySettings() {
             textBody.style.fontSize = fontSize + 'px';
+            fontSizeDisplay.innerText = fontSize;
             const savedTheme = localStorage.getItem('theme') || 'light';
             document.documentElement.setAttribute('data-theme', savedTheme);
         }
 
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            if (window.innerWidth <= 768) {
+                sidebar.classList.toggle('active');
+            } else {
+                sidebar.classList.toggle('collapsed');
+            }
+        }
+
         function toggleSettings() {
-            document.getElementById('settingsPanel').classList.toggle('show');
+            const overlay = document.getElementById('settingsOverlay');
+            const popup = document.getElementById('settingsPopup');
+            if (popup.classList.contains('show')) {
+                popup.classList.remove('show');
+                overlay.classList.remove('show');
+                setTimeout(() => { popup.style.display = 'none'; overlay.style.display = 'none'; }, 200);
+            } else {
+                popup.style.display = 'block'; overlay.style.display = 'block';
+                setTimeout(() => { popup.classList.add('show'); overlay.classList.add('show'); }, 10);
+            }
         }
 
         function adjustFont(delta) {
-            fontSize = Math.max(16, Math.min(32, fontSize + delta));
+            fontSize = Math.max(14, Math.min(32, fontSize + delta));
             textBody.style.fontSize = fontSize + 'px';
+            fontSizeDisplay.innerText = fontSize;
             localStorage.setItem('fontSize', fontSize);
         }
 
@@ -142,15 +408,11 @@
             localStorage.setItem('theme', theme);
         }
 
-        document.addEventListener('click', (e) => {
-            const panel = document.getElementById('settingsPanel');
-            const btn = document.querySelector('.reader-nav button');
-            if (!panel.contains(e.target) && !btn.contains(e.target)) {
-                panel.classList.remove('show');
-            }
+        document.addEventListener('DOMContentLoaded', () => {
+            applySettings();
+            const activeLink = document.querySelector('.chapter-link.active');
+            if(activeLink) activeLink.scrollIntoView({ block: 'center', behavior: 'smooth' });
         });
-
-        applySettings();
     </script>
 </body>
 </html>
