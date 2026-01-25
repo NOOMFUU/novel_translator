@@ -3,93 +3,88 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ตั้งค่า: <%= novel.title %></title>
+    <title>แก้ไข: <%= novel.title %></title>
     <link rel="stylesheet" href="/css/style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
-    <div class="container">
-        <header>
-            <a href="/novel/<%= novel._id %>" class="btn btn-outline">
-                <i class="fa-solid fa-times"></i> ยกเลิก
-            </a>
-            <h2>ตั้งค่า / แก้ไขนิยาย</h2>
-        </header>
-
+    <div class="container" style="padding-top: 40px; padding-bottom: 40px;">
         <div class="card">
+            <h2 class="mb-4">แก้ไขข้อมูลนิยาย</h2>
             <form action="/novel/<%= novel._id %>?_method=PUT" method="POST">
                 
-                <div style="margin-bottom: 20px;">
-                    <label><strong>ชื่อเรื่อง (Title):</strong></label>
-                    <div style="display: flex; gap: 10px;">
-                        <input type="text" id="titleInput" name="title" value="<%= novel.title %>" required>
-                        <button type="button" onclick="translateField('titleInput')" class="btn btn-warning" style="width: 150px;">
-                            <i class="fa-solid fa-wand-magic-sparkles"></i> แปลไทย
-                        </button>
+                <div class="d-flex gap-2 mb-4" style="flex-wrap: wrap;">
+                    <div style="flex: 1; min-width: 300px;">
+                        <label class="text-muted">ชื่อเรื่อง (ไทย)</label>
+                        <input type="text" name="title" value="<%= novel.title %>" required>
+                    </div>
+                    <div style="flex: 1; min-width: 300px;">
+                        <label class="text-muted">ชื่อเรื่องเดิม (ญี่ปุ่น/อังกฤษ)</label>
+                        <input type="text" name="originalTitle" value="<%= novel.originalTitle %>">
                     </div>
                 </div>
 
-                <div style="margin-bottom: 20px;">
-                    <label><strong>เรื่องย่อ (Description):</strong></label>
-                    <div style="display: flex; gap: 10px; align-items: start;">
-                        <textarea id="descInput" name="description" style="height: 100px;"><%= novel.description %></textarea>
-                        <button type="button" onclick="translateField('descInput')" class="btn btn-warning" style="height: 100px;">
-                            <i class="fa-solid fa-wand-magic-sparkles"></i>
-                        </button>
+                <div class="d-flex gap-2 mb-4" style="flex-wrap: wrap;">
+                    <div style="flex: 1;">
+                        <label class="text-muted">ผู้แต่ง (Author)</label>
+                        <input type="text" name="author" value="<%= novel.author %>">
+                    </div>
+                    <div style="flex: 1;">
+                        <label class="text-muted">นักวาด (Artist)</label>
+                        <input type="text" name="artist" value="<%= novel.artist %>">
+                    </div>
+                    <div style="flex: 1;">
+                        <label class="text-muted">สถานะ</label>
+                        <select name="status" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg-body); color: var(--text-main);">
+                            <option value="On Going" <%= novel.status === 'On Going' ? 'selected' : '' %>>On Going</option>
+                            <option value="Completed" <%= novel.status === 'Completed' ? 'selected' : '' %>>Completed</option>
+                            <option value="Hiatus" <%= novel.status === 'Hiatus' ? 'selected' : '' %>>Hiatus</option>
+                        </select>
                     </div>
                 </div>
 
-                <hr style="margin: 30px 0;">
-
-                <div style="background: #e8f4fd; padding: 15px; border-radius: 8px; border: 1px solid #b6d4fe; margin-bottom: 20px;">
-                    <label style="color: #0d47a1;"><strong>🤖 AI Persona (สไตล์การแปล):</strong></label>
-                    <textarea name="customPrompt" style="height: 80px; border: 1px solid #0d47a1;"><%= novel.customPrompt %></textarea>
+                <div class="mb-4">
+                    <label class="text-muted">ลิงก์รูปปก (Image URL)</label>
+                    <input type="text" name="imageUrl" value="<%= novel.imageUrl %>" placeholder="https://...">
+                </div>
+                <div class="mb-4">
+                    <label class="text-muted">ลิงก์เว็บต้นฉบับ (Original Link)</label>
+                    <input type="text" name="originalLink" value="<%= novel.originalLink %>" placeholder="https://kakuyomu.jp/...">
                 </div>
 
-                <div style="background: #fff3cd; padding: 15px; border-radius: 8px; border: 1px solid #ffecb5;">
-                    <label style="color: #856404;"><strong>📖 สมุดจดศัพท์ / Glossary (บังคับใช้คำแปลนี้):</strong></label>
-                    <p style="font-size: 0.9em; color: #666; margin-bottom: 5px;">
-                        ใส่คำศัพท์ที่ต้องการให้แปลเหมือนเดิมทุกตอน (บรรทัดละ 1 คำ) <br>
-                        รูปแบบ: <code>คำญี่ปุ่น = คำไทย</code>
-                    </p>
-                    <textarea name="glossary" placeholder="Tanaka = ทานากะ&#10;Excalibur = ดาบเอ็กซ์คาลิเบอร์&#10;Fireball = บอลเพลิง" style="height: 150px; border: 1px solid #ffecb5; font-family: monospace;"><%= novel.glossary %></textarea>
+                <div class="mb-4">
+                    <label class="text-muted">Tags (คั่นด้วยลูกน้ำ , )</label>
+                    <input type="text" name="tags" value="<%= novel.tags.join(', ') %>" placeholder="Comedy, Romance, School Life">
                 </div>
 
-                <div style="margin-top: 30px; text-align: right;">
-                    <button type="submit" class="btn">
-                        <i class="fa-solid fa-save"></i> บันทึกการเปลี่ยนแปลง
-                    </button>
+                <div class="mb-4">
+                    <label class="text-muted">เรื่องย่อ</label>
+                    <textarea name="description" style="height: 120px;"><%= novel.description %></textarea>
+                </div>
+
+                <hr style="margin: 30px 0; border: 0; border-top: 1px solid var(--border);">
+
+                <div style="background: rgba(59, 130, 246, 0.1); padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+                    <h4 style="margin-top:0; color: var(--accent);">การตั้งค่า AI</h4>
+                    <div class="mb-4">
+                        <label class="text-muted">System Prompt / สไตล์การแปล</label>
+                        <input type="text" name="customPrompt" value="<%= novel.customPrompt %>">
+                    </div>
+                    <div>
+                        <label class="text-muted">สมุดคำศัพท์ (Japanese = Thai)</label>
+                        <textarea name="glossary" style="height: 100px; font-family: monospace;"><%= novel.glossary %></textarea>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-between">
+                    <a href="/novel/<%= novel._id %>" class="btn btn-outline">ยกเลิก</a>
+                    <button type="submit" class="btn btn-primary">บันทึกข้อมูล</button>
                 </div>
             </form>
         </div>
     </div>
-
     <script>
-        async function translateField(elementId) {
-            const input = document.getElementById(elementId);
-            const originalText = input.value;
-            if (!originalText) return alert("กรุณาใส่ข้อความก่อนกดแปล");
-            
-            const btn = event.currentTarget;
-            const originalIcon = btn.innerHTML;
-            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
-            btn.disabled = true;
-
-            try {
-                const res = await fetch('/api/translate-snippet', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ text: originalText })
-                });
-                const data = await res.json();
-                if (data.translatedText) input.value = data.translatedText;
-            } catch (err) {
-                alert("แปลไม่สำเร็จ: " + err);
-            } finally {
-                btn.innerHTML = originalIcon;
-                btn.disabled = false;
-            }
-        }
+        document.documentElement.setAttribute('data-theme', localStorage.getItem('theme') || 'light');
     </script>
 </body>
 </html>

@@ -3,45 +3,52 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>เข้าสู่ระบบ Admin</title>
+    <title>Admin Login</title>
     <link rel="stylesheet" href="/css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
-<body style="display: flex; justify-content: center; align-items: center; height: 100vh; background: var(--bg-body, #f0f2f5); margin: 0;">
-    <div class="card" style="width: 100%; max-width: 400px; padding: 40px; box-shadow: 0 4px 20px rgba(0,0,0,0.1);">
-        <h2 style="text-align: center; margin-bottom: 20px; color: var(--primary, #4f46e5);">
-            <i class="fa-solid fa-user-shield"></i> Admin Login
-        </h2>
+<body style="display: flex; justify-content: center; align-items: center; min-height: 100vh;">
+    
+    <div class="glass-card" style="width: 100%; max-width: 400px; text-align: center; padding: 40px;">
+        <div style="font-size: 3rem; color: var(--primary); margin-bottom: 10px;">
+            <i class="fa-solid fa-fingerprint"></i>
+        </div>
+        <h2 class="mb-4">Admin Access</h2>
         
         <% if (error) { %>
-            <div style="background: #fee2e2; color: #991b1b; padding: 10px; border-radius: 8px; margin-bottom: 20px; text-align: center;">
+            <div style="background: rgba(239, 68, 68, 0.1); color: var(--danger); padding: 10px; border-radius: 8px; margin-bottom: 20px;">
                 <i class="fa-solid fa-circle-exclamation"></i> <%= error %>
             </div>
         <% } %>
 
-        <form action="/login" method="POST">
-            <div style="margin-bottom: 20px;">
-                <label style="display: block; margin-bottom: 8px; font-weight: bold;">ชื่อผู้ใช้ (Username):</label>
-                <input type="text" name="username" required placeholder="ใส่ชื่อผู้ใช้..." 
-                       style="width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box;">
+        <form action="/login" method="POST" style="text-align: left;">
+            <div class="mb-4">
+                <label style="font-weight: 600; font-size: 0.9rem; margin-bottom: 5px; display: block;">Username</label>
+                <div style="position: relative;">
+                    <i class="fa-solid fa-user" style="position: absolute; left: 15px; top: 14px; color: var(--text-muted);"></i>
+                    <input type="text" name="username" placeholder="Admin Username" required style="padding-left: 45px;">
+                </div>
             </div>
 
-            <div style="margin-bottom: 20px;">
-                <label style="display: block; margin-bottom: 8px; font-weight: bold;">รหัสผ่าน (Password):</label>
-                <input type="password" name="password" required placeholder="ใส่รหัสผ่าน..." 
-                       style="width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box;">
+            <div class="mb-4">
+                <label style="font-weight: 600; font-size: 0.9rem; margin-bottom: 5px; display: block;">Password</label>
+                <div style="position: relative;">
+                    <i class="fa-solid fa-lock" style="position: absolute; left: 15px; top: 14px; color: var(--text-muted);"></i>
+                    <input type="password" name="password" placeholder="••••••••" required style="padding-left: 45px;">
+                </div>
             </div>
             
-            <button type="submit" class="btn btn-primary" style="width: 100%; padding: 12px; font-size: 1.1rem;">
-                เข้าสู่ระบบ
+            <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 10px;">
+                Secure Login <i class="fa-solid fa-arrow-right"></i>
             </button>
         </form>
-        
-        <div style="text-align: center; margin-top: 25px;">
-            <a href="/" style="text-decoration: none; color: #666;">
-                <i class="fa-solid fa-arrow-left"></i> กลับหน้าหลัก
+
+        <div class="mt-4">
+            <a href="/" class="btn btn-outline btn-sm">
+                <i class="fa-solid fa-house"></i> Back to Library
             </a>
         </div>
     </div>
+
 </body>
 </html>
