@@ -252,6 +252,8 @@
             document.getElementById('form-manual').style.display = mode === 'manual' ? 'block' : 'none';
             document.getElementById('tabBtnAuto').classList.toggle('active', mode === 'auto');
             document.getElementById('tabBtnManual').classList.toggle('active', mode === 'manual');
+
+            localStorage.setItem(`activeTab-${novelId}`, mode);
         }
 
         function toggleInput(type) {
@@ -298,6 +300,10 @@
             checkReadHistory();
             const savedView = localStorage.getItem('chapterView') || 'grid';
             setView(savedView);
+
+            // เพิ่มส่วนนี้: ดึงสถานะแท็บจาก localStorage มาแสดงผล
+            const savedMode = localStorage.getItem(`activeTab-${novelId}`) || 'auto';
+            switchTab(savedMode);
         });
     </script>
 </body>
