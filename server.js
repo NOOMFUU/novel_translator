@@ -41,10 +41,15 @@ app.use(session({
     cookie: { maxAge: 24 * 60 * 60 * 1000 }
 }));
 
+// Global Variables Middleware
 app.use(async (req, res, next) => {
     res.locals.isAdmin = req.session.isAdmin || false;
     res.locals.currentUrl = req.path;
-    // [แก้ไข] ดึงหมวดหมู่ทั้งหมดจากฟิลด์ categories (จะแตก array ออกมาเป็น list เดียว)
+    
+    // ⭐ [ตั้งค่า] ใส่ลิงก์รูป Default ที่นี่ครับ (เปลี่ยนได้ตลอดเวลา) ⭐
+    // แนะนำให้ใช้รูปแนวตั้งสัดส่วนประมาณ 2:3
+    res.locals.defaultCover = 'https://placehold.co/400x600/png?text=No+Cover'; 
+
     res.locals.allCategories = await Novel.distinct('categories'); 
     next();
 });
@@ -106,22 +111,26 @@ app.get('/', async (req, res) => {
     if (query) filter.title = { $regex: query, $options: 'i' };
     if (category) filter.categories = category;
 
-    // 1. นิยายทั้งหมด (สำหรับ Grid ด้านล่าง)
     const novels = await Novel.find(filter).sort({ createdAt: -1 });
-    
-    // 2. หมวดหมู่ทั้งหมด (สำหรับ Menu)
     const categories = await Novel.distinct('categories');
 
-    // 3. [ใหม่] นิยายแนะนำ (สุ่มมา 1 เรื่อง หรือเลือกจากยอดวิวสูงสุด)
+    // Logic หาเรื่องแนะนำ: พยายามหาเรื่องที่มีรูปปกก่อน ถ้าไม่มีค่อยสุ่ม
     const count = await Novel.countDocuments();
     let recommended = null;
-    if (count > 0) {
-        // ตัวอย่าง: สุ่มเรื่องแนะนำ
-        const random = Math.floor(Math.random() * count);
-        recommended = await Novel.findOne().skip(random);
+    
+    if (count > 0 && !query && !category) {
+        // ลองหาเรื่องที่มีรูปปกจริงๆ (ไม่ใช่ string ว่าง)
+        const novelsWithCover = await Novel.find({ imageUrl: { $ne: "" } });
+        
+        if(novelsWithCover.length > 0) {
+            recommended = novelsWithCover[Math.floor(Math.random() * novelsWithCover.length)];
+        } else {
+            // ถ้าไม่มีเลย ก็สุ่มปกติ แล้วเดี๋ยวไปใช้ defaultCover เอา
+            const random = Math.floor(Math.random() * count);
+            recommended = await Novel.findOne().skip(random);
+        }
     }
 
-    // 4. [ใหม่] จัดอันดับ Top 5 (เรียงตามยอดวิว)
     const topNovels = await Novel.find().sort({ views: -1 }).limit(5);
 
     res.render('index', { 
@@ -129,8 +138,8 @@ app.get('/', async (req, res) => {
         query, 
         currentCategory: category, 
         categories,
-        recommended, // ส่งตัวแปรนี้ไป
-        topNovels    // ส่งตัวแปรนี้ไป
+        recommended, 
+        topNovels
     });
 });
 
@@ -145,11 +154,8 @@ app.get('/novel/:id', async (req, res) => {
     }
 });
 
-// [แก้ไข] POST: แยก string เป็น array
 app.post('/novels', requireAdmin, async (req, res) => {
     const tagsArray = req.body.tags ? req.body.tags.split(',').map(t => t.trim()) : [];
-    
-    // แยก Categories ด้วยเครื่องหมายจุลภาค
     const categoriesArray = req.body.categories 
         ? req.body.categories.split(',').map(c => c.trim()).filter(c => c) 
         : ['General'];
@@ -165,14 +171,8 @@ app.post('/novels', requireAdmin, async (req, res) => {
 app.get('/novel/:id/add', requireAdmin, async (req, res) => {
     try {
         const novel = await Novel.findById(req.params.id);
-        
-        // หาตอนล่าสุด
         const lastChapter = await Chapter.findOne({ novelId: req.params.id }).sort({ chapterNumber: -1 });
-        
-        // คำนวณตอนถัดไป
         const nextChapterNumber = lastChapter ? lastChapter.chapterNumber + 1 : 1;
-        
-        // [แก้ไข] เพิ่ม lastChapter เข้าไปใน object ที่ render
         res.render('add_chapter', { novel, nextChapterNumber, lastChapter }); 
     } catch (err) {
         console.error(err);
@@ -185,10 +185,8 @@ app.get('/novel/:id/edit', requireAdmin, async (req, res) => {
     res.render('edit_novel', { novel });
 });
 
-// [แก้ไข] PUT: แยก string เป็น array
 app.put('/novel/:id', requireAdmin, async (req, res) => {
     const tagsArray = req.body.tags ? req.body.tags.split(',').map(t => t.trim()) : [];
-    
     const categoriesArray = req.body.categories 
         ? req.body.categories.split(',').map(c => c.trim()).filter(c => c) 
         : ['General'];
@@ -288,7 +286,6 @@ app.delete('/chapter/:id', requireAdmin, async (req, res) => {
     res.redirect(`/novel/${chapter.novelId}`);
 });
 
-// หน้าพิเศษสำหรับปลุกเซิร์ฟเวอร์ (Keep-alive)
 app.get('/ping', (req, res) => {
     res.status(200).send('ok');
 });

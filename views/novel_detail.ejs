@@ -16,7 +16,7 @@
     </script>
     
     <style>
-        /* 🟢 2. Preload Class: ปิด Animation ชั่วคราวตอนโหลด */
+        /* 🟢 Preload Class: ปิด Animation ชั่วคราวตอนโหลด */
         .preload * {
             transition: none !important;
             -webkit-transition: none !important;
@@ -290,7 +290,9 @@
             
             <div>
                 <div class="novel-cover-box">
-                    <img src="<%= novel.imageUrl || 'https://via.placeholder.com/300x450?text=No+Cover' %>" alt="<%= novel.title %>">
+                    <img src="<%= novel.imageUrl || defaultCover %>" 
+                         onerror="this.onerror=null;this.src='<%= defaultCover %>';" 
+                         alt="<%= novel.title %>">
                     
                     <div class="novel-badge badge-<%= novel.status === 'จบแล้ว' ? 'end' : 'on' %>" 
                          style="position:absolute; top:10px; left:10px;">
@@ -451,6 +453,7 @@
         function checkReadHistory() {
             // 1. ปุ่มอ่านต่อ (Last Read)
             const lastRead = localStorage.getItem(`lastRead-${novelId}`);
+            
             if (lastRead) {
                 const btn = document.getElementById('continue-reading-btn');
                 if(btn) {
@@ -531,7 +534,7 @@
             // History Setup
             checkReadHistory(); 
 
-            // 🟢 4. เอา class preload ออกเมื่อโหลดเสร็จ
+            // 🟢 เอา class preload ออกเมื่อโหลดเสร็จ
             setTimeout(() => document.body.classList.remove('preload'), 100);
         });
     </script>
