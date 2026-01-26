@@ -4,12 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Novel Library - อ่านนิยายออนไลน์</title>
+    
     <link rel="stylesheet" href="/css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
     <script>
-        // Pre-load theme to prevent flash
+        // Anti-Flash Theme
         (function() {
             const savedTheme = localStorage.getItem('theme') || 'light';
             document.documentElement.setAttribute('data-theme', savedTheme);
@@ -17,56 +18,56 @@
     </script>
 
     <style>
+        /* --- CSS Variables & Reset --- */
         :root {
-            --radius-xl: 24px;
-            --radius-lg: 16px;
-            --radius-md: 12px;
-            --shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-            --shadow-md: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-            --shadow-glow: 0 0 20px rgba(99, 102, 241, 0.3);
-            --glass-bg: rgba(255, 255, 255, 0.8);
-            --glass-border: 1px solid rgba(255, 255, 255, 0.3);
-            --container-width: 1200px;
             --header-height: 70px;
+            --bottom-nav-height: 65px;
+            --container-max: 1200px;
+            
+            --shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+            --shadow-glow: 0 0 20px rgba(99, 102, 241, 0.4);
+            
+            --bg-glass: rgba(255, 255, 255, 0.85);
+            --border-glass: 1px solid rgba(255, 255, 255, 0.5);
         }
 
         [data-theme="dark"] {
-            --glass-bg: rgba(30, 30, 30, 0.8);
-            --glass-border: 1px solid rgba(255, 255, 255, 0.1);
+            --bg-glass: rgba(30, 30, 30, 0.85);
+            --border-glass: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         body {
             font-family: 'Sarabun', sans-serif;
-            margin: 0;
-            padding-top: var(--header-height);
-            padding-bottom: 80px; /* Space for mobile nav */
             background-color: var(--bg-body);
             color: var(--text-main);
+            margin: 0;
+            padding-top: var(--header-height);
+            padding-bottom: calc(var(--bottom-nav-height) + 20px);
             -webkit-tap-highlight-color: transparent;
         }
 
-        /* --- Container & Layout --- */
         .container {
-            max-width: var(--container-width);
+            max-width: var(--container-max);
             margin: 0 auto;
-            padding: 0 20px;
+            padding: 0 24px;
         }
 
-        /* --- Modern Header --- */
+        /* --- Header --- */
         .main-header {
             position: fixed;
             top: 0; left: 0; right: 0;
             height: var(--header-height);
-            background: var(--nav-bg, rgba(255,255,255,0.9));
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
+            background: var(--nav-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
             border-bottom: 1px solid var(--border);
             z-index: 1000;
             display: flex;
             align-items: center;
-            transition: all 0.3s ease;
         }
-        
+
         .header-content {
             display: flex;
             justify-content: space-between;
@@ -75,57 +76,57 @@
         }
 
         .logo {
-            text-decoration: none;
             font-size: 1.5rem;
             font-weight: 800;
             color: var(--primary);
-            display: flex; align-items: center; gap: 8px;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
 
-        /* Search Bar Enhancement */
-        .search-wrapper {
+        .search-form {
             flex: 1;
-            max-width: 500px;
-            margin: 0 20px;
+            max-width: 450px;
+            margin: 0 30px;
             position: relative;
         }
+
         .search-input {
             width: 100%;
-            background: var(--bg-input, #f3f4f6);
-            border: 2px solid transparent;
-            padding: 10px 15px 10px 45px;
+            padding: 12px 20px 12px 45px;
             border-radius: 50px;
-            font-size: 0.95rem;
+            border: 1px solid var(--border);
+            background: var(--bg-input);
             color: var(--text-main);
-            transition: all 0.2s;
             font-family: inherit;
+            transition: all 0.2s;
         }
         .search-input:focus {
             outline: none;
-            background: var(--bg-body);
             border-color: var(--primary);
             box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+            background: var(--bg-body);
         }
         .search-icon {
             position: absolute;
-            left: 15px;
-            top: 50%;
+            left: 16px; top: 50%;
             transform: translateY(-50%);
             color: var(--text-muted);
             pointer-events: none;
         }
 
         /* --- Hero Section --- */
-        .featured-grid {
+        .featured-wrapper {
             display: grid;
             grid-template-columns: 1.6fr 1fr;
-            gap: 24px;
-            margin: 30px 0 50px 0;
+            gap: 30px;
+            margin: 40px 0 60px 0;
         }
 
         .hero-card {
             background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
-            border-radius: var(--radius-xl);
+            border-radius: 24px;
             padding: 40px;
             color: white;
             position: relative;
@@ -134,159 +135,171 @@
             display: flex;
             align-items: center;
             gap: 30px;
-            min-height: 320px;
         }
-        
+
+        .hero-bg-pattern {
+            position: absolute;
+            right: -50px; bottom: -50px;
+            font-size: 18rem;
+            opacity: 0.1;
+            transform: rotate(-15deg);
+            pointer-events: none;
+        }
+
         .hero-content {
             flex: 1;
             z-index: 2;
         }
-
-        .hero-meta {
-            display: flex; 
-            gap: 15px; 
-            margin-bottom: 15px; 
-            font-size: 0.9rem; 
-            opacity: 0.9; 
-            justify-content: flex-start; 
-            flex-wrap: wrap;
+        .hero-tag {
+            background: rgba(255,255,255,0.2);
+            padding: 6px 14px;
+            border-radius: 50px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            display: inline-block;
+            margin-bottom: 15px;
+            backdrop-filter: blur(4px);
+        }
+        .hero-title {
+            font-size: 2rem;
+            line-height: 1.2;
+            margin: 0 0 15px 0;
+            font-weight: 800;
+        }
+        .hero-info {
+            display: flex;
+            gap: 15px;
+            font-size: 0.9rem;
+            margin-bottom: 20px;
+            opacity: 0.9;
+        }
+        .hero-desc {
+            font-size: 1rem;
+            line-height: 1.6;
+            opacity: 0.9;
+            margin-bottom: 30px;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
         }
         
-        .hero-image-wrapper {
-            flex-shrink: 0;
-            width: 160px;
-            position: relative;
-            z-index: 2;
-        }
-        .hero-image {
-            width: 100%;
+        .hero-cover {
+            width: 180px;
             aspect-ratio: 2/3;
             object-fit: cover;
             border-radius: 12px;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.4);
-            transform: rotate(3deg) translateY(0);
-            border: 3px solid rgba(255,255,255,0.3);
+            transform: rotate(3deg);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            border: 4px solid rgba(255,255,255,0.2);
+            z-index: 2;
             transition: transform 0.3s;
         }
-        .hero-card:hover .hero-image {
-            transform: rotate(0deg) translateY(-5px);
-        }
-        
-        .hero-bg-icon {
-            position: absolute;
-            right: -10%;
-            bottom: -20%;
-            font-size: 20rem;
-            opacity: 0.08;
-            transform: rotate(-15deg);
-            color: white;
-            pointer-events: none;
+        .hero-card:hover .hero-cover {
+            transform: rotate(0deg) scale(1.02);
         }
 
-        /* --- Ranking Section --- */
-        .ranking-card {
-            background: var(--glass-bg);
-            border: var(--glass-border);
-            border-radius: var(--radius-xl);
-            padding: 24px;
-            box-shadow: var(--shadow-md);
+        /* --- Ranking Panel --- */
+        .ranking-panel {
+            background: var(--bg-glass);
+            border: var(--border-glass);
+            border-radius: 24px;
+            padding: 25px;
             display: flex;
             flex-direction: column;
             backdrop-filter: blur(10px);
+            box-shadow: var(--shadow-sm);
         }
 
-        .rank-tabs {
-            background: rgba(0,0,0,0.05);
-            padding: 4px;
-            border-radius: 50px;
+        .rank-header {
             display: flex;
-            margin: 15px 0;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .rank-tabs {
+            display: flex;
+            background: var(--bg-input);
+            border-radius: 50px;
+            padding: 4px;
         }
         .rank-tab {
-            flex: 1;
+            padding: 6px 16px;
+            border-radius: 50px;
             border: none;
             background: transparent;
-            padding: 8px;
-            border-radius: 50px;
-            font-weight: 600;
-            font-size: 0.9rem;
             color: var(--text-muted);
+            font-size: 0.85rem;
+            font-weight: 600;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: 0.2s;
         }
         .rank-tab.active {
-            background: var(--bg-body);
+            background: var(--bg-card);
             color: var(--primary);
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
         }
 
         .rank-list {
             list-style: none;
             padding: 0;
             margin: 0;
-            flex: 1;
             overflow-y: auto;
-            /* Scrollbar styling */
-            scrollbar-width: thin;
+            flex: 1;
         }
         .rank-item {
             display: flex;
             align-items: center;
             padding: 12px;
             border-radius: 12px;
-            transition: 0.2s;
             text-decoration: none;
-            color: inherit;
+            color: var(--text-main);
+            transition: 0.2s;
         }
         .rank-item:hover {
             background: rgba(99, 102, 241, 0.08);
         }
-        .rank-num {
+        .rank-number {
             font-size: 1.2rem;
             font-weight: 800;
             width: 35px;
             color: var(--text-muted);
-            opacity: 0.6;
+            opacity: 0.5;
         }
+        .rank-number.top-1 { color: #FFD700; opacity: 1; }
+        .rank-number.top-2 { color: #C0C0C0; opacity: 1; }
+        .rank-number.top-3 { color: #CD7F32; opacity: 1; }
 
         /* --- Category Bar --- */
-        .category-section {
-            margin-bottom: 30px;
+        .category-sticky {
             position: sticky;
             top: var(--header-height);
             z-index: 900;
-            background: var(--bg-body);
-            padding: 10px 0;
-            margin-left: -20px;
-            margin-right: -20px;
-            padding-left: 20px;
-            padding-right: 20px;
+            padding: 15px 0;
+            margin: 0 -24px 30px -24px;
         }
-
-        .category-bar {
+        .category-scroll {
             display: flex;
-            gap: 12px;
+            gap: 20px;
             overflow-x: auto;
-            padding-bottom: 5px;
-            scrollbar-width: none; /* Firefox */
-            -ms-overflow-style: none;  /* IE */
-            mask-image: linear-gradient(to right, black 90%, transparent 100%);
+            padding: 10px 24px 0;
+            scrollbar-width: none;
         }
-        .category-bar::-webkit-scrollbar { display: none; }
+        .category-scroll::-webkit-scrollbar { display: none; }
         
         .cat-pill {
             white-space: nowrap;
-            padding: 8px 24px;
+            padding: 8px 20px;
             border-radius: 50px;
-            background: var(--bg-card, #fff);
+            background: var(--bg-card);
             border: 1px solid var(--border);
             color: var(--text-main);
             text-decoration: none;
+            font-size: 0.9rem;
             font-weight: 500;
-            font-size: 0.95rem;
             transition: all 0.2s;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.03);
-            flex-shrink: 0;
+            box-shadow: var(--shadow-sm);
         }
         .cat-pill:hover, .cat-pill.active {
             background: var(--primary);
@@ -296,28 +309,27 @@
             box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
         }
 
-        /* --- Novel Grid (Improved) --- */
+        /* --- Novel Grid --- */
         .novel-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
             gap: 25px;
-            margin-bottom: 60px;
         }
 
         .novel-card {
-            display: block;
             text-decoration: none;
             color: inherit;
-            position: relative;
             transition: transform 0.2s;
+            display: flex;
+            flex-direction: column;
         }
         .novel-card:hover {
-            transform: translateY(-5px);
+            transform: translateY(-6px);
         }
-        
-        .novel-cover-wrapper {
+
+        .cover-wrapper {
             position: relative;
-            border-radius: var(--radius-md);
+            border-radius: 12px;
             overflow: hidden;
             aspect-ratio: 2/3;
             box-shadow: var(--shadow-sm);
@@ -329,11 +341,9 @@
             object-fit: cover;
             transition: transform 0.5s;
         }
-        .novel-card:hover .novel-cover {
-            transform: scale(1.05);
-        }
+        .novel-card:hover .novel-cover { transform: scale(1.06); }
 
-        .novel-badge {
+        .status-badge {
             position: absolute;
             top: 8px; left: 8px;
             padding: 4px 10px;
@@ -341,61 +351,59 @@
             font-size: 0.7rem;
             font-weight: 700;
             color: white;
-            z-index: 5;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
             backdrop-filter: blur(4px);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
-        .badge-on { background: rgba(39, 174, 96, 0.9); }
-        .badge-end { background: rgba(231, 76, 60, 0.9); }
-        .badge-hiatus { background: rgba(243, 156, 18, 0.9); }
+        .status-on { background: rgba(16, 185, 129, 0.9); }
+        .status-end { background: rgba(239, 68, 68, 0.9); }
+        .status-hiatus { background: rgba(245, 158, 11, 0.9); }
 
         .novel-title {
             font-weight: 700;
-            font-size: 1.1rem;
+            font-size: 1.05rem;
             line-height: 1.4;
             margin-bottom: 6px;
             display: -webkit-box;
             -webkit-line-clamp: 2;
             -webkit-box-orient: vertical;
             overflow: hidden;
-            color: var(--text-main);
         }
-        
-        .novel-meta {
+        .novel-stats {
+            font-size: 0.85rem;
+            color: var(--text-muted);
             display: flex;
             justify-content: space-between;
             align-items: center;
-            font-size: 0.85rem;
-            color: var(--text-muted);
         }
 
-        /* --- Create Button (Admin) --- */
+        /* --- Admin Panel --- */
         .admin-panel {
-            background: var(--glass-bg);
+            background: var(--bg-glass);
             border: 1px dashed var(--primary);
-            border-radius: var(--radius-lg);
-            padding: 20px;
-            margin-bottom: 30px;
+            border-radius: 20px;
+            padding: 24px;
+            margin-bottom: 40px;
             display: flex;
+            gap: 24px;
             align-items: center;
-            gap: 20px;
             flex-wrap: wrap;
         }
 
-        /* --- Mobile Bottom Nav --- */
+        /* --- Mobile Nav --- */
         .mobile-nav {
             display: none;
             position: fixed;
             bottom: 0; left: 0; right: 0;
-            background: var(--nav-bg, #ffffff);
-            height: 65px;
+            background: var(--nav-bg);
             border-top: 1px solid var(--border);
+            height: var(--bottom-nav-height);
             z-index: 1000;
             justify-content: space-around;
             align-items: center;
             padding-bottom: env(safe-area-inset-bottom);
+            backdrop-filter: blur(10px);
         }
-        .nav-item {
+        .nav-link {
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -407,58 +415,40 @@
             width: 100%;
             height: 100%;
         }
-        .nav-item i { font-size: 1.2rem; margin-bottom: 2px; }
-        .nav-item.active { color: var(--primary); font-weight: 600; }
+        .nav-link i { font-size: 1.25rem; }
+        .nav-link.active { color: var(--primary); font-weight: 600; }
 
-        /* --- Responsive Design --- */
+        /* --- Utilities --- */
+        .btn {
+            display: inline-flex; align-items: center; gap: 8px;
+            padding: 8px 16px; border-radius: 50px; font-weight: 600;
+            text-decoration: none; border: none; cursor: pointer; transition: 0.2s;
+        }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-primary:hover { background: var(--primary-hover); transform: translateY(-2px); }
+        .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text-main); }
+        .btn-outline:hover { border-color: var(--primary); color: var(--primary); }
+        .btn-white { background: white; color: var(--primary); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .btn-white:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,0,0,0.15); }
+
+        /* --- Responsive --- */
         @media (max-width: 900px) {
-            .featured-grid {
-                grid-template-columns: 1fr;
-                gap: 20px;
-            }
-            .hero-card {
-                padding: 25px;
-                min-height: auto;
-            }
-            .hero-image-wrapper { width: 120px; }
+            .featured-wrapper { grid-template-columns: 1fr; }
+            .hero-card { padding: 30px; }
         }
 
         @media (max-width: 768px) {
-            :root { --header-height: 60px; }
-            
             .desktop-only { display: none !important; }
             .mobile-nav { display: flex; }
+            .search-form { display: none; } /* ซ่อน Search บน Header ในมือถือ */
             
+            .hero-card { flex-direction: column-reverse; text-align: center; gap: 20px; }
+            .hero-info { justify-content: center; }
+            .hero-cover { width: 140px; transform: rotate(0); margin: 0 auto; }
+            
+            .novel-grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 16px; }
             .container { padding: 0 16px; }
-            
-            .search-wrapper {
-                margin: 0 10px;
-                max-width: none;
-            }
-            
-            /* ปรับ Grid มือถือให้แสดง 2 แถวสวยๆ */
-            .novel-grid {
-                grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-                gap: 16px;
-            }
-            
-            .novel-title { font-size: 0.95rem; }
-            
-            .hero-card {
-                flex-direction: column-reverse;
-                text-align: center;
-                gap: 15px;
-            }
-            
-            .hero-meta {
-                justify-content: center; /* จัดกึ่งกลางสำหรับมือถือด้วย CSS แทน window.innerWidth */
-            }
-
-            .hero-image-wrapper { width: 100px; margin: 0 auto; }
-            .hero-content h1 { font-size: 1.5rem; }
-            
-            /* Ranking on Mobile */
-            .rank-list { max-height: 200px; }
+            .category-sticky { padding-left: 0; padding-right: 0; margin-left: -16px; margin-right: -16px; }
         }
     </style>
 </head>
@@ -468,83 +458,73 @@
         <div class="container header-content">
             <a href="/" class="logo">
                 <i class="fa-solid fa-book-open-reader"></i>
-                <span class="desktop-only">Novel<span style="font-weight:300; opacity:0.7;">Hub</span></span>
+                <span>Novel<span style="font-weight:300; opacity:0.7;">Hub</span></span>
             </a>
             
-            <form action="/" method="GET" class="search-wrapper">
+            <form action="/" method="GET" class="search-form">
                 <% if(locals.currentCategory) { %> <input type="hidden" name="category" value="<%= currentCategory %>"> <% } %>
                 <i class="fa-solid fa-magnifying-glass search-icon"></i>
-                <input type="text" name="q" class="search-input" placeholder="ค้นหานิยาย..." value="<%= locals.query || '' %>">
+                <input type="text" name="q" class="search-input" placeholder="ค้นหานิยาย, ผู้แต่ง..." value="<%= locals.query || '' %>">
             </form>
 
-            <div style="display: flex; gap: 10px; align-items: center;">
-                <button onclick="toggleTheme()" class="btn btn-outline" style="border-radius:50%; width:40px; height:40px; padding:0; border:none; background:transparent; font-size:1.1rem; color: var(--text-main);">
+            <div style="display: flex; gap: 12px; align-items: center;">
+                <button onclick="toggleTheme()" class="btn btn-outline" style="width:40px; height:40px; padding:0; justify-content:center; border-radius:50%;">
                     <i class="fa-solid fa-moon"></i>
                 </button>
                 
                 <div class="desktop-only">
                     <% if (isAdmin) { %>
-                        <a href="/logout" class="btn btn-sm btn-outline-danger">Logout</a>
+                        <a href="/logout" class="btn btn-outline" style="border-color:var(--danger); color:var(--danger);">Logout</a>
                     <% } else { %>
-                        <a href="/login" class="btn btn-sm btn-primary" style="border-radius: 20px; padding: 6px 20px;">Login</a>
+                        <a href="/login" class="btn btn-primary">Login</a>
                     <% } %>
                 </div>
             </div>
         </div>
     </header>
 
-    <div class="container" style="padding-top: 20px;">
+    <div class="container">
         
         <% if (!locals.query && !locals.currentCategory) { %> 
-        <div class="featured-grid">
+        <div class="featured-wrapper">
             <% if (locals.recommended) { %>
             <div class="hero-card">
-                <i class="fa-solid fa-crown hero-bg-icon"></i>
+                <i class="fa-solid fa-crown hero-bg-pattern"></i>
                 <div class="hero-content">
-                    <span style="background: rgba(255,255,255,0.25); padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; margin-bottom: 12px; display: inline-block; letter-spacing: 0.5px;">RECOMMENDED</span>
-                    <h1 style="margin: 0 0 10px 0; font-size: 1.8rem; line-height: 1.3; text-shadow: 0 2px 10px rgba(0,0,0,0.1);"><%= recommended.title %></h1>
-                    
-                    <div class="hero-meta">
+                    <div class="hero-tag">RECOMMENDED</div>
+                    <h1 class="hero-title"><%= recommended.title %></h1>
+                    <div class="hero-info">
                         <span><i class="fa-solid fa-pen-nib"></i> <%= recommended.author %></span>
-                        <span><i class="fa-solid fa-tag"></i> <%= recommended.category || 'General' %></span>
+                        <span><i class="fa-solid fa-layer-group"></i> <%= recommended.category || 'General' %></span>
                     </div>
-
-                    <p style="opacity: 0.9; margin-bottom: 25px; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; font-size: 0.95rem; line-height: 1.6;">
-                        <%= recommended.description || 'ไม่มีคำอธิบาย...' %>
-                    </p>
-                    <a href="/novel/<%= recommended._id %>" class="btn" style="background: white; color: var(--primary); padding: 12px 30px; border-radius: 50px; font-weight: 700; box-shadow: 0 5px 15px rgba(0,0,0,0.15); border:none; display:inline-flex; align-items:center; gap:8px;">
+                    <div class="hero-desc"><%= recommended.description || 'ไม่มีคำอธิบาย...' %></div>
+                    <a href="/novel/<%= recommended._id %>" class="btn btn-white">
                         อ่านเลย <i class="fa-solid fa-arrow-right"></i>
                     </a>
                 </div>
-                <div class="hero-image-wrapper">
-                    <img src="<%= recommended.imageUrl || 'https://via.placeholder.com/300x450' %>" class="hero-image" alt="Cover">
-                </div>
+                <img src="<%= recommended.imageUrl || 'https://via.placeholder.com/300x450' %>" class="hero-cover" alt="Cover">
             </div>
             <% } %>
 
-            <div class="ranking-card">
-                <div style="display:flex; justify-content:space-between; align-items:center;">
-                    <h3 style="margin:0; font-size:1.1rem; display:flex; align-items:center; gap:8px;">
-                        <i class="fa-solid fa-chart-line" style="color:var(--primary);"></i> ยอดนิยม
-                    </h3>
+            <div class="ranking-panel">
+                <div class="rank-header">
+                    <h3 style="margin:0; font-size:1.2rem;">🏆 ยอดนิยม</h3>
+                    <div class="rank-tabs">
+                        <button class="rank-tab active" onclick="switchRank(event, 'daily')">รายวัน</button>
+                        <button class="rank-tab" onclick="switchRank(event, 'weekly')">สัปดาห์</button>
+                    </div>
                 </div>
                 
-                <div class="rank-tabs">
-                    <button class="rank-tab active" onclick="switchRank(event, 'daily')">รายวัน</button>
-                    <button class="rank-tab" onclick="switchRank(event, 'weekly')">สัปดาห์</button>
-                    <button class="rank-tab" onclick="switchRank(event, 'monthly')">เดือน</button>
-                </div>
-
                 <ul class="rank-list" id="rankList">
                     <% if (locals.topNovels) { %>
                         <% topNovels.forEach((novel, index) => { %>
                             <li>
                                 <a href="/novel/<%= novel._id %>" class="rank-item">
-                                    <div class="rank-num" style="<%= index === 0 ? 'color:#FFD700;' : (index === 1 ? 'color:#C0C0C0;' : (index === 2 ? 'color:#CD7F32;' : '')) %>"><%= index + 1 %></div>
-                                    <img src="<%= novel.imageUrl || 'https://via.placeholder.com/60' %>" style="width:45px; height:65px; object-fit:cover; border-radius:6px; margin-right:12px;">
-                                    <div style="flex:1; min-width:0;">
-                                        <div style="font-weight:600; font-size:0.95rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;"><%= novel.title %></div>
-                                        <div class="text-muted" style="font-size:0.75rem; margin-top:2px;">
+                                    <span class="rank-number top-<%= index + 1 %>"><%= index + 1 %></span>
+                                    <img src="<%= novel.imageUrl || 'https://via.placeholder.com/60' %>" style="width:48px; height:64px; object-fit:cover; border-radius:8px; margin-right:15px;">
+                                    <div style="flex:1; overflow:hidden;">
+                                        <div style="font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;"><%= novel.title %></div>
+                                        <div style="font-size:0.8rem; color:var(--text-muted); margin-top:4px;">
                                             <i class="fa-regular fa-eye"></i> <%= (novel.views || 0).toLocaleString() %>
                                         </div>
                                     </div>
@@ -559,34 +539,34 @@
 
         <% if (isAdmin) { %>
         <div class="admin-panel">
-            <div style="display:flex; align-items:center; gap:15px; flex:1; min-width: 250px;">
-                <div style="background: rgba(99, 102, 241, 0.1); width: 45px; height: 45px; border-radius: 50%; display:flex; align-items:center; justify-content:center; color:var(--primary); font-size:1.2rem;">
+            <div style="flex:1; min-width:250px; display:flex; gap:15px; align-items:center;">
+                <div style="width:50px; height:50px; background:rgba(99,102,241,0.1); border-radius:50%; display:flex; align-items:center; justify-content:center; color:var(--primary); font-size:1.5rem;">
                     <i class="fa-solid fa-plus"></i>
                 </div>
                 <div>
-                    <h3 style="margin:0; font-size:1rem;">สร้างโปรเจกต์ใหม่</h3>
-                    <p class="text-muted" style="margin:0; font-size:0.8rem;">เพิ่มนิยายแปลเรื่องใหม่</p>
+                    <h4 style="margin:0; font-size:1.1rem;">สร้างนิยายใหม่</h4>
+                    <p class="text-muted" style="margin:0; font-size:0.9rem;">เพิ่มโปรเจกต์แปลเรื่องใหม่</p>
                 </div>
             </div>
-            <form action="/novels" method="POST" style="display:flex; gap:10px; flex:2; flex-wrap:wrap;">
-                <input type="text" name="title" placeholder="ชื่อนิยาย..." required style="flex: 2; min-width: 150px; padding:10px 15px; border-radius:8px; border:1px solid var(--border); background:var(--bg-input);">
-                <input list="categoryList" name="categories" placeholder="หมวดหมู่..." style="flex: 1; min-width: 120px; padding:10px 15px; border-radius:8px; border:1px solid var(--border); background:var(--bg-input);">
+            <form action="/novels" method="POST" style="flex:2; display:flex; gap:12px; flex-wrap:wrap;">
+                <input type="text" name="title" placeholder="ชื่อนิยาย..." required class="search-input" style="flex:2; min-width:200px; background:var(--bg-body);">
+                <input list="categoryList" name="categories" placeholder="หมวดหมู่..." class="search-input" style="flex:1; min-width:150px; background:var(--bg-body);">
                 <datalist id="categoryList">
-                    <% categories.forEach(cat => { %> <option value="<%= cat %>"> <% }) %>
+                    <% locals.allCategories.forEach(cat => { %> <option value="<%= cat %>"> <% }) %>
                 </datalist>
-                <button type="submit" class="btn btn-primary" style="border-radius:8px; padding:0 20px;">Create</button>
+                <button type="submit" class="btn btn-primary">Create</button>
             </form>
         </div>
         <% } %>
 
-        <div class="category-section">
-            <h2 style="font-size: 1.2rem; margin: 0 0 15px 0; font-weight: 700; display:flex; align-items:center; gap:10px;">
-                <%= currentCategory ? currentCategory : 'อัปเดตล่าสุด' %>
+        <div class="category-sticky">
+            <div style="display:flex; justify-content:space-between; align-items:center; padding:0 24px 10px 24px;">
+                <h3 style="margin:0; font-size:1.2rem;"><%= currentCategory || 'อัปเดตล่าสุด' %></h3>
                 <% if(currentCategory) { %> 
-                    <a href="/" style="font-size:0.8rem; font-weight:400; color:var(--text-muted); text-decoration:none;"><i class="fa-solid fa-times-circle"></i> ล้างค่า</a>
+                    <a href="/" style="font-size:0.9rem; color:var(--text-muted); text-decoration:none;"><i class="fa-solid fa-xmark"></i> ล้างค่า</a>
                 <% } %>
-            </h2>
-            <div class="category-bar">
+            </div>
+            <div class="category-scroll">
                 <a href="/" class="cat-pill <%= !currentCategory ? 'active' : '' %>">ทั้งหมด</a>
                 <% categories.forEach(cat => { %>
                     <a href="/?category=<%= cat %>" class="cat-pill <%= currentCategory === cat ? 'active' : '' %>"><%= cat %></a>
@@ -595,33 +575,33 @@
         </div>
 
         <% if (novels.length === 0) { %>
-            <div style="text-align:center; padding: 80px 20px; opacity:0.6;">
-                <i class="fa-solid fa-box-open" style="font-size: 4em; color: var(--text-muted); margin-bottom: 20px;"></i>
+            <div style="text-align:center; padding: 100px 20px; color:var(--text-muted);">
+                <i class="fa-solid fa-box-open" style="font-size: 4rem; margin-bottom: 20px; opacity:0.5;"></i>
                 <p>ไม่พบข้อมูลนิยายที่คุณค้นหา</p>
-                <a href="/" class="btn btn-outline btn-sm">กลับหน้าหลัก</a>
+                <a href="/" class="btn btn-outline">กลับหน้าหลัก</a>
             </div>
         <% } %>
 
         <div class="novel-grid">
             <% novels.forEach(novel => { %>
                 <a href="/novel/<%= novel._id %>" class="novel-card">
-                    <div class="novel-cover-wrapper">
+                    <div class="cover-wrapper">
                         <% 
-                            let statusClass = 'badge-on';
+                            let statusClass = 'status-on';
                             let statusText = 'ON GOING';
-                            if(novel.status === 'Completed') { statusClass = 'badge-end'; statusText = 'END'; }
-                            if(novel.status === 'Hiatus') { statusClass = 'badge-hiatus'; statusText = 'HIATUS'; }
+                            if(novel.status === 'Completed') { statusClass = 'status-end'; statusText = 'END'; }
+                            if(novel.status === 'Hiatus') { statusClass = 'status-hiatus'; statusText = 'HIATUS'; }
                         %>
-                        <div class="novel-badge <%= statusClass %>"><%= statusText %></div>
-                        <img src="<%= novel.imageUrl || 'https://via.placeholder.com/300x450?text=NO+IMAGE' %>" class="novel-cover" loading="lazy" alt="<%= novel.title %>">
+                        <div class="status-badge <%= statusClass %>"><%= statusText %></div>
+                        <img src="<%= novel.imageUrl || 'https://via.placeholder.com/300x450?text=No+Image' %>" class="novel-cover" loading="lazy" alt="<%= novel.title %>">
                     </div>
                     
                     <div class="novel-title"><%= novel.title %></div>
                     
-                    <div class="novel-meta">
+                    <div class="novel-stats">
                         <span><i class="fa-regular fa-eye"></i> <%= (novel.views || 0).toLocaleString() %></span>
                         <% if(novel.categories && novel.categories.length > 0) { %>
-                            <span style="color:var(--primary); font-size:0.75rem; background:rgba(99,102,241,0.1); padding:2px 6px; border-radius:4px;">
+                            <span style="color:var(--primary); font-size:0.75rem; background:rgba(99,102,241,0.1); padding:2px 8px; border-radius:6px;">
                                 <%= novel.categories[0] %>
                             </span>
                         <% } %>
@@ -632,25 +612,26 @@
     </div>
 
     <nav class="mobile-nav">
-        <a href="/" class="nav-item active">
-            <i class="fa-solid fa-home"></i>
+        <a href="/" class="nav-link active">
+            <i class="fa-solid fa-house"></i>
             <span>หน้าหลัก</span>
         </a>
-        <a href="/search" class="nav-item"> <i class="fa-solid fa-magnifying-glass"></i>
+        <a href="#" class="nav-link" onclick="document.querySelector('.search-input').focus(); return false;">
+            <i class="fa-solid fa-magnifying-glass"></i>
             <span>ค้นหา</span>
         </a>
-        <a href="/random" class="nav-item">
+        <a href="/random" class="nav-link">
             <i class="fa-solid fa-shuffle"></i>
             <span>สุ่ม</span>
         </a>
         <% if (isAdmin) { %>
-             <a href="/logout" class="nav-item" style="color:var(--primary);">
-                <i class="fa-solid fa-sign-out"></i>
+             <a href="/logout" class="nav-link" style="color:var(--danger);">
+                <i class="fa-solid fa-right-from-bracket"></i>
                 <span>Logout</span>
             </a>
         <% } else { %>
-            <a href="/login" class="nav-item">
-                <i class="fa-solid fa-user"></i>
+            <a href="/login" class="nav-link">
+                <i class="fa-solid fa-user-circle"></i>
                 <span>บัญชี</span>
             </a>
         <% } %>
@@ -665,7 +646,7 @@
             localStorage.setItem('theme', next);
         }
 
-        // Ranking Tab Logic
+        // Mock Ranking Switch (Visual Only)
         function switchRank(event, period) {
             document.querySelectorAll('.rank-tab').forEach(btn => btn.classList.remove('active'));
             event.target.classList.add('active');
@@ -673,17 +654,10 @@
             const list = document.getElementById('rankList');
             list.style.opacity = '0.5';
             setTimeout(() => {
+                // In real app, you would fetch data here
                 list.style.opacity = '1';
-                // Implement AJAX fetch for real data here if needed
-            }, 200);
+            }, 300);
         }
-
-        // Mobile Search Focus Fix (Optional: if click search icon in bottom nav)
-        document.querySelector('a[href="/search"]').addEventListener('click', function(e) {
-            e.preventDefault();
-            document.querySelector('.search-input').focus();
-            window.scrollTo(0,0);
-        });
     </script>
 </body>
 </html>
