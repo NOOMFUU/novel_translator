@@ -3,83 +3,371 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><%= novel.title %></title>
+    <title><%= novel.title %> - อ่านนิยาย</title>
+    
     <link rel="stylesheet" href="/css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script>
+        (function() {
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+        })();
+    </script>
+    
     <style>
-        .chapter-grid.view-list { grid-template-columns: 1fr; gap: 10px; }
-        .chapter-grid.view-list .chapter-item { justify-content: space-between; padding: 12px 20px; }
-        
-        .tab-btn {
-            padding: 12px 24px; border: none; background: transparent;
-            font-weight: 600; color: var(--text-muted); cursor: pointer;
-            border-bottom: 3px solid transparent; transition: 0.3s;
+        /* 🟢 2. Preload Class: ปิด Animation ชั่วคราวตอนโหลด */
+        .preload * {
+            transition: none !important;
+            -webkit-transition: none !important;
         }
-        .tab-btn.active { color: var(--primary); border-bottom-color: var(--primary); }
+
+        /* --- Page Specific Styles --- */
+        
+        /* Layout Grid สำหรับส่วนหัวนิยาย */
+        .novel-header-wrapper {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            gap: 40px;
+            align-items: start;
+        }
+
+        /* รูปปก */
+        .novel-cover-box {
+            position: relative;
+            border-radius: var(--radius);
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            aspect-ratio: 2/3;
+        }
+        .novel-cover-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s;
+        }
+        .novel-cover-box:hover img {
+            transform: scale(1.03);
+        }
+
+        /* ข้อมูลนิยาย */
+        .novel-info-header h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            line-height: 1.2;
+            margin: 0 0 10px 0;
+            background: linear-gradient(135deg, var(--text-main) 0%, var(--primary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .novel-meta-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+            padding: 15px;
+            background: rgba(255,255,255,0.3);
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border);
+        }
+
+        .meta-item {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .meta-label {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+        .meta-value {
+            font-weight: 500;
+            color: var(--text-main);
+        }
+
+        /* Tags */
+        .tag-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 25px;
+        }
+        .tag-pill {
+            background: rgba(99, 102, 241, 0.08);
+            color: var(--primary);
+            padding: 6px 14px;
+            border-radius: 50px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+        .tag-pill:hover {
+            background: var(--primary);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        /* เรื่องย่อ */
+        .synopsis-box {
+            background: rgba(var(--bg-card), 0.5);
+            padding: 24px;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border);
+            line-height: 1.8;
+            color: var(--text-muted);
+            position: relative;
+        }
+
+        /* ปุ่ม Action */
+        .action-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 24px;
+        }
+
+        /* --- Chapter List Section --- */
+        .chapter-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 40px 0 20px 0;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .chapter-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .chapter-item {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            text-decoration: none;
+            color: var(--text-main);
+            transition: all 0.2s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .chapter-item:hover {
+            border-color: var(--primary);
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.15);
+            transform: translateY(-2px);
+        }
+
+        .chapter-item.read {
+            opacity: 0.7;
+            background: var(--bg-input);
+        }
+        .chapter-item.read::after {
+            content: '\f00c';
+            font-family: "Font Awesome 6 Free";
+            font-weight: 900;
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            color: var(--success);
+            font-size: 0.8rem;
+        }
+
+        .chapter-info h4 {
+            margin: 0 0 5px 0;
+            font-size: 1rem;
+            font-weight: 600;
+        }
+        .chapter-date {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        /* View Mode: List */
+        .chapter-grid.view-list {
+            grid-template-columns: 1fr;
+            gap: 10px;
+        }
+        .chapter-grid.view-list .chapter-item {
+            padding: 12px 20px;
+        }
+
+        /* Toast Animation */
+        .toast-container {
+            position: fixed;
+            top: 90px; right: 20px; z-index: 1000;
+            display: flex; flex-direction: column; gap: 10px;
+        }
+        .toast {
+            background: var(--bg-card);
+            color: var(--text-main);
+            padding: 12px 20px;
+            border-radius: var(--radius-sm);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            border-left: 4px solid var(--primary);
+            display: flex; align-items: center;
+            gap: 10px;
+            animation: slideIn 0.3s ease;
+        }
+        .toast.error { border-left-color: var(--danger); }
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        /* --- Mobile Responsive --- */
+        @media (max-width: 900px) {
+            .novel-header-wrapper {
+                grid-template-columns: 220px 1fr;
+                gap: 30px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .novel-header-wrapper {
+                grid-template-columns: 1fr;
+                text-align: center;
+                gap: 20px;
+            }
+            
+            .novel-cover-box {
+                width: 200px;
+                margin: 0 auto;
+            }
+
+            .novel-info-header h1 {
+                font-size: 1.8rem;
+            }
+
+            .novel-meta-grid {
+                grid-template-columns: 1fr 1fr;
+                text-align: left;
+            }
+
+            .tag-container {
+                justify-content: center;
+            }
+            
+            .action-buttons {
+                flex-direction: row;
+            }
+            .action-buttons .btn {
+                flex: 1;
+            }
+        }
     </style>
 </head>
-<body>
+<body class="preload">
     <div id="toast-container" class="toast-container"></div>
 
     <header class="main-header">
-        <div class="container d-flex justify-between align-center">
-            <a href="/" class="btn btn-outline btn-sm" style="border:none; padding-left:0;"><i class="fa-solid fa-chevron-left"></i> กลับหน้าหลัก</a>
-            <button onclick="toggleTheme()" class="btn btn-outline btn-sm" style="border-radius:50%; width:40px; height:40px; padding:0;"><i class="fa-solid fa-moon"></i></button>
+        <div class="d-flex justify-between align-center w-100" style="padding: 0 24px; max-width: 100%;">
+            
+            <a href="/" class="btn btn-outline btn-sm" style="border:none; padding-left:0;">
+                <i class="fa-solid fa-chevron-left"></i> <span class="desktop-only">กลับหน้าหลัก</span>
+            </a>
+            
+            <div class="d-flex align-center gap-2">
+                 <button onclick="toggleTheme()" class="btn btn-outline btn-sm" style="border-radius:50%; width:40px; height:40px; padding:0;">
+                    <i class="fa-solid fa-moon"></i>
+                </button>
+            </div>
+
         </div>
     </header>
 
-    <div class="container" style="padding-top: 40px; padding-bottom: 80px;">
-        
-        <div class="glass-panel novel-header-grid">
+    <div class="container" style="padding-top: 40px;">
+        <div class="glass-panel novel-header-wrapper">
+            
             <div>
-                <img src="<%= novel.imageUrl || 'https://via.placeholder.com/300x450?text=No+Cover' %>" class="novel-cover-large" alt="Cover">
-                
-                <div class="d-flex flex-column gap-2" style="margin-top: 24px; display:flex; flex-direction:column;">
+                <div class="novel-cover-box">
+                    <img src="<%= novel.imageUrl || 'https://via.placeholder.com/300x450?text=No+Cover' %>" alt="<%= novel.title %>">
+                    
+                    <div class="novel-badge badge-<%= novel.status === 'จบแล้ว' ? 'end' : 'on' %>" 
+                         style="position:absolute; top:10px; left:10px;">
+                        <%= novel.status %>
+                    </div>
+                </div>
+
+                <div class="action-buttons">
                     <button id="continue-reading-btn" class="btn btn-primary w-100" style="display:none;" onclick="continueReading()">
-                        <i class="fa-solid fa-play"></i> อ่านต่อตอนล่าสุด
+                        <i class="fa-solid fa-play"></i> อ่านต่อ
                     </button>
                     <% if(chapters.length > 0) { %>
-                        <a href="/chapter/<%= chapters[chapters.length-1]._id %>" class="btn btn-outline w-100"><i class="fa-solid fa-book-open"></i> เริ่มอ่านตอนแรก</a>
+                        <a href="/chapter/<%= chapters[chapters.length-1]._id %>" class="btn btn-outline w-100">
+                            <i class="fa-solid fa-book-open"></i> เริ่มอ่านตอนแรก
+                        </a>
                     <% } %>
                 </div>
             </div>
-            
-            <div style="position: relative;">
+
+            <div class="novel-info-header">
                 <% if(isAdmin) { %>
-                    <div style="position: absolute; top: 0; right: 0; display: flex; gap: 10px;">
-                        <a href="/novel/<%= novel._id %>/edit" class="btn btn-outline btn-sm" title="แก้ไขข้อมูลนิยาย"><i class="fa-solid fa-pen"></i></a>
-                        <form action="/novel/<%= novel._id %>?_method=DELETE" method="POST" onsubmit="return confirm('⚠️ ยืนยันการลบนิยายเรื่องนี้? (ตอนทั้งหมดจะถูกลบด้วย)');" style="margin:0;">
-                            <button type="submit" class="btn btn-sm btn-outline" style="color: var(--danger); border-color: var(--danger);" title="ลบนิยาย"><i class="fa-solid fa-trash"></i></button>
-                        </form>
+                    <div class="d-flex justify-between align-center mb-4" style="background: rgba(0,0,0,0.05); padding: 8px 15px; border-radius: 8px;">
+                        <span class="text-muted" style="font-size:0.8rem;"><i class="fa-solid fa-user-shield"></i> เมนูแอดมิน</span>
+                        <div class="d-flex gap-2">
+                            <a href="/novel/<%= novel._id %>/edit" class="btn btn-sm btn-outline"><i class="fa-solid fa-pen"></i> แก้ไข</a>
+                            <form action="/novel/<%= novel._id %>?_method=DELETE" method="POST" onsubmit="return confirm('⚠️ ยืนยันการลบนิยาย?');" style="margin:0;">
+                                <button type="submit" class="btn btn-sm btn-outline" style="color: var(--danger); border-color: var(--danger);"><i class="fa-solid fa-trash"></i> ลบ</button>
+                            </form>
+                        </div>
                     </div>
                 <% } %>
 
-                <h1 style="font-size: 2.2rem; margin: 0 0 10px 0; line-height: 1.2; font-weight: 800; padding-right: 80px;"><%= novel.title %></h1>
-                <div style="font-size: 1.1rem; color: var(--text-muted); margin-bottom: 25px; font-weight: 300;">
-                    <%= novel.originalTitle || "" %>
-                </div>
+                <h1><%= novel.title %></h1>
+                
+                <% if(novel.originalTitle) { %>
+                    <div class="text-muted" style="font-size: 1.1rem; margin-bottom: 20px; font-weight: 300;">
+                        <%= novel.originalTitle %>
+                    </div>
+                <% } %>
 
-                <div style="display: grid; grid-template-columns: auto 1fr; gap: 8px 24px; margin-bottom: 24px;">
-                    <span class="text-muted">ผู้แต่ง:</span> <span><%= novel.author %></span>
-                    <span class="text-muted">สถานะ:</span> <span class="badge badge-<%= novel.status.toLowerCase() %>" style="font-weight:600;"><%= novel.status %></span>
-                    <span class="text-muted">ยอดวิว:</span> <span><%= (novel.views || 0).toLocaleString() %></span>
-                </div>
-
-                <div class="d-flex gap-2" style="flex-wrap: wrap; margin-bottom: 25px;">
-                    <% if(novel.tags && novel.tags.length > 0) { %>
+                <% if(novel.tags && novel.tags.length > 0) { %>
+                    <div class="tag-container">
                         <% novel.tags.forEach(tag => { %>
-                            <span style="background:rgba(99, 102, 241, 0.1); color:var(--primary); padding:4px 12px; border-radius:20px; font-size:0.85rem; font-weight:500;">#<%= tag %></span>
+                            <a href="/search?tag=<%= tag %>" class="tag-pill">#<%= tag %></a>
                         <% }) %>
-                    <% } %>
+                    </div>
+                <% } %>
+
+                <div class="novel-meta-grid">
+                    <div class="meta-item">
+                        <span class="meta-label"><i class="fa-solid fa-feather"></i> ผู้แต่ง</span>
+                        <span class="meta-value"><%= novel.author %></span>
+                    </div>
+                    <div class="meta-item">
+                        <span class="meta-label"><i class="fa-solid fa-eye"></i> ยอดวิว</span>
+                        <span class="meta-value"><%= (novel.views || 0).toLocaleString() %></span>
+                    </div>
+                    <div class="meta-item">
+                        <span class="meta-label"><i class="fa-solid fa-layer-group"></i> จำนวนตอน</span>
+                        <span class="meta-value"><%= chapters.length %> ตอน</span>
+                    </div>
+                    <div class="meta-item">
+                        <span class="meta-label"><i class="fa-solid fa-calendar"></i> อัปเดตล่าสุด</span>
+                        <span class="meta-value"><%= new Date(novel.updatedAt).toLocaleDateString('th-TH') %></span>
+                    </div>
                 </div>
 
-                <div style="background: rgba(255,255,255,0.5); padding: 20px; border-radius: var(--radius-sm); border: 1px solid var(--border); line-height: 1.8; color: var(--text-muted);">
-                    <h4 style="margin-top:0; color:var(--text-main); margin-bottom: 10px;">Synopsis</h4>
-                    <%= novel.description || "ไม่มีคำอธิบาย" %>
+                <div class="synopsis-box">
+                    <h4 style="margin-top:0; color:var(--text-main); margin-bottom: 12px; font-weight: 700;">
+                        <i class="fa-solid fa-align-left" style="color:var(--primary);"></i> เรื่องย่อ
+                    </h4>
+                    <div style="white-space: pre-line;"><%= novel.description || "ไม่มีคำอธิบาย" %></div>
+                    
                     <% if(novel.originalLink) { %>
-                        <div style="margin-top: 15px;">
-                            <a href="<%= novel.originalLink %>" target="_blank" style="color: var(--accent); font-size: 0.9rem; text-decoration: none;">
-                                <i class="fa-solid fa-external-link-alt"></i> แหล่งที่มา
+                        <div style="margin-top: 20px; border-top: 1px dashed var(--border); padding-top: 10px;">
+                            <a href="<%= novel.originalLink %>" target="_blank" class="btn-text" style="color: var(--accent); text-decoration: none; font-size: 0.9rem;">
+                                <i class="fa-solid fa-external-link-alt"></i> แหล่งที่มาต้นฉบับ
                             </a>
                         </div>
                     <% } %>
@@ -88,9 +376,9 @@
         </div>
 
         <% if (isAdmin) { %>
-        <div class="card d-flex align-center justify-between" style="border: 1px dashed var(--primary); background: rgba(99, 102, 241, 0.03);">
+        <div class="card d-flex align-center justify-between" style="border: 1px dashed var(--primary); background: rgba(99, 102, 241, 0.03); margin-top: 30px;">
             <div class="d-flex align-center gap-2">
-                <div style="background: var(--primary); color: white; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                <div style="background: var(--primary); color: white; width: 45px; height: 45px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.2rem;">
                     <i class="fa-solid fa-plus"></i>
                 </div>
                 <div>
@@ -104,12 +392,20 @@
         </div>
         <% } %>
 
-        <div class="d-flex justify-between align-center mb-4" style="margin-top: 40px;">
-            <h3 style="margin:0; font-size: 1.5rem;">สารบัญ (<%= chapters.length %>)</h3>
+        <div class="chapter-controls">
+            <h3 style="margin:0; font-size: 1.6rem; font-weight: 700;">
+                <span style="border-left: 5px solid var(--primary); padding-left: 10px;">สารบัญ</span>
+                <span class="text-muted" style="font-size: 1rem; font-weight: 400; margin-left: 5px;">(<%= chapters.length %> ตอน)</span>
+            </h3>
+            
             <div class="d-flex gap-2">
-                <button class="btn btn-outline btn-sm view-btn active" id="btn-grid" onclick="setView('grid')"><i class="fa-solid fa-border-all"></i></button>
-                <button class="btn btn-outline btn-sm view-btn" id="btn-list" onclick="setView('list')"><i class="fa-solid fa-list-ul"></i></button>
-                <button class="btn btn-outline btn-sm" onclick="reverseSort()"><i class="fa-solid fa-arrow-down-up-across-line"></i></button>
+                <div class="rank-tabs" style="margin:0;">
+                    <button class="rank-tab active" id="btn-grid" onclick="setView('grid')"><i class="fa-solid fa-border-all"></i> Grid</button>
+                    <button class="rank-tab" id="btn-list" onclick="setView('list')"><i class="fa-solid fa-list-ul"></i> List</button>
+                </div>
+                <button class="btn btn-outline btn-sm" onclick="reverseSort()" title="เรียงลำดับใหม่">
+                    <i class="fa-solid fa-arrow-down-up-across-line"></i>
+                </button>
             </div>
         </div>
 
@@ -117,20 +413,21 @@
             <% chapters.forEach(chapter => { %>
                 <div class="chapter-item-wrapper" style="position: relative;">
                     <a href="/chapter/<%= chapter._id %>" class="chapter-item" id="chapter-<%= chapter._id %>">
-                        <div style="flex: 1;">
-                            <div style="font-weight: 600; font-size: 1.05rem;">
-                               Ep.<%= chapter.chapterNumber %> : <%= chapter.title.replace(/^ตอนที่ \d+[:\s]*/, '') %>
-                            </div>
-                            <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 4px;">
-                                <%= new Date(chapter.createdAt).toLocaleDateString('th-TH') %>
+                        <div class="chapter-info" style="flex: 1;">
+                            <h4 class="text-truncate">
+                                Ep.<%= chapter.chapterNumber %> : <%= chapter.title.replace(/^ตอนที่ \d+[:\s]*/, '') %>
+                            </h4>
+                            <div class="chapter-date">
+                                <i class="fa-regular fa-clock"></i> <%= new Date(chapter.createdAt).toLocaleDateString('th-TH') %>
                             </div>
                         </div>
                     </a>
+
                     <% if (isAdmin) { %>
-                        <div style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); display: flex; gap: 5px;">
-                            <a href="/chapter/<%= chapter._id %>/edit" class="btn btn-sm btn-outline" style="padding: 4px 8px; border:none; background: var(--bg-card); box-shadow: 0 2px 4px rgba(0,0,0,0.1);"><i class="fa-solid fa-pen"></i></a>
+                        <div style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); display: flex; gap: 5px; z-index: 2;">
+                            <a href="/chapter/<%= chapter._id %>/edit" class="btn btn-sm btn-outline" style="background:var(--bg-card);"><i class="fa-solid fa-pen"></i></a>
                             <form action="/chapter/<%= chapter._id %>?_method=DELETE" method="POST" onsubmit="return confirm('ลบตอนนี้?')" style="margin:0;">
-                                <button type="submit" class="btn btn-sm btn-outline" style="padding: 4px 8px; color: var(--danger); border:none; background: var(--bg-card); box-shadow: 0 2px 4px rgba(0,0,0,0.1);"><i class="fa-solid fa-trash"></i></button>
+                                <button type="submit" class="btn btn-sm btn-outline" style="color: var(--danger); background:var(--bg-card); border-color:transparent;"><i class="fa-solid fa-trash"></i></button>
                             </form>
                         </div>
                     <% } %>
@@ -142,20 +439,28 @@
     <script>
         const novelId = "<%= novel._id %>";
         
-        // --- UX: Read History System (View Only) ---
+        // --- UX: Read History & UI Logic ---
+
         function getReadHistory() {
-            const raw = localStorage.getItem(`readHistory-${novelId}`);
-            return raw ? JSON.parse(raw) : [];
+            try {
+                const raw = localStorage.getItem(`readHistory-${novelId}`);
+                return raw ? JSON.parse(raw) : [];
+            } catch(e) { return []; }
         }
 
-        // เช็คสถานะอย่างเดียว ไม่บันทึกที่หน้านี้
         function checkReadHistory() {
             // 1. ปุ่มอ่านต่อ (Last Read)
             const lastRead = localStorage.getItem(`lastRead-${novelId}`);
             if (lastRead) {
                 const btn = document.getElementById('continue-reading-btn');
-                btn.style.display = 'inline-flex';
-                btn.onclick = () => window.location.href = `/chapter/${lastRead}`;
+                if(btn) {
+                    btn.style.display = 'inline-flex';
+                    // อัพเดท Link ให้ตรงกับตอนล่าสุด
+                    btn.onclick = (e) => {
+                        e.preventDefault();
+                        window.location.href = `/chapter/${lastRead}`;
+                    };
+                }
             }
 
             // 2. แสดงเครื่องหมายถูก (Read List)
@@ -168,77 +473,20 @@
             });
         }
 
-        function showToast(message, type = 'success') {
-            const container = document.getElementById('toast-container');
-            const toast = document.createElement('div');
-            toast.className = `toast ${type}`;
-            toast.innerHTML = `<span>${message}</span> <i class="fa-solid fa-${type === 'success' ? 'check' : 'circle-exclamation'}"></i>`;
-            container.appendChild(toast);
-            setTimeout(() => {
-                toast.style.opacity = '0';
-                toast.style.transform = 'translateX(100%)';
-                setTimeout(() => toast.remove(), 300);
-            }, 3000);
-        }
-
-        async function handleAiSubmit(e) {
-            e.preventDefault();
-            const form = document.getElementById('form-auto');
-            const formData = new FormData(form);
-            formData.append('mode', 'auto');
-            form.style.display = 'none';
-            document.getElementById('ai-skeleton').style.display = 'block';
-            try {
-                const response = await fetch(`/novel/${novelId}/chapters`, {
-                    method: 'POST',
-                    headers: { 'Accept': 'application/json' },
-                    body: formData
-                });
-                const result = await response.json();
-                if (result.success) {
-                    showToast('🎉 แปลสำเร็จ! กำลังรีโหลด...');
-                    setTimeout(() => window.location.reload(), 1500);
-                } else {
-                    throw new Error(result.message);
-                }
-            } catch (err) {
-                showToast('❌ Error: ' + err.message, 'error');
-                form.style.display = 'block';
-                document.getElementById('ai-skeleton').style.display = 'none';
-            }
-        }
-
-        document.documentElement.setAttribute('data-theme', localStorage.getItem('theme') || 'light');
-        function toggleTheme() {
-            const current = document.documentElement.getAttribute('data-theme');
-            const next = current === 'light' ? 'dark' : (current === 'dark' ? 'sepia' : 'light');
-            document.documentElement.setAttribute('data-theme', next);
-            localStorage.setItem('theme', next);
-        }
-
-        function switchTab(mode) {
-            document.getElementById('form-auto').style.display = mode === 'auto' ? 'block' : 'none';
-            document.getElementById('form-manual').style.display = mode === 'manual' ? 'block' : 'none';
-            document.getElementById('tabBtnAuto').classList.toggle('active', mode === 'auto');
-            document.getElementById('tabBtnManual').classList.toggle('active', mode === 'manual');
-            localStorage.setItem(`activeTab-${novelId}`, mode);
-        }
-
-        function toggleInput(type) {
-            document.getElementById('input-text-group').style.display = type === 'text' ? 'block' : 'none';
-            document.getElementById('input-file-group').style.display = type === 'file' ? 'block' : 'none';
-        }
-
+        // View Toggler (Grid/List)
         function setView(mode) {
             const container = document.getElementById('chapterContainer');
             const btnGrid = document.getElementById('btn-grid');
             const btnList = document.getElementById('btn-list');
+            
             if(mode === 'list') {
                 container.classList.add('view-list');
-                btnList.classList.add('active'); btnGrid.classList.remove('active');
+                btnList.classList.add('active'); 
+                btnGrid.classList.remove('active');
             } else {
                 container.classList.remove('view-list');
-                btnGrid.classList.add('active'); btnList.classList.remove('active');
+                btnGrid.classList.add('active'); 
+                btnList.classList.remove('active');
             }
             localStorage.setItem('chapterView', mode);
         }
@@ -249,27 +497,42 @@
             items.reverse().forEach(item => container.appendChild(item));
         }
 
-        function detectHeader() {
-            const input = document.getElementById('smartPasteInput').value;
-            if (!input.trim()) return;
-            const lines = input.split('\n');
-            const match = lines[0].trim().match(/^(?:ตอนที่|บทที่|Chapter|Ep|Episode|第)?\s*(\d+(\.\d+)?)\s*[:：.\s]?\s*(.*)$/i);
-            if (match) {
-                document.getElementById('manualChapterNumber').value = match[1];
-                document.getElementById('manualTitle').value = match[3] ? `ตอนที่ ${match[1]} : ${match[3]}` : `ตอนที่ ${match[1]}`;
-                document.getElementById('manualTranslated').value = lines.slice(1).join('\n').trim();
-            } else {
-                document.getElementById('manualTitle').value = lines[0];
-                document.getElementById('manualTranslated').value = lines.slice(1).join('\n').trim();
-            }
+        // Theme Toggler
+        function toggleTheme() {
+            const current = document.documentElement.getAttribute('data-theme');
+            const next = current === 'light' ? 'dark' : (current === 'dark' ? 'sepia' : 'light');
+            document.documentElement.setAttribute('data-theme', next);
+            localStorage.setItem('theme', next);
         }
 
+        // Toast Notification
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type === 'error' ? 'error' : ''}`;
+            toast.innerHTML = `<i class="fa-solid fa-${type === 'success' ? 'circle-check' : 'circle-exclamation'}"></i> <span>${message}</span>`;
+            container.appendChild(toast);
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateX(100%)';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        // Init
         document.addEventListener('DOMContentLoaded', () => {
-            checkReadHistory(); 
+            // Theme Setup
+            document.documentElement.setAttribute('data-theme', localStorage.getItem('theme') || 'light');
+            
+            // View Setup
             const savedView = localStorage.getItem('chapterView') || 'grid';
             setView(savedView);
-            const savedMode = localStorage.getItem(`activeTab-${novelId}`) || 'auto';
-            switchTab(savedMode);
+            
+            // History Setup
+            checkReadHistory(); 
+
+            // 🟢 4. เอา class preload ออกเมื่อโหลดเสร็จ
+            setTimeout(() => document.body.classList.remove('preload'), 100);
         });
     </script>
 </body>
