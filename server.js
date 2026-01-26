@@ -217,13 +217,17 @@ app.post('/novel/:id/chapters', requireAdmin, upload.single('txtFile'), async (r
         const nextNumber = lastChapter ? lastChapter.chapterNumber + 1 : 1;
 
         if (mode === 'manual') {
-            await Chapter.create({
+            // [แก้ไข 1] เก็บค่า chapter ที่สร้างใหม่ใส่ตัวแปร newChapter
+            const newChapter = await Chapter.create({
                 novelId,
                 chapterNumber: manualChapterNumber || nextNumber,
                 title: manualTitle || `ตอนที่ ${manualChapterNumber || nextNumber}`,
                 translatedContent: manualTranslated
             });
-            if (isAjax) return res.json({ success: true, message: 'บันทึกสำเร็จ' });
+            
+            // [แก้ไข 2] ส่ง chapter: newChapter กลับไปด้วย
+            if (isAjax) return res.json({ success: true, message: 'บันทึกสำเร็จ', chapter: newChapter });
+            
             return res.redirect(`/novel/${novelId}`);
         }
 
@@ -242,14 +246,17 @@ app.post('/novel/:id/chapters', requireAdmin, upload.single('txtFile'), async (r
         const finalNumber = data.chapterNumber || nextNumber;
         const finalTitle = data.title ? `ตอนที่ ${finalNumber} : ${data.title}` : `ตอนที่ ${finalNumber}`;
 
-        await Chapter.create({
+        // [แก้ไข 3] เก็บค่า chapter ที่สร้างใหม่ใส่ตัวแปร newChapter (สำหรับโหมด AI)
+        const newChapter = await Chapter.create({
           novelId,
           chapterNumber: finalNumber,
           title: finalTitle, 
           translatedContent: data.translatedContent
         });
     
-        if (isAjax) return res.json({ success: true, message: 'แปลและบันทึกสำเร็จ' });
+        // [แก้ไข 4] ส่ง chapter: newChapter กลับไปด้วย
+        if (isAjax) return res.json({ success: true, message: 'แปลและบันทึกสำเร็จ', chapter: newChapter });
+        
         res.redirect(`/novel/${novelId}`);
 
     } catch (error) {
