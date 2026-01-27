@@ -289,4 +289,8 @@ app.delete('/chapter/:id', requireWriter, async (req, res) => {
     res.redirect(`/novel/${chapter.novelId}`);
 });
 
+app.get('/ping', (req, res) => {
+    res.status(200).send('pong');
+});
+
 app.listen(port, () => console.log(`Server running on port ${port}`));
