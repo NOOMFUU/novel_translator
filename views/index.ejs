@@ -10,7 +10,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
     <script>
-        // Anti-Flash Theme
         (function() {
             const savedTheme = localStorage.getItem('theme') || 'light';
             document.documentElement.setAttribute('data-theme', savedTheme);
@@ -18,23 +17,25 @@
     </script>
 
     <style>
-        /* --- CSS Variables & Reset --- */
+        /* --- CSS Variables --- */
         :root {
-            --header-height: 70px;
-            --bottom-nav-height: 65px;
+            --header-height: 60px; /* ลดความสูง Header ลงเล็กน้อย */
+            --bottom-nav-height: 60px;
             --container-max: 1200px;
             
-            --shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-            --shadow-md: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-            --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
-            --shadow-glow: 0 0 20px rgba(99, 102, 241, 0.4);
+            --shadow-sm: 0 2px 4px rgba(0,0,0,0.05);
+            --shadow-md: 0 6px 12px -2px rgba(0,0,0,0.1);
+            --shadow-glow: 0 0 15px rgba(99, 102, 241, 0.3);
             
-            --bg-glass: rgba(255, 255, 255, 0.85);
-            --border-glass: 1px solid rgba(255, 255, 255, 0.5);
+            --bg-glass: rgba(255, 255, 255, 0.9);
+            --border-glass: 1px solid rgba(0, 0, 0, 0.05);
+            
+            --radius-card: 16px;
+            --radius-sm: 10px;
         }
 
         [data-theme="dark"] {
-            --bg-glass: rgba(30, 30, 30, 0.85);
+            --bg-glass: rgba(30, 30, 30, 0.9);
             --border-glass: 1px solid rgba(255, 255, 255, 0.1);
         }
 
@@ -51,7 +52,7 @@
         .container {
             max-width: var(--container-max);
             margin: 0 auto;
-            padding: 0 24px;
+            padding: 0 20px;
         }
 
         /* --- Header --- */
@@ -60,8 +61,8 @@
             top: 0; left: 0; right: 0;
             height: var(--header-height);
             background: var(--nav-bg);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
             border-bottom: 1px solid var(--border);
             z-index: 1000;
             display: flex;
@@ -76,109 +77,110 @@
         }
 
         .logo {
-            font-size: 1.5rem;
+            font-size: 1.35rem;
             font-weight: 800;
             color: var(--primary);
             text-decoration: none;
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
         }
 
         .search-form {
             flex: 1;
-            max-width: 450px;
-            margin: 0 30px;
+            max-width: 400px;
+            margin: 0 20px;
             position: relative;
         }
 
         .search-input {
             width: 100%;
-            padding: 12px 20px 12px 45px;
+            padding: 10px 20px 10px 40px;
             border-radius: 50px;
             border: 1px solid var(--border);
             background: var(--bg-input);
             color: var(--text-main);
             font-family: inherit;
+            font-size: 0.95rem;
             transition: all 0.2s;
+            box-sizing: border-box;
         }
         .search-input:focus {
             outline: none;
             border-color: var(--primary);
-            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
             background: var(--bg-body);
         }
         .search-icon {
             position: absolute;
-            left: 16px; top: 50%;
+            left: 14px; top: 50%;
             transform: translateY(-50%);
             color: var(--text-muted);
+            font-size: 0.9rem;
             pointer-events: none;
         }
 
-        /* --- Hero Section --- */
+        /* --- Featured / Hero --- */
         .featured-wrapper {
             display: grid;
             grid-template-columns: 1.6fr 1fr;
-            gap: 30px;
-            margin: 40px 0 60px 0;
+            gap: 24px;
+            margin: 30px 0 50px 0;
         }
 
         .hero-card {
             background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
-            border-radius: 24px;
-            padding: 40px;
+            border-radius: var(--radius-card);
+            padding: 30px;
             color: white;
             position: relative;
             overflow: hidden;
             box-shadow: var(--shadow-glow);
             display: flex;
             align-items: center;
-            gap: 30px;
+            gap: 25px;
         }
 
         .hero-bg-pattern {
             position: absolute;
-            right: -50px; bottom: -50px;
-            font-size: 18rem;
-            opacity: 0.1;
-            transform: rotate(-15deg);
+            right: -30px; bottom: -40px;
+            font-size: 14rem;
+            opacity: 0.08;
+            transform: rotate(-10deg);
             pointer-events: none;
         }
 
-        .hero-content {
-            flex: 1;
-            z-index: 2;
-        }
+        .hero-content { flex: 1; z-index: 2; }
+        
         .hero-tag {
             background: rgba(255,255,255,0.2);
-            padding: 6px 14px;
+            padding: 4px 12px;
             border-radius: 50px;
-            font-size: 0.75rem;
+            font-size: 0.7rem;
             font-weight: 700;
             letter-spacing: 0.5px;
             display: inline-block;
-            margin-bottom: 15px;
+            margin-bottom: 10px;
             backdrop-filter: blur(4px);
         }
         .hero-title {
-            font-size: 2rem;
-            line-height: 1.2;
-            margin: 0 0 15px 0;
+            font-size: 1.75rem;
+            line-height: 1.25;
+            margin: 0 0 10px 0;
             font-weight: 800;
         }
         .hero-info {
             display: flex;
-            gap: 15px;
-            font-size: 0.9rem;
-            margin-bottom: 20px;
-            opacity: 0.9;
+            gap: 12px;
+            font-size: 0.85rem;
+            margin-bottom: 15px;
+            opacity: 0.95;
+            flex-wrap: wrap;
         }
         .hero-desc {
-            font-size: 1rem;
+            font-size: 0.95rem;
             line-height: 1.6;
             opacity: 0.9;
-            margin-bottom: 30px;
+            margin-bottom: 25px;
             display: -webkit-box;
             -webkit-line-clamp: 3;
             -webkit-box-orient: vertical;
@@ -186,13 +188,13 @@
         }
         
         .hero-cover {
-            width: 180px;
+            width: 160px;
             aspect-ratio: 2/3;
             object-fit: cover;
-            border-radius: 12px;
+            border-radius: 10px;
             transform: rotate(3deg);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
-            border: 4px solid rgba(255,255,255,0.2);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.25);
+            border: 3px solid rgba(255,255,255,0.25);
             z-index: 2;
             transition: transform 0.3s;
         }
@@ -200,12 +202,12 @@
             transform: rotate(0deg) scale(1.02);
         }
 
-        /* --- Ranking Panel --- */
+        /* --- Ranking --- */
         .ranking-panel {
             background: var(--bg-glass);
             border: var(--border-glass);
-            border-radius: 24px;
-            padding: 25px;
+            border-radius: var(--radius-card);
+            padding: 20px;
             display: flex;
             flex-direction: column;
             backdrop-filter: blur(10px);
@@ -216,21 +218,21 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 15px;
+            margin-bottom: 12px;
         }
         .rank-tabs {
             display: flex;
             background: var(--bg-input);
             border-radius: 50px;
-            padding: 4px;
+            padding: 3px;
         }
         .rank-tab {
-            padding: 6px 16px;
+            padding: 4px 12px;
             border-radius: 50px;
             border: none;
             background: transparent;
             color: var(--text-muted);
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             font-weight: 600;
             cursor: pointer;
             transition: 0.2s;
@@ -243,60 +245,62 @@
 
         .rank-list {
             list-style: none;
-            padding: 0;
-            margin: 0;
+            padding: 0; margin: 0;
             overflow-y: auto;
             flex: 1;
         }
         .rank-item {
             display: flex;
             align-items: center;
-            padding: 12px;
-            border-radius: 12px;
+            padding: 10px;
+            border-radius: 10px;
             text-decoration: none;
             color: var(--text-main);
             transition: 0.2s;
         }
-        .rank-item:hover {
-            background: rgba(99, 102, 241, 0.08);
-        }
+        .rank-item:active { background: rgba(99, 102, 241, 0.08); }
         .rank-number {
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             font-weight: 800;
-            width: 35px;
+            width: 30px;
             color: var(--text-muted);
             opacity: 0.5;
+            text-align: center;
+            margin-right: 8px;
         }
         .rank-number.top-1 { color: #FFD700; opacity: 1; }
         .rank-number.top-2 { color: #C0C0C0; opacity: 1; }
         .rank-number.top-3 { color: #CD7F32; opacity: 1; }
 
-        /* --- Category Bar --- */
+        /* --- Categories --- */
         .category-sticky {
             position: sticky;
             top: var(--header-height);
             z-index: 900;
-            padding: 15px 0;
-            margin: 0 -24px 30px -24px;
+            padding: 10px 0;
+            margin: 0 -20px 20px -20px;
+            background: rgba(var(--bg-rgb), 0.8); /* Fallback */
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
         }
         .category-scroll {
             display: flex;
-            gap: 20px;
+            gap: 12px;
             overflow-x: auto;
-            padding: 10px 24px 0;
+            padding: 5px 20px 10px;
             scrollbar-width: none;
         }
         .category-scroll::-webkit-scrollbar { display: none; }
         
         .cat-pill {
             white-space: nowrap;
-            padding: 8px 20px;
+            padding: 6px 16px;
             border-radius: 50px;
             background: var(--bg-card);
             border: 1px solid var(--border);
             color: var(--text-main);
             text-decoration: none;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             font-weight: 500;
             transition: all 0.2s;
             box-shadow: var(--shadow-sm);
@@ -305,86 +309,85 @@
             background: var(--primary);
             color: white;
             border-color: var(--primary);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+            transform: translateY(-1px);
         }
 
-        /* --- Novel Grid --- */
+        /* --- Grid & Cards --- */
         .novel-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-            gap: 25px;
+            /* ปรับให้กะทัดรัดขึ้นใน Desktop เริ่มต้น */
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            gap: 20px;
         }
 
         .novel-card {
             text-decoration: none;
             color: inherit;
-            transition: transform 0.2s;
             display: flex;
             flex-direction: column;
+            position: relative;
         }
-        .novel-card:hover {
-            transform: translateY(-6px);
-        }
-
+        
         .cover-wrapper {
             position: relative;
-            border-radius: 12px;
+            border-radius: var(--radius-sm);
             overflow: hidden;
             aspect-ratio: 2/3;
             box-shadow: var(--shadow-sm);
-            margin-bottom: 12px;
+            margin-bottom: 10px;
+            background: var(--bg-input);
         }
         .novel-cover {
-            width: 100%;
-            height: 100%;
+            width: 100%; height: 100%;
             object-fit: cover;
-            transition: transform 0.5s;
+            transition: transform 0.4s;
         }
-        .novel-card:hover .novel-cover { transform: scale(1.06); }
+        .novel-card:hover .novel-cover { transform: scale(1.05); }
 
         .status-badge {
             position: absolute;
-            top: 8px; left: 8px;
-            padding: 4px 10px;
-            border-radius: 6px;
-            font-size: 0.7rem;
+            top: 6px; left: 6px;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 0.65rem;
             font-weight: 700;
             color: white;
             backdrop-filter: blur(4px);
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.15);
         }
-        .status-on { background: rgba(16, 185, 129, 0.9); }
-        .status-end { background: rgba(239, 68, 68, 0.9); }
-        .status-hiatus { background: rgba(245, 158, 11, 0.9); }
+        .status-on { background: rgba(16, 185, 129, 0.95); }
+        .status-end { background: rgba(239, 68, 68, 0.95); }
+        .status-hiatus { background: rgba(245, 158, 11, 0.95); }
 
         .novel-title {
             font-weight: 700;
-            font-size: 1.05rem;
+            font-size: 0.95rem;
             line-height: 1.4;
-            margin-bottom: 6px;
+            margin-bottom: 4px;
             display: -webkit-box;
             -webkit-line-clamp: 2;
             -webkit-box-orient: vertical;
             overflow: hidden;
+            height: 2.8em; /* Fix height for alignment */
         }
         .novel-stats {
-            font-size: 0.85rem;
+            font-size: 0.75rem;
             color: var(--text-muted);
             display: flex;
             justify-content: space-between;
             align-items: center;
+            margin-top: auto;
         }
 
         /* --- Admin Panel --- */
         .admin-panel {
             background: var(--bg-glass);
             border: 1px dashed var(--primary);
-            border-radius: 20px;
-            padding: 24px;
-            margin-bottom: 40px;
+            border-radius: var(--radius-card);
+            padding: 20px;
+            margin-bottom: 30px;
             display: flex;
-            gap: 24px;
+            gap: 20px;
             align-items: center;
             flex-wrap: wrap;
         }
@@ -401,7 +404,7 @@
             justify-content: space-around;
             align-items: center;
             padding-bottom: env(safe-area-inset-bottom);
-            backdrop-filter: blur(10px);
+            backdrop-filter: blur(12px);
         }
         .nav-link {
             display: flex;
@@ -410,46 +413,99 @@
             justify-content: center;
             text-decoration: none;
             color: var(--text-muted);
-            font-size: 0.75rem;
-            gap: 4px;
+            font-size: 0.7rem;
+            gap: 3px;
             width: 100%;
             height: 100%;
+            transition: color 0.2s;
         }
-        .nav-link i { font-size: 1.25rem; }
+        .nav-link i { font-size: 1.15rem; margin-bottom: 2px; }
         .nav-link.active { color: var(--primary); font-weight: 600; }
 
-        /* --- Utilities --- */
+        /* --- Buttons --- */
         .btn {
             display: inline-flex;
-            align-items: center; gap: 8px;
-            padding: 8px 16px; border-radius: 50px; font-weight: 600;
+            align-items: center; gap: 6px;
+            padding: 6px 14px; border-radius: 50px; font-weight: 600; font-size: 0.9rem;
             text-decoration: none; border: none; cursor: pointer; transition: 0.2s;
         }
         .btn-primary { background: var(--primary); color: white; }
-        .btn-primary:hover { background: var(--primary-hover); transform: translateY(-2px); }
+        .btn-primary:active { transform: translateY(1px); }
         .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text-main); }
-        .btn-outline:hover { border-color: var(--primary); color: var(--primary); }
         .btn-white { background: white; color: var(--primary); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
-        .btn-white:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,0,0,0.15); }
 
-        /* --- Responsive --- */
+        /* --- Responsive Logic (The Fix) --- */
         @media (max-width: 900px) {
-            .featured-wrapper { grid-template-columns: 1fr; }
-            .hero-card { padding: 30px; }
+            .featured-wrapper { grid-template-columns: 1fr; gap: 20px; }
         }
 
         @media (max-width: 768px) {
             .desktop-only { display: none !important; }
             .mobile-nav { display: flex; }
-            .search-form { display: none; } /* ซ่อน Search บน Header ในมือถือ */
+            .search-form { display: none; }
             
-            .hero-card { flex-direction: column-reverse; text-align: center; gap: 20px; }
-            .hero-info { justify-content: center; }
-            .hero-cover { width: 140px; transform: rotate(0); margin: 0 auto; }
-            
-            .novel-grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 16px; }
+            /* Container Adjustments */
             .container { padding: 0 16px; }
-            .category-sticky { padding-left: 0; padding-right: 0; margin-left: -16px; margin-right: -16px; }
+            
+            /* Compact Hero for Mobile */
+            .hero-card {
+                padding: 16px;
+                border-radius: 12px;
+                flex-direction: row; /* เปลี่ยนกลับเป็นแนวนอนแต่เล็ก */
+                align-items: flex-start;
+                gap: 16px;
+                min-height: auto;
+            }
+            .hero-bg-pattern { font-size: 8rem; right: -20px; bottom: -20px; }
+            
+            .hero-cover {
+                width: 90px; /* รูปเล็กลง */
+                border-radius: 8px;
+                transform: rotate(0); /* ไม่เอียงแล้ว */
+                border-width: 2px;
+                margin: 0;
+                box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            }
+            
+            .hero-content { text-align: left; }
+            .hero-tag { font-size: 0.6rem; padding: 3px 10px; margin-bottom: 6px; }
+            .hero-title { font-size: 1.25rem; margin-bottom: 6px; } /* ชื่อเรื่องเล็กลง */
+            .hero-info { display: none; } /* ซ่อน Info ยิบย่อยในหน้าแรกมือถือ */
+            .hero-desc { 
+                font-size: 0.8rem; 
+                margin-bottom: 12px; 
+                -webkit-line-clamp: 2; 
+                line-height: 1.4;
+            }
+            .hero-card .btn {
+                padding: 5px 12px;
+                font-size: 0.8rem;
+            }
+
+            /* Compact Grid */
+            .novel-grid {
+                /* ปรับ grid ให้เล็กและชิดกันมากขึ้น เหมาะกับมือถือ */
+                grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); 
+                gap: 12px; 
+                row-gap: 20px;
+            }
+            .cover-wrapper { border-radius: 8px; margin-bottom: 8px; }
+            .novel-title { font-size: 0.85rem; line-height: 1.3; height: 2.6em; }
+            .novel-stats { font-size: 0.7rem; }
+            
+            /* Categories */
+            .category-sticky { 
+                padding: 8px 0; 
+                margin: 0 -16px 16px -16px;
+                top: var(--header-height);
+            }
+            .category-scroll { gap: 8px; padding: 0 16px; }
+            .cat-pill { padding: 5px 14px; font-size: 0.8rem; }
+            
+            /* Ranking Compact */
+            .ranking-panel { padding: 16px; border-radius: 12px; }
+            .rank-item { padding: 8px; }
+            .rank-number { font-size: 1rem; width: 24px; margin-right: 6px; }
         }
     </style>
 </head>
@@ -468,16 +524,16 @@
                 <input type="text" name="q" class="search-input" placeholder="ค้นหานิยาย, ผู้แต่ง..." value="<%= locals.query || '' %>">
             </form>
 
-            <div style="display: flex; gap: 12px; align-items: center;">
-                <button onclick="toggleTheme()" class="btn btn-outline" style="width:40px; height:40px; padding:0; justify-content:center; border-radius:50%;">
+            <div style="display: flex; gap: 10px; align-items: center;">
+                <button onclick="toggleTheme()" class="btn btn-outline" style="width:36px; height:36px; padding:0; justify-content:center; border-radius:50%; border-color:transparent;">
                     <i class="fa-solid fa-moon"></i>
                 </button>
                 
                 <div class="desktop-only">
                     <% if (isAdmin) { %>
-                        <a href="/logout" class="btn btn-outline" style="border-color:var(--danger); color:var(--danger);">Logout</a>
+                        <a href="/logout" class="btn btn-outline" style="border-color:var(--danger); color:var(--danger); font-size:0.85rem;">Logout</a>
                     <% } else { %>
-                        <a href="/login" class="btn btn-primary">Login</a>
+                        <a href="/login" class="btn btn-primary" style="font-size:0.85rem;">Login</a>
                     <% } %>
                 </div>
             </div>
@@ -491,6 +547,11 @@
             <% if (locals.recommended) { %>
             <div class="hero-card">
                 <i class="fa-solid fa-crown hero-bg-pattern"></i>
+                
+                <img src="<%= recommended.imageUrl || defaultCover %>" 
+                     onerror="this.onerror=null;this.src='<%= defaultCover %>';"
+                     class="hero-cover" alt="Cover">
+
                 <div class="hero-content">
                     <div class="hero-tag">RECOMMENDED</div>
                     <h1 class="hero-title"><%= recommended.title %></h1>
@@ -500,18 +561,15 @@
                     </div>
                     <div class="hero-desc"><%= recommended.description || 'ไม่มีคำอธิบาย...' %></div>
                     <a href="/novel/<%= recommended._id %>" class="btn btn-white">
-                        อ่านเลย <i class="fa-solid fa-arrow-right"></i>
+                        อ่านเลย <i class="fa-solid fa-arrow-right" style="font-size:0.8em;"></i>
                     </a>
                 </div>
-                <img src="<%= recommended.imageUrl || defaultCover %>" 
-                     onerror="this.onerror=null;this.src='<%= defaultCover %>';" 
-                     class="hero-cover" alt="Cover">
             </div>
             <% } %>
 
             <div class="ranking-panel">
                 <div class="rank-header">
-                    <h3 style="margin:0; font-size:1.2rem;">🏆 ยอดนิยม</h3>
+                    <h3 style="margin:0; font-size:1.1rem;">🏆 ยอดนิยม</h3>
                     <div class="rank-tabs">
                         <button class="rank-tab active" onclick="switchRank(event, 'daily')">รายวัน</button>
                         <button class="rank-tab" onclick="switchRank(event, 'weekly')">สัปดาห์</button>
@@ -526,10 +584,10 @@
                                     <span class="rank-number top-<%= index + 1 %>"><%= index + 1 %></span>
                                     <img src="<%= novel.imageUrl || defaultCover %>"
                                          onerror="this.onerror=null;this.src='<%= defaultCover %>';"
-                                         style="width:48px; height:64px; object-fit:cover; border-radius:8px; margin-right:15px;">
+                                         style="width:40px; height:56px; object-fit:cover; border-radius:6px; margin-right:12px; background:var(--bg-input);">
                                     <div style="flex:1; overflow:hidden;">
-                                        <div style="font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;"><%= novel.title %></div>
-                                        <div style="font-size:0.8rem; color:var(--text-muted); margin-top:4px;">
+                                        <div style="font-weight:600; font-size:0.9rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;"><%= novel.title %></div>
+                                        <div style="font-size:0.75rem; color:var(--text-muted); margin-top:2px;">
                                             <i class="fa-regular fa-eye"></i> <%= (novel.views || 0).toLocaleString() %>
                                         </div>
                                     </div>
@@ -544,18 +602,18 @@
 
         <% if (isAdmin) { %>
         <div class="admin-panel">
-            <div style="flex:1; min-width:250px; display:flex; gap:15px; align-items:center;">
-                <div style="width:50px; height:50px; background:rgba(99,102,241,0.1); border-radius:50%; display:flex; align-items:center; justify-content:center; color:var(--primary); font-size:1.5rem;">
+            <div style="flex:1; min-width:200px; display:flex; gap:12px; align-items:center;">
+                <div style="width:40px; height:40px; background:rgba(99,102,241,0.1); border-radius:50%; display:flex; align-items:center; justify-content:center; color:var(--primary); font-size:1.2rem;">
                     <i class="fa-solid fa-plus"></i>
                 </div>
                 <div>
-                    <h4 style="margin:0; font-size:1.1rem;">สร้างนิยายใหม่</h4>
-                    <p class="text-muted" style="margin:0; font-size:0.9rem;">เพิ่มโปรเจกต์แปลเรื่องใหม่</p>
+                    <h4 style="margin:0; font-size:1rem;">สร้างนิยายใหม่</h4>
+                    <p class="text-muted" style="margin:0; font-size:0.8rem;">เพิ่มเรื่องใหม่</p>
                 </div>
             </div>
-            <form action="/novels" method="POST" style="flex:2; display:flex; gap:12px; flex-wrap:wrap;">
-                <input type="text" name="title" placeholder="ชื่อนิยาย..." required class="search-input" style="flex:2; min-width:200px; background:var(--bg-body);">
-                <input list="categoryList" name="categories" placeholder="หมวดหมู่..." class="search-input" style="flex:1; min-width:150px; background:var(--bg-body);">
+            <form action="/novels" method="POST" style="flex:2; display:flex; gap:10px; flex-wrap:wrap;">
+                <input type="text" name="title" placeholder="ชื่อนิยาย..." required class="search-input" style="flex:2; min-width:180px; background:var(--bg-body);">
+                <input list="categoryList" name="categories" placeholder="หมวดหมู่..." class="search-input" style="flex:1; min-width:120px; background:var(--bg-body);">
                 <datalist id="categoryList">
                     <% locals.allCategories.forEach(cat => { %> <option value="<%= cat %>"> <% }) %>
                 </datalist>
@@ -565,10 +623,10 @@
         <% } %>
 
         <div class="category-sticky">
-            <div style="display:flex; justify-content:space-between; align-items:center; padding:0 24px 10px 24px;">
-                <h3 style="margin:0; font-size:1.2rem;"><%= currentCategory || 'อัปเดตล่าสุด' %></h3>
+            <div style="display:flex; justify-content:space-between; align-items:center; padding:0 20px 8px 20px;">
+                <h3 style="margin:0; font-size:1.1rem;"><%= currentCategory || 'อัปเดตล่าสุด' %></h3>
                 <% if(currentCategory) { %> 
-                    <a href="/" style="font-size:0.9rem; color:var(--text-muted); text-decoration:none;"><i class="fa-solid fa-xmark"></i> ล้างค่า</a>
+                    <a href="/" style="font-size:0.8rem; color:var(--text-muted); text-decoration:none;"><i class="fa-solid fa-xmark"></i> ล้างค่า</a>
                 <% } %>
             </div>
             <div class="category-scroll">
@@ -580,8 +638,8 @@
         </div>
 
         <% if (novels.length === 0) { %>
-            <div style="text-align:center; padding: 100px 20px; color:var(--text-muted);">
-                <i class="fa-solid fa-box-open" style="font-size: 4rem; margin-bottom: 20px; opacity:0.5;"></i>
+            <div style="text-align:center; padding: 80px 20px; color:var(--text-muted);">
+                <i class="fa-solid fa-box-open" style="font-size: 3rem; margin-bottom: 15px; opacity:0.5;"></i>
                 <p>ไม่พบข้อมูลนิยายที่คุณค้นหา</p>
                 <a href="/" class="btn btn-outline">กลับหน้าหลัก</a>
             </div>
@@ -609,7 +667,7 @@
                     <div class="novel-stats">
                         <span><i class="fa-regular fa-eye"></i> <%= (novel.views || 0).toLocaleString() %></span>
                         <% if(novel.categories && novel.categories.length > 0) { %>
-                            <span style="color:var(--primary); font-size:0.75rem; background:rgba(99,102,241,0.1); padding:2px 8px; border-radius:6px;">
+                            <span style="color:var(--primary); font-size:0.65rem; background:rgba(99,102,241,0.1); padding:2px 6px; border-radius:4px; font-weight:600;">
                                 <%= novel.categories[0] %>
                             </span>
                         <% } %>
@@ -662,7 +720,6 @@
             const list = document.getElementById('rankList');
             list.style.opacity = '0.5';
             setTimeout(() => {
-                // In real app, you would fetch data here
                 list.style.opacity = '1';
             }, 300);
         }

@@ -29,7 +29,7 @@
 
         /* Status Card (Top Right) */
         .status-card {
-            background: rgba(var(--primary-rgb), 0.1); /* Fallback */
+            background: rgba(var(--primary-rgb), 0.1);
             background: var(--bg-input);
             border: 1px solid var(--border);
             border-radius: var(--radius-sm);
@@ -75,7 +75,8 @@
             color: var(--text-muted);
             cursor: pointer;
             transition: all 0.2s;
-            display: flex; justify-content: center; align-items: center; gap: 8px;
+            display: flex;
+            justify-content: center; align-items: center; gap: 8px;
         }
         .tab-btn.active {
             background: var(--bg-card);
@@ -153,6 +154,97 @@
         }
         @keyframes spin { to { transform: translate(-50%, -50%) rotate(360deg); } }
 
+        /* --- ✨ New Modern Notification CSS ✨ --- */
+        .toast-container {
+            position: fixed;
+            top: 90px; right: 24px;
+            z-index: 2000;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            pointer-events: none; /* ให้คลิกทะลุ Container ได้ */
+        }
+        
+        .toast {
+            pointer-events: auto;
+            min-width: 320px;
+            max-width: 400px;
+            /* Glass Effect */
+            background: var(--bg-card); 
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            
+            border: 1px solid var(--border);
+            border-left: 5px solid var(--primary);
+            padding: 16px 20px;
+            border-radius: 16px; /* โค้งมนสวยงาม */
+            box-shadow: 0 10px 40px -10px rgba(0,0,0,0.15);
+            
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            
+            transform-origin: top right;
+            animation: toastSlideIn 0.4s cubic-bezier(0.21, 1.02, 0.73, 1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        /* Variants */
+        .toast.error { border-left-color: var(--danger); }
+        .toast.warning { border-left-color: var(--warning); }
+        
+        /* Icon */
+        .toast-icon {
+            font-size: 1.5rem;
+            color: var(--primary);
+            margin-top: 2px;
+            filter: drop-shadow(0 2px 4px rgba(99, 102, 241, 0.2));
+        }
+        .toast.error .toast-icon { color: var(--danger); filter: drop-shadow(0 2px 4px rgba(239, 68, 68, 0.2)); }
+        
+        /* Content */
+        .toast-content { flex: 1; }
+        .toast-title { font-weight: 700; font-size: 0.95rem; margin-bottom: 2px; color: var(--text-main); }
+        .toast-msg { font-size: 0.85rem; color: var(--text-muted); line-height: 1.4; }
+        
+        /* Close Button */
+        .toast-close {
+            cursor: pointer;
+            opacity: 0.4;
+            transition: 0.2s;
+            font-size: 1rem;
+            padding: 2px;
+            color: var(--text-main);
+        }
+        .toast-close:hover { opacity: 1; color: var(--danger); }
+        
+        /* Progress Bar Animation */
+        .toast::after {
+            content: '';
+            position: absolute;
+            bottom: 0; left: 0;
+            height: 3px;
+            width: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+            animation: toastProgress 4s linear forwards;
+        }
+        .toast.error::after { background: var(--danger); }
+
+        /* Animations */
+        @keyframes toastSlideIn {
+            from { transform: translateX(120%) scale(0.9); opacity: 0; }
+            to { transform: translateX(0) scale(1); opacity: 1; }
+        }
+        @keyframes toastFadeOut {
+            to { transform: translateX(120%) scale(0.9); opacity: 0; }
+        }
+        @keyframes toastProgress {
+            from { width: 100%; }
+            to { width: 0%; }
+        }
+
     </style>
 </head>
 <body>
@@ -229,7 +321,7 @@
                     <div class="d-flex justify-between align-center" style="margin-top: 25px;">
                         <span class="text-muted" style="font-size: 0.85rem;"><i class="fa-solid fa-info-circle"></i> ระบบจะตั้งชื่อตอนและเลขตอนให้อัตโนมัติ</span>
                         <button type="submit" class="btn btn-primary btn-lg" id="btn-submit-auto">
-                            แปลและบันทึก <i class="fa-solid fa-arrow-right"></i>
+                             แปลและบันทึก <i class="fa-solid fa-arrow-right"></i>
                         </button>
                     </div>
                 </form>
@@ -300,10 +392,8 @@
             const form = e.target;
             const formData = new FormData(form);
             const btnSubmit = document.getElementById(`btn-submit-${mode}`);
-            
             // UI Loading State
             btnSubmit.classList.add('loading');
-            
             if(mode === 'auto') {
                 formData.append('mode', 'auto');
                 document.getElementById('form-auto').style.display = 'none';
@@ -319,32 +409,30 @@
                 const result = await res.json();
 
                 if(result.success) {
-                    showToast(`✅ บันทึก Ep.${result.chapter.chapterNumber} สำเร็จ!`);
+                    // ใช้ Notification แบบใหม่
+                    showToast(`บันทึก Ep.${result.chapter.chapterNumber} เรียบร้อยแล้ว`, 'success', 'บันทึกสำเร็จ!');
                     
-                    // 1. Update UI Status Bar (Important!)
+                    // 1. Update UI Status Bar
                     updateStatusUI(result.chapter);
-
                     if(mode === 'auto') {
                         document.getElementById('form-auto').style.display = 'block';
                         document.getElementById('ai-skeleton').style.display = 'none';
                         form.reset();
                     } else {
                         // Manual Mode: Prepare for Next Chapter
-                        nextChapterNum = parseFloat(result.chapter.chapterNumber) + 1; // Increment logic
-                        
+                        nextChapterNum = parseFloat(result.chapter.chapterNumber) + 1;
                         document.getElementById('manualChapterNumber').value = nextChapterNum;
                         document.getElementById('manualTitle').value = "";
                         document.getElementById('manualTranslated').value = "";
                         document.getElementById('smartPasteInput').value = "";
                         
-                        // Focus title for seamless typing
                         setTimeout(() => document.getElementById('manualTitle').focus(), 100);
                     }
                 } else {
                     throw new Error(result.message);
                 }
             } catch(err) {
-                showToast('❌ Error: ' + err.message, 'error');
+                showToast(err.message, 'error', 'เกิดข้อผิดพลาด');
                 if(mode === 'auto') {
                     document.getElementById('form-auto').style.display = 'block';
                     document.getElementById('ai-skeleton').style.display = 'none';
@@ -358,7 +446,6 @@
         function updateStatusUI(chapter) {
             const display = document.getElementById('latest-chapter-display');
             if(display) {
-                // Animation effect
                 display.style.opacity = 0;
                 setTimeout(() => {
                     display.innerHTML = `Ep.${chapter.chapterNumber} : ${chapter.title.replace(/^ตอนที่ \d+[:\s]*/, '')}`;
@@ -374,17 +461,13 @@
             
             const lines = input.split('\n');
             const firstLine = lines[0].trim();
-            
             // Regex จับแพทเทิร์น: "ตอนที่ 1: ชื่อตอน" หรือ "Ep.1 ชื่อตอน" หรือ "1. ชื่อตอน"
             const match = firstLine.match(/^(?:ตอนที่|บทที่|Chapter|Ep\.?|Episode|第)?\s*(\d+(\.\d+)?)\s*[:：.\s-]?\s*(.*)$/i);
-            
             if (match) {
-                // ถ้าเจอเลขตอน -> ใส่เลข และ ชื่อ
                 document.getElementById('manualChapterNumber').value = match[1];
                 document.getElementById('manualTitle').value = match[3] ? `ตอนที่ ${match[1]} : ${match[3]}` : `ตอนที่ ${match[1]}`;
                 document.getElementById('manualTranslated').value = lines.slice(1).join('\n').trim();
             } else {
-                // ถ้าไม่เจอเลขตอน -> เอาบรรทัดแรกเป็นชื่อ
                 document.getElementById('manualTitle').value = firstLine;
                 document.getElementById('manualTranslated').value = lines.slice(1).join('\n').trim();
             }
@@ -397,17 +480,40 @@
             }
         }
 
-        function showToast(message, type = 'success') {
+        // --- ✨ New Modern Notification Logic ✨ ---
+        function showToast(message, type = 'success', title = '') {
             const container = document.getElementById('toast-container');
             const toast = document.createElement('div');
+            
+            // กำหนดหัวข้ออัตโนมัติถ้าไม่ได้ใส่มา
+            if(!title) {
+                title = type === 'success' ? 'ดำเนินการสำเร็จ' : 'แจ้งเตือน';
+                if(type === 'error') title = 'พบข้อผิดพลาด';
+            }
+            
             toast.className = `toast ${type}`;
-            toast.innerHTML = `<i class="fa-solid fa-${type === 'success' ? 'circle-check' : 'circle-exclamation'}"></i> <span>${message}</span>`;
+            toast.innerHTML = `
+                <div class="toast-icon">
+                    <i class="fa-solid fa-${type === 'success' ? 'circle-check' : (type === 'error' ? 'circle-xmark' : 'circle-info')}"></i>
+                </div>
+                <div class="toast-content">
+                    <div class="toast-title">${title}</div>
+                    <div class="toast-msg">${message}</div>
+                </div>
+                <div class="toast-close" onclick="this.parentElement.style.animation='toastFadeOut 0.3s forwards'; setTimeout(() => this.parentElement.remove(), 300);">
+                    <i class="fa-solid fa-xmark"></i>
+                </div>
+            `;
+            
             container.appendChild(toast);
+            
+            // Auto remove after 4 seconds (Sync with CSS animation)
             setTimeout(() => {
-                toast.style.opacity = '0';
-                toast.style.transform = 'translateY(-10px)';
-                setTimeout(() => toast.remove(), 300);
-            }, 3000);
+                if(toast.isConnected) { // Check if not already removed manually
+                    toast.style.animation = 'toastFadeOut 0.4s forwards';
+                    toast.addEventListener('animationend', () => toast.remove());
+                }
+            }, 4000);
         }
     </script>
 </body>
