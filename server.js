@@ -12,7 +12,7 @@ const upload = multer({ storage: multer.memoryStorage() });
 const User = require('./models/User');
 const Novel = require('./models/Novel');
 const Chapter = require('./models/Chapter');
-const Comment = require('./models/Comment'); // New
+
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -140,12 +140,11 @@ app.get('/favorites', requireLogin, async (req, res) => {
     }
 });
 
-// Novel Detail & Social Features
+
 app.get('/novel/:id', async (req, res) => {
     try {
         const novel = await Novel.findByIdAndUpdate(req.params.id, { $inc: { views: 1 } }, { new: true });
         const chapters = await Chapter.find({ novelId: req.params.id }).sort({ chapterNumber: -1 });
-        const comments = await Comment.find({ novelId: req.params.id }).populate('userId', 'username').sort({ createdAt: -1 });
         
         // เช็คว่า User fav เรื่องนี้ไหม
         let isFav = false;
@@ -154,7 +153,8 @@ app.get('/novel/:id', async (req, res) => {
             if(user.favorites.includes(novel._id)) isFav = true;
         }
 
-        res.render('novel_detail', { novel, chapters, comments, isFav });
+        // ลบ comments ออกจากบรรทัดนี้
+        res.render('novel_detail', { novel, chapters, isFav });
     } catch (err) { console.error(err); res.redirect('/'); }
 });
 
@@ -176,17 +176,6 @@ app.post('/novel/:id/favorite', requireLogin, async (req, res) => {
         }
         res.redirect(`/novel/${novelId}`);
     } catch(err) { res.status(500).send('Error'); }
-});
-
-app.post('/novel/:id/comment', requireLogin, async (req, res) => {
-    try {
-        await Comment.create({
-            userId: req.session.user._id,
-            novelId: req.params.id,
-            content: req.body.content
-        });
-        res.redirect(`/novel/${req.params.id}`);
-    } catch(err) { res.redirect(`/novel/${req.params.id}`); }
 });
 
 // Writer/Admin Routes
