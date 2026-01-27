@@ -401,6 +401,10 @@
                         <i class="fa-solid fa-font"></i> <span style="font-size:0.8em; margin-left:4px;">Aa</span>
                     </button>
                 </div>
+
+                <div style="position: absolute; bottom: 0; left: 0; width: 100%; height: 3px; background: rgba(0,0,0,0.05);">
+                    <div id="readingProgress" style="height: 100%; width: 0%; background: var(--accent-color); transition: width 0.1s;"></div>
+                </div>
             </nav>
 
             <div class="reader-scroll-area" id="scrollArea">
@@ -476,6 +480,17 @@
     <script>
         const novelId = "<%= chapter.novelId._id %>";
         const chapterId = "<%= chapter._id %>";
+        const scrollArea = document.getElementById('scrollArea');
+        const progressBar = document.getElementById('readingProgress');
+
+        if(scrollArea && progressBar) {
+            scrollArea.addEventListener('scroll', () => {
+                const scrollTop = scrollArea.scrollTop;
+                const scrollHeight = scrollArea.scrollHeight - scrollArea.clientHeight;
+                const scrolled = (scrollTop / scrollHeight) * 100;
+                progressBar.style.width = scrolled + '%';
+            });
+        }
 
         let fontSize = parseInt(localStorage.getItem('fontSize')) || 20;
         const fontSizeDisplay = document.getElementById('fontSizeDisplay');

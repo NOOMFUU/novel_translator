@@ -338,3 +338,32 @@ input:focus, textarea:focus, select:focus {
 .w-100 { width: 100%; }
 .mt-2 { margin-top: 0.5rem; }
 .mb-4 { margin-bottom: 1rem; }
+
+/* Webkit Scrollbar Customization */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgba(156, 163, 175, 0.5); /* สีเทาจางๆ */
+    border-radius: 4px;
+    border: 2px solid transparent; /* เทคนิคทำให้ดูเล็กลง */
+    background-clip: content-box;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background-color: var(--primary); /* เปลี่ยนเป็นสีหลักเมื่อเอาเมาส์ชี้ */
+}
+
+/* รองรับ Dark Mode */
+[data-theme="dark"] ::-webkit-scrollbar-thumb {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+[data-theme="dark"] ::-webkit-scrollbar-thumb:hover {
+    background-color: var(--primary);
+}

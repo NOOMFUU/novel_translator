@@ -272,9 +272,19 @@
     <header class="main-header">
         <div class="d-flex justify-between align-center w-100" style="padding: 0 24px; max-width: 100%;">
             
-            <a href="/" class="btn btn-outline btn-sm" style="border:none; padding-left:0;">
-                <i class="fa-solid fa-chevron-left"></i> <span class="desktop-only">กลับหน้าหลัก</span>
-            </a>
+            <nav class="breadcrumbs" style="display: flex; align-items: center; gap: 8px; font-size: 0.9rem;">
+                <a href="/" style="text-decoration: none; color: var(--text-muted); transition: color 0.2s;">
+                    <i class="fa-solid fa-house"></i> หน้าหลัก
+                </a>
+                <span style="color: var(--text-muted); opacity: 0.5;">/</span>
+                <span style="font-weight: 600; color: var(--primary); max-width: 200px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                    <%= novel.title %>
+                </span>
+            </nav>
+
+            <style>
+                .breadcrumbs a:hover { color: var(--primary) !important; }
+            </style>
             
             <div class="d-flex align-center gap-2">
                  <button onclick="toggleTheme()" class="btn btn-outline btn-sm" style="border-radius:50%; width:40px; height:40px; padding:0;">
