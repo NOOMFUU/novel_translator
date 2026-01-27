@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>สมัครสมาชิก</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body style="display: flex; justify-content: center; align-items: center; min-height: 100vh;">
+    <div class="card" style="width: 100%; max-width: 400px; padding: 40px; border-top: 5px solid var(--secondary);">
+        <h2 class="text-center mb-4">สมัครสมาชิกใหม่</h2>
+        <% if (error) { %>
+            <div style="background: rgba(239, 68, 68, 0.1); color: var(--danger); padding: 10px; border-radius: 8px; margin-bottom: 20px;">
+                <%= error %>
+            </div>
+        <% } %>
+        <form action="/register" method="POST">
+            <div class="mb-4">
+                <label class="form-label">Username</label>
+                <input type="text" name="username" required class="modern-input">
+            </div>
+            <div class="mb-4">
+                <label class="form-label">Password</label>
+                <input type="password" name="password" required class="modern-input">
+            </div>
+            <div class="mb-4">
+                <label class="form-label">Confirm Password</label>
+                <input type="password" name="confirmPassword" required class="modern-input">
+            </div>
+            <button type="submit" class="btn btn-primary w-100">สมัครสมาชิก</button>
+        </form>
+        <div class="text-center mt-4">
+            <a href="/login" class="text-muted" style="font-size: 0.9rem;">มีบัญชีอยู่แล้ว? เข้าสู่ระบบ</a>
+        </div>
+    </div>
+</body>
+</html>

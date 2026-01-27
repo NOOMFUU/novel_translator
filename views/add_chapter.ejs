@@ -4,367 +4,53 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>เพิ่มตอนใหม่: <%= novel.title %></title>
-    
     <link rel="stylesheet" href="/css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;700&display=swap" rel="stylesheet">
-
-    <script>
-        (function() {
-            const savedTheme = localStorage.getItem('theme') || 'light';
-            document.documentElement.setAttribute('data-theme', savedTheme);
-        })();
-    </script>
-
-    <style>
-        /* --- Page Specific Styles --- */
-        body { background-color: var(--bg-body); }
-        
-        /* Layout */
-        .editor-layout {
-            max-width: 900px;
-            margin: 0 auto;
-            padding: 30px 20px 80px 20px;
-        }
-
-        /* Status Card (Top Right) */
-        .status-card {
-            background: rgba(var(--primary-rgb), 0.1);
-            background: var(--bg-input);
-            border: 1px solid var(--border);
-            border-radius: var(--radius-sm);
-            padding: 10px 20px;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            transition: all 0.3s;
-        }
-        .status-badge {
-            font-size: 0.75rem;
-            text-transform: uppercase;
-            color: var(--text-muted);
-            font-weight: 600;
-        }
-        .status-value {
-            font-weight: 700;
-            color: var(--primary);
-            font-size: 1.1rem;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            max-width: 250px;
-        }
-
-        /* Segmented Tabs */
-        .segmented-control {
-            display: flex;
-            background: var(--bg-input);
-            padding: 4px;
-            border-radius: 50px;
-            border: 1px solid var(--border);
-            margin-bottom: 30px;
-            position: relative;
-        }
-        .tab-btn {
-            flex: 1;
-            border: none;
-            background: transparent;
-            padding: 10px;
-            border-radius: 50px;
-            font-weight: 600;
-            color: var(--text-muted);
-            cursor: pointer;
-            transition: all 0.2s;
-            display: flex;
-            justify-content: center; align-items: center; gap: 8px;
-        }
-        .tab-btn.active {
-            background: var(--bg-card);
-            color: var(--primary);
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        }
-
-        /* Smart Paste Box */
-        .smart-paste-box {
-            background: linear-gradient(135deg, rgba(99, 102, 241, 0.05) 0%, rgba(236, 72, 153, 0.05) 100%);
-            border: 1px dashed var(--primary);
-            border-radius: var(--radius-sm);
-            padding: 20px;
-            margin-bottom: 25px;
-            transition: all 0.2s;
-        }
-        .smart-paste-box:focus-within {
-            border-color: var(--accent);
-            background: var(--bg-card);
-            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
-        }
-        .smart-paste-input {
-            width: 100%;
-            border: none;
-            background: transparent;
-            resize: none;
-            outline: none;
-            font-size: 0.95rem;
-            color: var(--text-main);
-            min-height: 60px;
-        }
-
-        /* Form Elements */
-        .form-group { margin-bottom: 20px; }
-        .form-label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 600;
-            font-size: 0.9rem;
-            color: var(--text-muted);
-        }
-        .modern-input, .modern-textarea {
-            width: 100%;
-            padding: 12px 16px;
-            background: var(--bg-input);
-            border: 1px solid var(--border);
-            border-radius: var(--radius-sm);
-            color: var(--text-main);
-            font-family: inherit;
-            transition: 0.2s;
-        }
-        .modern-input:focus, .modern-textarea:focus {
-            border-color: var(--primary);
-            background: var(--bg-card);
-            outline: none;
-            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
-        }
-
-        /* Loading Overlay */
-        .btn.loading {
-            position: relative;
-            color: transparent !important;
-            pointer-events: none;
-        }
-        .btn.loading::after {
-            content: "";
-            position: absolute;
-            left: 50%; top: 50%;
-            width: 18px; height: 18px;
-            border: 2px solid #fff;
-            border-top-color: transparent;
-            border-radius: 50%;
-            animation: spin 0.8s linear infinite;
-            transform: translate(-50%, -50%);
-        }
-        @keyframes spin { to { transform: translate(-50%, -50%) rotate(360deg); } }
-
-        /* --- ✨ New Modern Notification CSS ✨ --- */
-        .toast-container {
-            position: fixed;
-            top: 90px; right: 24px;
-            z-index: 2000;
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            pointer-events: none; /* ให้คลิกทะลุ Container ได้ */
-        }
-        
-        .toast {
-            pointer-events: auto;
-            min-width: 320px;
-            max-width: 400px;
-            /* Glass Effect */
-            background: var(--bg-card); 
-            background: var(--glass-bg);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            
-            border: 1px solid var(--border);
-            border-left: 5px solid var(--primary);
-            padding: 16px 20px;
-            border-radius: 16px; /* โค้งมนสวยงาม */
-            box-shadow: 0 10px 40px -10px rgba(0,0,0,0.15);
-            
-            display: flex;
-            align-items: flex-start;
-            gap: 15px;
-            
-            transform-origin: top right;
-            animation: toastSlideIn 0.4s cubic-bezier(0.21, 1.02, 0.73, 1);
-            position: relative;
-            overflow: hidden;
-        }
-        
-        /* Variants */
-        .toast.error { border-left-color: var(--danger); }
-        .toast.warning { border-left-color: var(--warning); }
-        
-        /* Icon */
-        .toast-icon {
-            font-size: 1.5rem;
-            color: var(--primary);
-            margin-top: 2px;
-            filter: drop-shadow(0 2px 4px rgba(99, 102, 241, 0.2));
-        }
-        .toast.error .toast-icon { color: var(--danger); filter: drop-shadow(0 2px 4px rgba(239, 68, 68, 0.2)); }
-        
-        /* Content */
-        .toast-content { flex: 1; }
-        .toast-title { font-weight: 700; font-size: 0.95rem; margin-bottom: 2px; color: var(--text-main); }
-        .toast-msg { font-size: 0.85rem; color: var(--text-muted); line-height: 1.4; }
-        
-        /* Close Button */
-        .toast-close {
-            cursor: pointer;
-            opacity: 0.4;
-            transition: 0.2s;
-            font-size: 1rem;
-            padding: 2px;
-            color: var(--text-main);
-        }
-        .toast-close:hover { opacity: 1; color: var(--danger); }
-        
-        /* Progress Bar Animation */
-        .toast::after {
-            content: '';
-            position: absolute;
-            bottom: 0; left: 0;
-            height: 3px;
-            width: 100%;
-            background: linear-gradient(90deg, var(--primary), var(--accent));
-            animation: toastProgress 4s linear forwards;
-        }
-        .toast.error::after { background: var(--danger); }
-
-        /* Animations */
-        @keyframes toastSlideIn {
-            from { transform: translateX(120%) scale(0.9); opacity: 0; }
-            to { transform: translateX(0) scale(1); opacity: 1; }
-        }
-        @keyframes toastFadeOut {
-            to { transform: translateX(120%) scale(0.9); opacity: 0; }
-        }
-        @keyframes toastProgress {
-            from { width: 100%; }
-            to { width: 0%; }
-        }
-
-    </style>
+    <script> document.documentElement.setAttribute('data-theme', localStorage.getItem('theme') || 'light'); </script>
 </head>
 <body>
     <div id="toast-container" class="toast-container"></div>
-
     <header class="main-header">
-        <div class="container d-flex justify-between align-center w-100" style="padding: 0 24px;">
+        <div class="container d-flex justify-between align-center w-100">
             <div class="d-flex align-center gap-2">
-                <a href="/novel/<%= novel._id %>" class="btn btn-outline btn-sm" style="border:none;">
-                    <i class="fa-solid fa-arrow-left"></i>
-                </a>
-                <div>
-                    <div class="text-muted" style="font-size: 0.8rem;">เพิ่มตอนใหม่</div>
-                    <div style="font-weight: 700; font-size: 1.1rem;"><%= novel.title %></div>
-                </div>
-            </div>
-            
-            <div class="status-card desktop-only" id="latest-chapter-box">
-                <div class="status-badge">ล่าสุด</div>
-                <div class="status-value" id="latest-chapter-display">
-                    <% if (locals.lastChapter) { %>
-                        Ep.<%= lastChapter.chapterNumber %> : <%= lastChapter.title.replace(/^ตอนที่ \d+[:\s]*/, '') %>
-                    <% } else { %>
-                        - (ยังไม่มีตอน)
-                    <% } %>
-                </div>
+                <a href="/novel/<%= novel._id %>" class="btn btn-outline btn-sm" style="border:none;"><i class="fa-solid fa-arrow-left"></i></a>
+                <div><div class="text-muted" style="font-size: 0.8rem;">เพิ่มตอนใหม่</div><div style="font-weight: 700;"><%= novel.title %></div></div>
             </div>
         </div>
     </header>
 
-    <div class="editor-layout">
-        
-        <div class="segmented-control">
-            <button class="tab-btn active" id="tabBtnAuto" onclick="switchTab('auto')">
-                <i class="fa-solid fa-wand-magic-sparkles"></i> AI Translate
-            </button>
-            <button class="tab-btn" id="tabBtnManual" onclick="switchTab('manual')">
-                <i class="fa-solid fa-pen-nib"></i> Manual Write
-            </button>
-        </div>
-
-        <div class="glass-panel" style="padding: 30px;">
-            
-            <div id="section-auto">
-                <div id="ai-skeleton" style="display: none; text-align: center; padding: 40px;">
-                    <i class="fa-solid fa-circle-notch fa-spin" style="font-size: 3rem; color: var(--primary); margin-bottom: 20px;"></i>
-                    <h3>AI กำลังทำงาน...</h3>
-                    <p class="text-muted">กำลังแปลและจัดรูปแบบเนื้อหา โปรดรอสักครู่</p>
-                </div>
-
-                <form id="form-auto" onsubmit="handleSubmit(event, 'auto')">
-                    <div class="d-flex gap-4 mb-4" style="border-bottom: 1px solid var(--border); padding-bottom: 15px;">
-                        <label style="cursor: pointer; display: flex; align-items: center; gap: 8px; font-weight: 500;">
-                            <input type="radio" name="inputType" value="text" checked onclick="toggleInput('text')"> 
-                            <span>วางข้อความ (Paste Text)</span>
-                        </label>
-                        <label style="cursor: pointer; display: flex; align-items: center; gap: 8px; font-weight: 500;">
-                            <input type="radio" name="inputType" value="file" onclick="toggleInput('file')"> 
-                            <span>อัปโหลดไฟล์ (.txt)</span>
-                        </label>
-                    </div>
-                    
-                    <div id="input-text-group">
-                        <textarea name="rawText" class="modern-textarea" placeholder="วางเนื้อหาภาษาต้นฉบับที่นี่..." style="height:300px; font-family: monospace; line-height: 1.5;"></textarea>
-                    </div>
-                    <div id="input-file-group" style="display:none;">
-                        <div style="border: 2px dashed var(--border); border-radius: var(--radius); padding: 40px; text-align: center; background: var(--bg-input);">
-                            <i class="fa-solid fa-file-lines" style="font-size: 2rem; color: var(--text-muted); margin-bottom: 10px;"></i>
-                            <br>
-                            <input type="file" name="txtFile" accept=".txt">
-                        </div>
-                    </div>
-
-                    <div class="d-flex justify-between align-center" style="margin-top: 25px;">
-                        <span class="text-muted" style="font-size: 0.85rem;"><i class="fa-solid fa-info-circle"></i> ระบบจะตั้งชื่อตอนและเลขตอนให้อัตโนมัติ</span>
-                        <button type="submit" class="btn btn-primary btn-lg" id="btn-submit-auto">
-                             แปลและบันทึก <i class="fa-solid fa-arrow-right"></i>
-                        </button>
-                    </div>
-                </form>
-            </div>
-
-            <form id="form-manual" onsubmit="handleSubmit(event, 'manual')" style="display:none;">
-                <input type="hidden" name="mode" value="manual">
+    <div class="container" style="max-width: 900px; padding-top: 30px;">
+        <div class="card">
+            <form id="form-manual" onsubmit="handleSubmit(event)">
                 
-                <div class="smart-paste-box">
-                    <label class="status-badge" style="color: var(--primary); margin-bottom: 5px; display: block;">
-                        <i class="fa-solid fa-bolt"></i> Smart Paste (วางปุ๊บ แยกหัวข้อปั๊บ)
+                <div style="background: rgba(var(--primary-rgb), 0.05); border: 1px dashed var(--primary); padding: 20px; border-radius: 12px; margin-bottom: 25px;">
+                    <label style="color: var(--primary); font-weight: 600; display: block; margin-bottom: 8px;">
+                        <i class="fa-solid fa-bolt"></i> Smart Paste (วางเนื้อหาเพื่อแยกชื่อตอนอัตโนมัติ)
                     </label>
-                    <textarea id="smartPasteInput" class="smart-paste-input" 
-                        placeholder="ตัวอย่าง: ตอนที่ 10 การเริ่มต้นใหม่ ... (วางเนื้อหาทั้งหมดลงที่นี่)" 
-                        oninput="detectHeader()"></textarea>
+                    <textarea id="smartPasteInput" class="modern-textarea" style="border:none; background:transparent; min-height:80px;" placeholder="เช่น: ตอนที่ 10 การเริ่มต้นใหม่ ... (วางเนื้อหา)" oninput="detectHeader()"></textarea>
                 </div>
 
                 <div class="d-flex gap-3 mb-4 flex-wrap">
                     <div style="flex: 0 0 120px;">
                         <label class="form-label">ลำดับ (Ep)</label>
-                        <input type="number" step="0.1" id="manualChapterNumber" name="manualChapterNumber" value="<%= nextChapterNumber %>" class="modern-input" required style="font-weight: 700; color: var(--primary);">
+                        <input type="number" step="0.1" id="manualChapterNumber" name="manualChapterNumber" value="<%= nextChapterNumber %>" class="modern-input" required>
                     </div>
                     <div style="flex: 1;">
                         <label class="form-label">ชื่อตอน</label>
-                        <input type="text" id="manualTitle" name="manualTitle" placeholder="เช่น: การผจญภัยเริ่มต้น" class="modern-input" required>
+                        <input type="text" id="manualTitle" name="manualTitle" class="modern-input" required>
                     </div>
                 </div>
 
-                <div class="form-group">
-                    <label class="form-label">เนื้อหา (รองรับ HTML)</label>
-                    <textarea id="manualTranslated" name="manualTranslated" class="modern-textarea" style="height: 450px; font-family: 'Sarabun', sans-serif; font-size: 1rem;" required placeholder="พิมพ์เนื้อหานิยายที่นี่..."></textarea>
+                <div class="form-group mb-4">
+                    <label class="form-label">เนื้อหา</label>
+                    <textarea id="manualTranslated" name="manualTranslated" class="modern-textarea" style="height: 450px; font-family: 'Sarabun', sans-serif;" required placeholder="พิมพ์เนื้อหานิยายที่นี่..."></textarea>
                 </div>
 
-                <div class="d-flex justify-between align-center" style="margin-top: 30px; border-top: 1px solid var(--border); padding-top: 20px;">
-                    <button type="button" class="btn btn-outline" onclick="clearManualForm()">
-                        <i class="fa-solid fa-eraser"></i> ล้างข้อมูล
-                    </button>
-                    <button type="submit" class="btn btn-primary btn-lg" id="btn-submit-manual">
-                        <i class="fa-solid fa-save"></i> บันทึกและเพิ่มตอนต่อไป
-                    </button>
+                <div class="d-flex justify-between align-center pt-4" style="border-top: 1px solid var(--border);">
+                    <button type="button" class="btn btn-outline" onclick="document.getElementById('form-manual').reset()"><i class="fa-solid fa-eraser"></i> ล้าง</button>
+                    <button type="submit" class="btn btn-primary btn-lg" id="btn-submit"><i class="fa-solid fa-save"></i> บันทึก</button>
                 </div>
             </form>
-
         </div>
     </div>
 
@@ -372,96 +58,32 @@
         const novelId = "<%= novel._id %>";
         let nextChapterNum = parseFloat("<%= nextChapterNumber %>");
 
-        // --- Tabs Logic ---
-        function switchTab(mode) {
-            document.getElementById('section-auto').style.display = mode === 'auto' ? 'block' : 'none';
-            document.getElementById('form-manual').style.display = mode === 'manual' ? 'block' : 'none';
-            
-            document.getElementById('tabBtnAuto').classList.toggle('active', mode === 'auto');
-            document.getElementById('tabBtnManual').classList.toggle('active', mode === 'manual');
-        }
-
-        function toggleInput(type) {
-            document.getElementById('input-text-group').style.display = type === 'text' ? 'block' : 'none';
-            document.getElementById('input-file-group').style.display = type === 'file' ? 'block' : 'none';
-        }
-
-        // --- Core Submit Logic ---
-        async function handleSubmit(e, mode) {
+        async function handleSubmit(e) {
             e.preventDefault();
-            const form = e.target;
-            const formData = new FormData(form);
-            const btnSubmit = document.getElementById(`btn-submit-${mode}`);
-            // UI Loading State
-            btnSubmit.classList.add('loading');
-            if(mode === 'auto') {
-                formData.append('mode', 'auto');
-                document.getElementById('form-auto').style.display = 'none';
-                document.getElementById('ai-skeleton').style.display = 'block';
-            }
+            const btn = document.getElementById('btn-submit');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> กำลังบันทึก...';
+            btn.disabled = true;
 
+            const formData = new FormData(e.target);
             try {
-                const res = await fetch(`/novel/${novelId}/chapters`, {
-                    method: 'POST',
-                    headers: { 'Accept': 'application/json' },
-                    body: formData
-                });
+                const res = await fetch(`/novel/${novelId}/chapters`, { method: 'POST', body: formData, headers: {'Accept': 'application/json'} });
                 const result = await res.json();
-
                 if(result.success) {
-                    // ใช้ Notification แบบใหม่
-                    showToast(`บันทึก Ep.${result.chapter.chapterNumber} เรียบร้อยแล้ว`, 'success', 'บันทึกสำเร็จ!');
-                    
-                    // 1. Update UI Status Bar
-                    updateStatusUI(result.chapter);
-                    if(mode === 'auto') {
-                        document.getElementById('form-auto').style.display = 'block';
-                        document.getElementById('ai-skeleton').style.display = 'none';
-                        form.reset();
-                    } else {
-                        // Manual Mode: Prepare for Next Chapter
-                        nextChapterNum = parseFloat(result.chapter.chapterNumber) + 1;
-                        document.getElementById('manualChapterNumber').value = nextChapterNum;
-                        document.getElementById('manualTitle').value = "";
-                        document.getElementById('manualTranslated').value = "";
-                        document.getElementById('smartPasteInput').value = "";
-                        
-                        setTimeout(() => document.getElementById('manualTitle').focus(), 100);
-                    }
-                } else {
-                    throw new Error(result.message);
-                }
-            } catch(err) {
-                showToast(err.message, 'error', 'เกิดข้อผิดพลาด');
-                if(mode === 'auto') {
-                    document.getElementById('form-auto').style.display = 'block';
-                    document.getElementById('ai-skeleton').style.display = 'none';
-                }
-            } finally {
-                btnSubmit.classList.remove('loading');
-            }
+                    alert('บันทึกสำเร็จ!');
+                    document.getElementById('form-manual').reset();
+                    nextChapterNum = parseFloat(result.chapter.chapterNumber) + 1;
+                    document.getElementById('manualChapterNumber').value = nextChapterNum;
+                } else { throw new Error(result.message); }
+            } catch(err) { alert('เกิดข้อผิดพลาด: ' + err.message); }
+            finally { btn.innerHTML = originalText; btn.disabled = false; }
         }
 
-        // --- Helper: Update Status UI ---
-        function updateStatusUI(chapter) {
-            const display = document.getElementById('latest-chapter-display');
-            if(display) {
-                display.style.opacity = 0;
-                setTimeout(() => {
-                    display.innerHTML = `Ep.${chapter.chapterNumber} : ${chapter.title.replace(/^ตอนที่ \d+[:\s]*/, '')}`;
-                    display.style.opacity = 1;
-                }, 200);
-            }
-        }
-
-        // --- Manual Mode Helpers ---
         function detectHeader() {
             const input = document.getElementById('smartPasteInput').value;
             if (!input.trim()) return;
-            
             const lines = input.split('\n');
             const firstLine = lines[0].trim();
-            // Regex จับแพทเทิร์น: "ตอนที่ 1: ชื่อตอน" หรือ "Ep.1 ชื่อตอน" หรือ "1. ชื่อตอน"
             const match = firstLine.match(/^(?:ตอนที่|บทที่|Chapter|Ep\.?|Episode|第)?\s*(\d+(\.\d+)?)\s*[:：.\s-]?\s*(.*)$/i);
             if (match) {
                 document.getElementById('manualChapterNumber').value = match[1];
@@ -471,49 +93,6 @@
                 document.getElementById('manualTitle').value = firstLine;
                 document.getElementById('manualTranslated').value = lines.slice(1).join('\n').trim();
             }
-        }
-
-        function clearManualForm() {
-            if(confirm('ต้องการล้างข้อมูลฟอร์มทั้งหมด?')) {
-                document.getElementById('form-manual').reset();
-                document.getElementById('manualChapterNumber').value = nextChapterNum;
-            }
-        }
-
-        // --- ✨ New Modern Notification Logic ✨ ---
-        function showToast(message, type = 'success', title = '') {
-            const container = document.getElementById('toast-container');
-            const toast = document.createElement('div');
-            
-            // กำหนดหัวข้ออัตโนมัติถ้าไม่ได้ใส่มา
-            if(!title) {
-                title = type === 'success' ? 'ดำเนินการสำเร็จ' : 'แจ้งเตือน';
-                if(type === 'error') title = 'พบข้อผิดพลาด';
-            }
-            
-            toast.className = `toast ${type}`;
-            toast.innerHTML = `
-                <div class="toast-icon">
-                    <i class="fa-solid fa-${type === 'success' ? 'circle-check' : (type === 'error' ? 'circle-xmark' : 'circle-info')}"></i>
-                </div>
-                <div class="toast-content">
-                    <div class="toast-title">${title}</div>
-                    <div class="toast-msg">${message}</div>
-                </div>
-                <div class="toast-close" onclick="this.parentElement.style.animation='toastFadeOut 0.3s forwards'; setTimeout(() => this.parentElement.remove(), 300);">
-                    <i class="fa-solid fa-xmark"></i>
-                </div>
-            `;
-            
-            container.appendChild(toast);
-            
-            // Auto remove after 4 seconds (Sync with CSS animation)
-            setTimeout(() => {
-                if(toast.isConnected) { // Check if not already removed manually
-                    toast.style.animation = 'toastFadeOut 0.4s forwards';
-                    toast.addEventListener('animationend', () => toast.remove());
-                }
-            }, 4000);
         }
     </script>
 </body>

@@ -529,11 +529,20 @@
                     <i class="fa-solid fa-moon"></i>
                 </button>
                 
-                <div class="desktop-only">
-                    <% if (isAdmin) { %>
-                        <a href="/logout" class="btn btn-outline" style="border-color:var(--danger); color:var(--danger); font-size:0.85rem;">Logout</a>
+                <div class="desktop-only" style="display: flex; gap: 10px; align-items: center;">
+                    <% if (user) { %>
+                        <a href="/favorites" class="btn btn-outline" style="border:none;">
+                            <i class="fa-solid fa-heart" style="color: var(--danger);"></i> รายการโปรด
+                        </a>
+                        
+                        <span style="font-size: 0.9rem; font-weight: 600; margin: 0 5px;">
+                            <%= user.username %>
+                        </span>
+                        
+                        <a href="/logout" class="btn btn-outline" style="font-size:0.85rem;">Logout</a>
                     <% } else { %>
                         <a href="/login" class="btn btn-primary" style="font-size:0.85rem;">Login</a>
+                        <a href="/register" class="btn btn-outline" style="font-size:0.85rem;">Register</a>
                     <% } %>
                 </div>
             </div>
@@ -615,7 +624,7 @@
                 <input type="text" name="title" placeholder="ชื่อนิยาย..." required class="search-input" style="flex:2; min-width:180px; background:var(--bg-body);">
                 <input list="categoryList" name="categories" placeholder="หมวดหมู่..." class="search-input" style="flex:1; min-width:120px; background:var(--bg-body);">
                 <datalist id="categoryList">
-                    <% locals.allCategories.forEach(cat => { %> <option value="<%= cat %>"> <% }) %>
+                    <% categories.forEach(cat => { %> <option value="<%= cat %>"> <% }) %>
                 </datalist>
                 <button type="submit" class="btn btn-primary">Create</button>
             </form>

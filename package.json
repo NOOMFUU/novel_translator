@@ -6,7 +6,6 @@
     "start": "node server.js"
   },
   "dependencies": {
-    "@google/generative-ai": "^0.24.1",
     "bcryptjs": "^3.0.3",
     "body-parser": "^2.2.2",
     "dotenv": "^17.2.3",
