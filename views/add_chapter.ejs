@@ -58,8 +58,30 @@
         const novelId = "<%= novel._id %>";
         let nextChapterNum = parseFloat("<%= nextChapterNumber %>");
 
+        // [เพิ่ม] ฟังก์ชัน showToast
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            const icon = type === 'success' ? 'fa-circle-check' : 'fa-circle-exclamation';
+            
+            toast.innerHTML = `
+                <i class="fa-solid ${icon}"></i>
+                <span>${message}</span>
+            `;
+            
+            container.appendChild(toast);
+
+            // Auto remove
+            setTimeout(() => {
+                toast.style.animation = 'toastFadeOut 0.4s forwards';
+                setTimeout(() => toast.remove(), 400);
+            }, 3000);
+        }
+
         async function handleSubmit(e) {
             e.preventDefault();
+        
             const btn = document.getElementById('btn-submit');
             const originalText = btn.innerHTML;
             btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> กำลังบันทึก...';
@@ -69,14 +91,25 @@
             try {
                 const res = await fetch(`/novel/${novelId}/chapters`, { method: 'POST', body: formData, headers: {'Accept': 'application/json'} });
                 const result = await res.json();
+                
                 if(result.success) {
-                    alert('บันทึกสำเร็จ!');
+                    // [แก้ไข] เปลี่ยนจาก alert เป็น showToast
+                    showToast('บันทึกตอนใหม่เรียบร้อยแล้ว!', 'success');
+                    
                     document.getElementById('form-manual').reset();
                     nextChapterNum = parseFloat(result.chapter.chapterNumber) + 1;
                     document.getElementById('manualChapterNumber').value = nextChapterNum;
-                } else { throw new Error(result.message); }
-            } catch(err) { alert('เกิดข้อผิดพลาด: ' + err.message); }
-            finally { btn.innerHTML = originalText; btn.disabled = false; }
+                } else { 
+                    throw new Error(result.message);
+                }
+            } catch(err) { 
+                // [แก้ไข] เปลี่ยนจาก alert เป็น showToast
+                showToast('เกิดข้อผิดพลาด: ' + err.message, 'error');
+            }
+            finally { 
+                btn.innerHTML = originalText; 
+                btn.disabled = false;
+            }
         }
 
         function detectHeader() {
