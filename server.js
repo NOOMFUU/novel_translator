@@ -107,24 +107,51 @@ app.get('/logout', (req, res) => req.session.destroy(() => res.redirect('/')));
 app.get('/', async (req, res) => {
     const query = req.query.q;
     const category = req.query.category;
+    
+    // [แก้ไขส่วนนี้] ระบบ Pagination
+    const page = parseInt(req.query.page) || 1;
+    const limit = 12; // แสดง 12 เรื่องต่อหน้า
+    const skip = (page - 1) * limit;
+
     let filter = {};
     if (query) filter.title = { $regex: query, $options: 'i' };
     if (category) filter.categories = category;
 
-    const novels = await Novel.find(filter).sort({ createdAt: -1 });
-    const topNovels = await Novel.find().sort({ views: -1 }).limit(5);
+    try {
+        const totalNovels = await Novel.countDocuments(filter);
+        const totalPages = Math.ceil(totalNovels / limit);
+        
+        // ดึงข้อมูลแบบมี skip และ limit
+        const novels = await Novel.find(filter)
+            .sort({ createdAt: -1 })
+            .skip(skip)
+            .limit(limit);
 
-    // Random Recommend
-    let recommended = null;
-    if (!query && !category) {
-        const count = await Novel.countDocuments({ imageUrl: { $ne: "" } });
-        if(count > 0) {
-            const random = Math.floor(Math.random() * count);
-            recommended = await Novel.findOne({ imageUrl: { $ne: "" } }).skip(random);
+        const topNovels = await Novel.find().sort({ views: -1 }).limit(5);
+
+        // Random Recommend
+        let recommended = null;
+        if (!query && !category && page === 1) { // โชว์เฉพาะหน้าแรก
+            const count = await Novel.countDocuments({ imageUrl: { $ne: "" } });
+            if(count > 0) {
+                const random = Math.floor(Math.random() * count);
+                recommended = await Novel.findOne({ imageUrl: { $ne: "" } }).skip(random);
+            }
         }
-    }
 
-    res.render('index', { novels, query, currentCategory: category, recommended, topNovels });
+        res.render('index', { 
+            novels, 
+            query, 
+            currentCategory: category, 
+            recommended, 
+            topNovels,
+            currentPage: page,  // [ส่งค่า]
+            totalPages: totalPages // [ส่งค่า]
+        });
+    } catch (err) {
+        console.error(err);
+        res.redirect('/');
+    }
 });
 
 app.get('/favorites', requireLogin, async (req, res) => {
