@@ -1,37 +1,25 @@
 @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap');
 
 :root {
-    /* 🎨 Modern Palette */
     --primary: #6366f1;       
     --primary-hover: #4f46e5; 
     --secondary: #ec4899;     
     --accent: #0ea5e9;        
-    
     --bg-body: #f8fafc;
     --bg-card: #ffffff;
     --bg-input: #f1f5f9;
-    
     --text-main: #0f172a;     
     --text-muted: #64748b;    
     --border: #e2e8f0;
-
-    /* Glass Vars */
     --glass-bg: rgba(255, 255, 255, 0.7);
     --glass-border: 1px solid rgba(255, 255, 255, 0.5);
     --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.05);
     --nav-bg: rgba(255, 255, 255, 0.9);
     --blur-strength: 12px;
-
-    /* Dimensions & Spacing */
     --header-height: 70px;
     --radius-xl: 24px;
     --radius: 16px;
     --radius-sm: 12px;
-    
-    /* Status Colors */
-    --success: #10b981;
-    --danger: #ef4444;
-    --warning: #f59e0b;
 }
 
 [data-theme="dark"] {

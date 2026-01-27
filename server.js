@@ -45,11 +45,7 @@ app.use(session({
 app.use(async (req, res, next) => {
     res.locals.isAdmin = req.session.isAdmin || false;
     res.locals.currentUrl = req.path;
-    
-    // ⭐ [ตั้งค่า] ใส่ลิงก์รูป Default ที่นี่ครับ (เปลี่ยนได้ตลอดเวลา) ⭐
-    // แนะนำให้ใช้รูปแนวตั้งสัดส่วนประมาณ 2:3
     res.locals.defaultCover = 'https://placehold.co/400x600/png?text=No+Cover'; 
-
     res.locals.allCategories = await Novel.distinct('categories'); 
     next();
 });
@@ -114,18 +110,14 @@ app.get('/', async (req, res) => {
     const novels = await Novel.find(filter).sort({ createdAt: -1 });
     const categories = await Novel.distinct('categories');
 
-    // Logic หาเรื่องแนะนำ: พยายามหาเรื่องที่มีรูปปกก่อน ถ้าไม่มีค่อยสุ่ม
     const count = await Novel.countDocuments();
     let recommended = null;
     
     if (count > 0 && !query && !category) {
-        // ลองหาเรื่องที่มีรูปปกจริงๆ (ไม่ใช่ string ว่าง)
         const novelsWithCover = await Novel.find({ imageUrl: { $ne: "" } });
-        
         if(novelsWithCover.length > 0) {
             recommended = novelsWithCover[Math.floor(Math.random() * novelsWithCover.length)];
         } else {
-            // ถ้าไม่มีเลย ก็สุ่มปกติ แล้วเดี๋ยวไปใช้ defaultCover เอา
             const random = Math.floor(Math.random() * count);
             recommended = await Novel.findOne().skip(random);
         }
@@ -217,7 +209,6 @@ app.post('/novel/:id/chapters', requireAdmin, upload.single('txtFile'), async (r
         const nextNumber = lastChapter ? lastChapter.chapterNumber + 1 : 1;
 
         if (mode === 'manual') {
-            // [แก้ไข 1] เก็บค่า chapter ที่สร้างใหม่ใส่ตัวแปร newChapter
             const newChapter = await Chapter.create({
                 novelId,
                 chapterNumber: manualChapterNumber || nextNumber,
@@ -225,9 +216,7 @@ app.post('/novel/:id/chapters', requireAdmin, upload.single('txtFile'), async (r
                 translatedContent: manualTranslated
             });
             
-            // [แก้ไข 2] ส่ง chapter: newChapter กลับไปด้วย
             if (isAjax) return res.json({ success: true, message: 'บันทึกสำเร็จ', chapter: newChapter });
-            
             return res.redirect(`/novel/${novelId}`);
         }
 
@@ -246,7 +235,6 @@ app.post('/novel/:id/chapters', requireAdmin, upload.single('txtFile'), async (r
         const finalNumber = data.chapterNumber || nextNumber;
         const finalTitle = data.title ? `ตอนที่ ${finalNumber} : ${data.title}` : `ตอนที่ ${finalNumber}`;
 
-        // [แก้ไข 3] เก็บค่า chapter ที่สร้างใหม่ใส่ตัวแปร newChapter (สำหรับโหมด AI)
         const newChapter = await Chapter.create({
           novelId,
           chapterNumber: finalNumber,
@@ -254,9 +242,7 @@ app.post('/novel/:id/chapters', requireAdmin, upload.single('txtFile'), async (r
           translatedContent: data.translatedContent
         });
     
-        // [แก้ไข 4] ส่ง chapter: newChapter กลับไปด้วย
         if (isAjax) return res.json({ success: true, message: 'แปลและบันทึกสำเร็จ', chapter: newChapter });
-        
         res.redirect(`/novel/${novelId}`);
 
     } catch (error) {
