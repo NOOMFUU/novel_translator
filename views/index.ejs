@@ -656,6 +656,7 @@
 
         <div class="novel-grid">
             <% novels.forEach(novel => { %>
+                
                 <a href="/novel/<%= novel._id %>" class="novel-card">
                     <div class="cover-wrapper">
                         <% 
@@ -665,14 +666,23 @@
                             if(novel.status === 'Hiatus') { statusClass = 'status-hiatus'; statusText = 'HIATUS'; }
                         %>
                         <div class="status-badge <%= statusClass %>"><%= statusText %></div>
-                        
-                        <img src="<%= novel.imageUrl || defaultCover %>" 
-                             onerror="this.onerror=null;this.src='<%= defaultCover %>';"
-                             class="novel-cover" loading="lazy" alt="<%= novel.title %>">
+                        <img src="<%= novel.imageUrl || defaultCover %>" onerror="this.onerror=null;this.src='<%= defaultCover %>';" class="novel-cover" loading="lazy">
                     </div>
                     
                     <div class="novel-title"><%= novel.title %></div>
                     
+                    <% if(novel.lastChapter && novel.lastChapter.chapterNumber) { %>
+                        <div style="font-size: 0.85rem; color: var(--primary); font-weight: 700; margin-bottom: 6px; display: flex; align-items: center; gap: 4px;">
+                            <i class="fa-solid fa-bolt" style="font-size: 0.8em;"></i> 
+                            <span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 120px;">
+                                Ep.<%= novel.lastChapter.chapterNumber %>
+                            </span>
+                            <span style="font-weight:400; color:var(--text-muted); font-size:0.75rem; margin-left: auto;">
+                                <%= new Date(novel.updatedAt).toLocaleDateString('th-TH', { day: 'numeric', month: 'short' }) %>
+                            </span>
+                        </div>
+                    <% } else { %>
+                        <div style="height: 22px; margin-bottom: 6px;"></div> <% } %>
                     <div class="novel-stats">
                         <span><i class="fa-regular fa-eye"></i> <%= (novel.views || 0).toLocaleString() %></span>
                         <% if(novel.categories && novel.categories.length > 0) { %>

@@ -14,7 +14,21 @@ const NovelSchema = new mongoose.Schema({
   views: { type: Number, default: 0 },         
   customPrompt: { type: String, default: "แปลให้อ่านง่าย เหมาะกับนิยายแฟนตาซี/Light Novel" },
   glossary: { type: String, default: "" },
-  createdAt: { type: Date, default: Date.now }
+  
+  // [ส่วนที่เพิ่ม] เก็บเวลาอัปเดตล่าสุด และข้อมูลตอนล่าสุด
+  createdAt: { type: Date, default: Date.now },
+  updatedAt: { type: Date, default: Date.now },
+  lastChapter: {
+    chapterNumber: Number,
+    title: String,
+    updatedAt: Date
+  }
+});
+
+// Middleware: อัปเดตเวลาทุกครั้งที่มีการแก้ไข (เผื่อไว้)
+NovelSchema.pre('save', function(next) {
+  this.updatedAt = new Date();
+  next();
 });
 
 module.exports = mongoose.model('Novel', NovelSchema);

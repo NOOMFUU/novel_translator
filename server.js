@@ -108,9 +108,8 @@ app.get('/', async (req, res) => {
     const query = req.query.q;
     const category = req.query.category;
     
-    // [แก้ไขส่วนนี้] ระบบ Pagination
     const page = parseInt(req.query.page) || 1;
-    const limit = 12; // แสดง 12 เรื่องต่อหน้า
+    const limit = 12;
     const skip = (page - 1) * limit;
 
     let filter = {};
@@ -121,32 +120,25 @@ app.get('/', async (req, res) => {
         const totalNovels = await Novel.countDocuments(filter);
         const totalPages = Math.ceil(totalNovels / limit);
         
-        // ดึงข้อมูลแบบมี skip และ limit
+        // [จุดสำคัญ] เปลี่ยน sort เป็น updatedAt: -1 (ล่าสุดขึ้นก่อน)
         const novels = await Novel.find(filter)
-            .sort({ createdAt: -1 })
+            .sort({ updatedAt: -1 }) 
             .skip(skip)
             .limit(limit);
 
+        // ... (ส่วน Top Novels และ Recommended เหมือนเดิม)
         const topNovels = await Novel.find().sort({ views: -1 }).limit(5);
-
-        // Random Recommend
         let recommended = null;
-        if (!query && !category && page === 1) { // โชว์เฉพาะหน้าแรก
-            const count = await Novel.countDocuments({ imageUrl: { $ne: "" } });
-            if(count > 0) {
-                const random = Math.floor(Math.random() * count);
-                recommended = await Novel.findOne({ imageUrl: { $ne: "" } }).skip(random);
-            }
+        if (!query && !category && page === 1) {
+             const count = await Novel.countDocuments({ imageUrl: { $ne: "" } });
+             if(count > 0) {
+                 const random = Math.floor(Math.random() * count);
+                 recommended = await Novel.findOne({ imageUrl: { $ne: "" } }).skip(random);
+             }
         }
 
         res.render('index', { 
-            novels, 
-            query, 
-            currentCategory: category, 
-            recommended, 
-            topNovels,
-            currentPage: page,  // [ส่งค่า]
-            totalPages: totalPages // [ส่งค่า]
+            novels, query, currentCategory: category, recommended, topNovels, currentPage: page, totalPages: totalPages 
         });
     } catch (err) {
         console.error(err);
@@ -224,17 +216,27 @@ app.post('/novel/:id/chapters', requireWriter, upload.single('txtFile'), async (
     try {
         const { manualTitle, manualChapterNumber, manualTranslated } = req.body;
         
-        // ถ้ามีการอัปโหลดไฟล์ ให้อ่านเนื้อหาจากไฟล์
         let content = manualTranslated;
         if (req.file) {
             content = req.file.buffer.toString('utf-8');
         }
 
+        // สร้างตอนใหม่
         const newChapter = await Chapter.create({
             novelId: req.params.id,
             chapterNumber: manualChapterNumber,
             title: manualTitle || `ตอนที่ ${manualChapterNumber}`,
             translatedContent: content
+        });
+
+        // [จุดสำคัญ] อัปเดตข้อมูลนิยาย: เวลาล่าสุด และ ข้อมูลตอนล่าสุด
+        await Novel.findByIdAndUpdate(req.params.id, {
+            updatedAt: new Date(),
+            lastChapter: {
+                chapterNumber: newChapter.chapterNumber,
+                title: newChapter.title,
+                updatedAt: new Date()
+            }
         });
 
         if (req.xhr || req.headers.accept.includes('json')) {
