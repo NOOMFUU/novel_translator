@@ -2,7 +2,7 @@
 <html lang="th">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title><%= novel.title %> - อ่านนิยาย</title>
     
     <link rel="stylesheet" href="/css/style.css">
@@ -16,33 +16,35 @@
     </script>
     
     <style>
-        /* --- 🎨 Global Variables & Reset --- */
+        /* --- 🛠️ Core Variables --- */
         :root {
-            --glass-bg: rgba(255, 255, 255, 0.75);
-            --glass-border: rgba(255, 255, 255, 0.5);
-            --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+            --glass-bg: rgba(255, 255, 255, 0.85);
+            --glass-border: 1px solid rgba(255, 255, 255, 0.5);
             --card-radius: 16px;
+            --bottom-bar-height: 70px;
         }
 
         [data-theme="dark"] {
-            --glass-bg: rgba(30, 30, 30, 0.85);
-            --glass-border: rgba(255, 255, 255, 0.1);
+            --glass-bg: rgba(30, 30, 30, 0.9);
+            --glass-border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
-        .preload * { transition: none !important; -webkit-transition: none !important; }
+        .preload * { transition: none !important; }
 
         body {
+            /* ใช้ Padding Top จาก style.css หลัก (70px) */
+            padding-bottom: 20px; 
             background-color: var(--bg-body);
-            color: var(--text-main);
         }
 
-        /* --- 🌟 Hero Section (Background Blur) --- */
+        /* --- 🌟 Hero Section --- */
         .novel-hero-container {
             position: relative;
             overflow: hidden;
-            padding: 60px 0 40px;
+            padding: 40px 0;
             margin-bottom: 20px;
-            background: var(--bg-card); /* Fallback */
+            background: var(--bg-card);
+            box-shadow: 0 1px 5px rgba(0,0,0,0.05);
         }
         
         .hero-bg-blur {
@@ -62,7 +64,7 @@
             position: relative;
             z-index: 1;
             display: grid;
-            grid-template-columns: 260px 1fr;
+            grid-template-columns: 240px 1fr;
             gap: 40px;
             max-width: 1100px;
             margin: 0 auto;
@@ -72,7 +74,7 @@
         /* --- 📚 Cover Image --- */
         .novel-cover-card {
             position: sticky;
-            top: 20px;
+            top: 90px; /* เว้นระยะให้พ้น Header */
         }
 
         .novel-cover-box {
@@ -82,6 +84,7 @@
             box-shadow: 0 15px 35px rgba(0,0,0,0.2);
             aspect-ratio: 2/3;
             border: 1px solid var(--glass-border);
+            background: var(--bg-input);
         }
         .novel-cover-box img {
             width: 100%; height: 100%; object-fit: cover;
@@ -89,209 +92,174 @@
         }
         .novel-cover-box:hover img { transform: scale(1.05); }
 
-        /* Badge */
         .novel-badge {
             position: absolute; top: 10px; left: 10px;
             padding: 4px 12px; border-radius: 20px;
-            font-size: 0.8rem; font-weight: 700;
+            font-size: 0.75rem; font-weight: 700;
             color: white; text-transform: uppercase;
             box-shadow: 0 2px 10px rgba(0,0,0,0.2);
             backdrop-filter: blur(4px);
         }
-        .badge-on { background: linear-gradient(135deg, #10b981, #059669); }
-        .badge-end { background: linear-gradient(135deg, #ef4444, #b91c1c); }
+        .badge-on { background: rgba(16, 185, 129, 0.9); }
+        .badge-end { background: rgba(239, 68, 68, 0.9); }
+        .badge-hiatus { background: rgba(245, 158, 11, 0.9); }
 
         /* --- 📝 Info Section --- */
         .novel-info-header h1 {
-            font-size: 2.5rem; font-weight: 800; line-height: 1.2;
-            margin-bottom: 5px; letter-spacing: -0.5px;
+            font-size: 2.2rem; font-weight: 800; line-height: 1.3; margin-bottom: 8px;
         }
         
         .original-title {
-            font-size: 1.1rem; color: var(--text-muted);
-            margin-bottom: 15px; font-weight: 400; opacity: 0.8;
+            font-size: 1rem; color: var(--text-muted);
+            margin-bottom: 20px; font-weight: 400; opacity: 0.8;
         }
 
-        /* Tags */
         .tag-container { display: flex; flex-wrap: wrap; gap: 8px; margin: 15px 0 25px; }
         .tag-pill {
-            background: var(--bg-input);
-            color: var(--text-muted);
-            padding: 6px 14px; border-radius: 50px;
-            font-size: 0.8rem; font-weight: 600;
-            transition: all 0.2s;
-            border: 1px solid var(--border);
+            background: var(--bg-input); color: var(--text-muted);
+            padding: 5px 12px; border-radius: 50px;
+            font-size: 0.8rem; font-weight: 500;
+            transition: all 0.2s; border: 1px solid var(--border);
+            text-decoration: none;
         }
         .tag-pill:hover {
             border-color: var(--primary); color: var(--primary);
             background: rgba(var(--primary-rgb), 0.05);
-            transform: translateY(-2px);
         }
 
-        /* Stats Grid */
         .novel-meta-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 15px; margin-bottom: 30px;
+            display: grid; grid-template-columns: repeat(4, 1fr);
+            gap: 12px; margin-bottom: 25px;
         }
         .meta-item {
             display: flex; flex-direction: column; align-items: center; text-align: center;
-            padding: 15px;
-            background: var(--bg-card);
-            border-radius: 12px;
-            border: 1px solid var(--border);
+            padding: 12px; background: var(--bg-card);
+            border-radius: 12px; border: 1px solid var(--border);
             transition: transform 0.2s;
         }
-        .meta-item:hover { transform: translateY(-3px); border-color: var(--primary); }
-        .meta-item i { font-size: 1.2rem; color: var(--primary); margin-bottom: 8px; }
-        .meta-label { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
-        .meta-value { font-weight: 700; font-size: 1rem; color: var(--text-main); margin-top: 4px; }
+        .meta-item i { font-size: 1.1rem; color: var(--primary); margin-bottom: 6px; }
+        .meta-label { font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; }
+        .meta-value { font-weight: 700; font-size: 0.95rem; color: var(--text-main); margin-top: 2px; }
 
-        /* Synopsis */
         .synopsis-box {
-            background: var(--bg-card);
-            padding: 24px;
-            border-radius: var(--card-radius);
-            border: 1px solid var(--border);
-            line-height: 1.8; color: var(--text-muted);
+            background: var(--bg-card); padding: 24px;
+            border-radius: var(--card-radius); border: 1px solid var(--border);
+            line-height: 1.8; color: var(--text-main); opacity: 0.9;
             margin-top: 20px;
         }
 
-        /* Action Buttons */
-        .action-group {
-            display: flex; flex-direction: column; gap: 12px; margin-top: 20px;
-        }
-        .btn-xl { padding: 14px 24px; font-size: 1.1rem; font-weight: 600; border-radius: 12px; }
+        /* Action Buttons (Desktop) */
+        .action-group { display: flex; flex-direction: column; gap: 10px; margin-top: 20px; }
+        .btn-xl { padding: 12px 20px; font-size: 1rem; font-weight: 600; border-radius: 10px; }
         .btn-read-anim {
             background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
             color: white; border: none;
             box-shadow: 0 4px 15px rgba(var(--primary-rgb), 0.3);
             transition: all 0.3s ease;
         }
-        .btn-read-anim:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(var(--primary-rgb), 0.4);
-        }
+        .btn-read-anim:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(var(--primary-rgb), 0.4); }
 
         /* --- 📑 Chapter Section --- */
-        .chapter-section {
-            max-width: 1100px; margin: 0 auto; padding: 0 20px 60px;
-        }
+        .chapter-section { max-width: 1100px; margin: 0 auto; padding: 0 20px 40px; }
         .chapter-card {
-            background: var(--bg-card);
-            border-radius: var(--card-radius);
-            border: 1px solid var(--border);
-            padding: 30px;
-            box-shadow: var(--glass-shadow);
+            background: var(--bg-card); border-radius: var(--card-radius);
+            border: 1px solid var(--border); padding: 24px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.03);
         }
 
-        /* Search & Filter Bar */
         .chapter-controls {
-            display: flex; flex-wrap: wrap; gap: 20px;
+            display: flex; flex-wrap: wrap; gap: 15px;
             justify-content: space-between; align-items: center;
-            margin-bottom: 30px; padding-bottom: 20px;
+            margin-bottom: 25px; padding-bottom: 15px;
             border-bottom: 1px solid var(--border);
         }
-        .search-wrapper { position: relative; flex: 1; max-width: 350px; }
+        .search-wrapper { position: relative; flex: 1; max-width: 300px; }
         .search-wrapper input {
-            width: 100%; padding: 12px 15px 12px 45px;
+            width: 100%; padding: 10px 15px 10px 40px;
             border-radius: 50px; border: 1px solid var(--border);
-            background: var(--bg-input); color: var(--text-main);
-            transition: all 0.2s;
+            background: var(--bg-input); color: var(--text-main); outline: none;
         }
-        .search-wrapper input:focus {
-            border-color: var(--primary); box-shadow: 0 0 0 3px rgba(var(--primary-rgb), 0.1); outline: none;
-        }
-        .search-wrapper i {
-            position: absolute; left: 18px; top: 50%; transform: translateY(-50%);
-            color: var(--text-muted);
-        }
+        .search-wrapper i { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: var(--text-muted); }
 
-        /* Chapter Grid/List */
-        .chapter-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 15px;
-        }
-        .chapter-grid.view-list { grid-template-columns: 1fr; gap: 0; }
-
+        .chapter-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; }
+        
         .chapter-item {
             display: flex; justify-content: space-between; align-items: center;
-            padding: 16px 20px;
-            background: var(--bg-input);
-            border: 1px solid transparent;
-            border-radius: 10px;
+            padding: 14px 18px; background: var(--bg-input);
+            border: 1px solid transparent; border-radius: 10px;
             text-decoration: none; color: var(--text-main);
             transition: all 0.2s ease;
-            position: relative; overflow: hidden;
         }
+        .chapter-item:hover {
+            border-color: var(--primary); background: var(--bg-card);
+            transform: translateX(3px); box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        .chapter-item.read { opacity: 0.6; }
         
-        /* List View Tweaks */
+        /* List View Mode */
+        .chapter-grid.view-list { grid-template-columns: 1fr; gap: 0; }
         .view-list .chapter-item {
             background: transparent; border-radius: 0;
-            border-bottom: 1px solid var(--border);
-            padding: 18px 10px;
+            border-bottom: 1px solid var(--border); padding: 16px 10px;
         }
         .view-list .chapter-item:last-child { border-bottom: none; }
 
-        .chapter-item:hover {
-            border-color: var(--primary);
-            background: var(--bg-card);
-            transform: translateX(5px);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-            z-index: 1;
-        }
-        .chapter-item.read { opacity: 0.6; background: transparent; }
-        .chapter-item.read:hover { opacity: 1; }
+        .chapter-title { font-weight: 500; font-size: 0.95rem; display: flex; align-items: center; gap: 8px; }
+        .chapter-meta { font-size: 0.75rem; color: var(--text-muted); }
 
-        .chapter-title { font-weight: 500; font-size: 1rem; display: flex; align-items: center; gap: 8px; }
-        .chapter-meta { font-size: 0.8rem; color: var(--text-muted); display: flex; align-items: center; gap: 5px; }
-
-        /* Toast */
-        .toast-container { position: fixed; top: 90px; right: 20px; z-index: 1050; display: flex; flex-direction: column; gap: 10px; }
-        .toast {
-            background: var(--bg-card); color: var(--text-main);
-            padding: 12px 24px; border-radius: 12px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-            border-left: 4px solid var(--primary);
-            display: flex; align-items: center; gap: 12px;
-            animation: slideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        /* --- 📱 Mobile Sticky Bar --- */
+        .mobile-action-bar {
+            position: fixed; bottom: 0; left: 0; right: 0;
+            background: var(--nav-bg);
+            backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+            border-top: 1px solid var(--border);
+            padding: 12px 20px;
+            padding-bottom: max(12px, env(safe-area-inset-bottom));
+            z-index: 1000;
+            display: none; /* Desktop Hidden */
+            gap: 12px; align-items: center;
+            box-shadow: 0 -4px 20px rgba(0,0,0,0.1);
         }
-        @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
 
         /* --- 📱 Responsive --- */
         @media (max-width: 900px) {
-            .novel-content-wrapper { grid-template-columns: 220px 1fr; gap: 30px; }
+            .novel-content-wrapper { grid-template-columns: 200px 1fr; gap: 30px; }
             .novel-meta-grid { grid-template-columns: repeat(2, 1fr); }
         }
         @media (max-width: 768px) {
-            .novel-content-wrapper { grid-template-columns: 1fr; text-align: center; }
-            .novel-cover-card { position: static; max-width: 220px; margin: 0 auto; }
-            .novel-info-header h1 { font-size: 2rem; margin-top: 20px; }
+            /* เว้นที่ด้านล่างเพิ่มสำหรับ Mobile Bar */
+            body { padding-bottom: calc(var(--bottom-bar-height) + 20px); }
+            
+            .novel-content-wrapper { grid-template-columns: 1fr; text-align: center; gap: 20px; }
+            .novel-cover-card { position: static; max-width: 160px; margin: 0 auto; }
+            
+            .novel-info-header h1 { font-size: 1.8rem; margin-top: 10px; }
             .tag-container { justify-content: center; }
-            .action-group { flex-direction: row; }
-            .action-group .btn { flex: 1; }
-            .chapter-controls { flex-direction: column; align-items: stretch; gap: 15px; }
+            
+            /* ซ่อนปุ่มใหญ่ในเนื้อหา เพื่อไปใช้แถบล่างแทน */
+            .action-group.desktop-only { display: none; }
+            .mobile-action-bar { display: flex; }
+
+            .chapter-controls { flex-direction: column; align-items: stretch; gap: 12px; }
             .search-wrapper { max-width: 100%; }
+            .chapter-card { padding: 16px; }
         }
     </style>
 </head>
 <body class="preload">
     <div id="toast-container" class="toast-container"></div>
 
-    <header class="main-header" style="background: var(--bg-card); border-bottom: 1px solid var(--border); padding: 10px 0;">
-        <div class="d-flex justify-between align-center w-100" style="padding: 0 24px; max-width: 100%;">
-            <nav class="breadcrumbs" style="display: flex; align-items: center; gap: 8px; font-size: 0.9rem;">
-                <a href="/" style="text-decoration: none; color: var(--text-muted); transition: color 0.2s;">
-                    <i class="fa-solid fa-house"></i> หน้าหลัก
-                </a>
-                <span style="color: var(--text-muted); opacity: 0.5;">/</span>
-                <span style="font-weight: 600; color: var(--primary); max-width: 200px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+    <header class="main-header">
+        <div class="container" style="display: flex; align-items: center; justify-content: space-between; height: 100%; width: 100%;">
+            <nav class="breadcrumbs" style="display: flex; align-items: center; gap: 8px; font-size: 0.95rem;">
+                <a href="/" style="text-decoration: none; color: var(--text-muted);"><i class="fa-solid fa-chevron-left"></i> หน้าหลัก</a>
+                <span class="desktop-only" style="color:var(--border);">/</span>
+                <span class="desktop-only" style="font-weight: 600; color: var(--primary); max-width: 300px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
                     <%= novel.title %>
                 </span>
             </nav>
-            <div class="d-flex align-center gap-2">
-                 <button onclick="toggleTheme()" class="btn btn-outline btn-sm" style="border-radius:50%; width:40px; height:40px; padding:0; display:flex; align-items:center; justify-content:center;">
+            <div style="display:flex; gap:10px; align-items:center;">
+                <button onclick="toggleTheme()" class="btn btn-outline" style="border-radius:50%; width:40px; height:40px; padding:0; border:none;">
                     <i class="fa-solid fa-moon"></i>
                 </button>
             </div>
@@ -305,25 +273,29 @@
             <aside class="novel-cover-card">
                 <div class="novel-cover-box">
                     <img src="<%= novel.imageUrl || defaultCover %>" onerror="this.onerror=null;this.src='<%= defaultCover %>';" alt="<%= novel.title %>">
-                    <div class="novel-badge badge-<%= novel.status === 'จบแล้ว' ? 'end' : 'on' %>">
-                        <%= novel.status %>
-                    </div>
+                    <% 
+                        let stClass = 'badge-on'; let stText = 'ON GOING';
+                        if(novel.status === 'Completed') { stClass = 'badge-end'; stText = 'END'; }
+                        if(novel.status === 'Hiatus') { stClass = 'badge-hiatus'; stText = 'HIATUS'; }
+                    %>
+                    <div class="novel-badge <%= stClass %>"><%= stText %></div>
                 </div>
 
-                <div class="action-group">
-                    <button id="continue-reading-btn" class="btn btn-read-anim btn-xl w-100" style="display:none;" onclick="continueReading()">
-                        <i class="fa-solid fa-play"></i> อ่านต่อ
-                    </button>
-                    <% if(totalChapters > 0) { %>
-                        <a href="/chapter/<%= chapters.length > 0 ? chapters[chapters.length-1]._id : '#' %>" class="btn btn-outline btn-xl w-100">
-                            <i class="fa-solid fa-book-open"></i> <%= typeof continueReading !== 'undefined' ? 'เริ่มอ่าน' : 'ตอนแรก' %>
-                        </a>
-                    <% } %>
+                <div class="action-group desktop-only">
+                    <% 
+                        let firstChapterUrl = '#';
+                        if(chapters.length > 0) {
+                            firstChapterUrl = '/chapter/' + chapters[chapters.length-1]._id;
+                        }
+                    %>
+                    <a href="<%= firstChapterUrl %>" id="dt-read-btn" class="btn btn-read-anim btn-xl w-100" style="text-decoration:none; justify-content:center;">
+                        <i class="fa-solid fa-book-open"></i> เริ่มอ่าน
+                    </a>
                     
                     <% if (user) { %>
-                        <button onclick="toggleFavorite()" id="fav-btn" class="btn <%= isFav ? 'btn-primary' : 'btn-outline' %> w-100">
+                        <button onclick="toggleFavorite()" id="dt-fav-btn" class="btn <%= isFav ? 'btn-primary' : 'btn-outline' %> w-100 btn-xl">
                             <i class="fa-<%= isFav ? 'solid' : 'regular' %> fa-heart"></i> 
-                            <span id="fav-text"><%= isFav ? 'ติดตามแล้ว' : 'กดติดตาม' %></span>
+                            <span id="dt-fav-text"><%= isFav ? 'ติดตามแล้ว' : 'กดติดตาม' %></span>
                         </button>
                     <% } %>
                 </div>
@@ -331,12 +303,12 @@
 
             <main class="novel-info-header">
                 <% if(isAdmin) { %>
-                    <div class="d-flex justify-between align-center mb-4" style="background: rgba(var(--bg-card-rgb), 0.8); backdrop-filter:blur(5px); padding: 10px 20px; border-radius: 10px; border:1px dashed var(--primary);">
-                        <span class="text-muted" style="font-size:0.85rem;"><i class="fa-solid fa-user-shield"></i> ผู้ดูแลระบบ</span>
+                    <div class="d-flex justify-between align-center mb-4" style="background: rgba(var(--bg-card-rgb), 0.8); backdrop-filter:blur(5px); padding: 10px 20px; border-radius: 10px; border:1px dashed var(--primary); margin-bottom:20px;">
+                        <span class="text-muted" style="font-size:0.85rem;"><i class="fa-solid fa-user-shield"></i> จัดการนิยาย</span>
                         <div class="d-flex gap-2">
                             <a href="/novel/<%= novel._id %>/edit" class="btn btn-sm btn-outline"><i class="fa-solid fa-pen"></i> แก้ไข</a>
                             <form action="/novel/<%= novel._id %>?_method=DELETE" method="POST" onsubmit="return confirm('⚠️ ยืนยันการลบนิยาย?');" style="margin:0;">
-                                <button type="submit" class="btn btn-sm btn-outline" style="color: var(--danger); border-color: var(--danger);"><i class="fa-solid fa-trash"></i> ลบ</button>
+                                <button type="submit" class="btn btn-sm btn-outline-danger"><i class="fa-solid fa-trash"></i></button>
                             </form>
                         </div>
                     </div>
@@ -347,13 +319,14 @@
                     <div class="original-title"><%= novel.originalTitle %></div>
                 <% } %>
 
-                <% if(novel.tags && novel.tags.length > 0) { %>
-                    <div class="tag-container">
-                        <% novel.tags.forEach(tag => { %>
-                            <a href="/search?tag=<%= tag %>" class="tag-pill">#<%= tag %></a>
-                        <% }) %>
-                    </div>
-                <% } %>
+                <div class="tag-container">
+                    <% if(novel.categories) { novel.categories.forEach(cat => { %>
+                        <a href="/?category=<%= cat %>" class="tag-pill"><%= cat %></a>
+                    <% })} %>
+                    <% if(novel.tags) { novel.tags.forEach(tag => { %>
+                        <a href="/?tag=<%= tag %>" class="tag-pill">#<%= tag %></a>
+                    <% })} %>
+                </div>
 
                 <div class="novel-meta-grid">
                     <div class="meta-item">
@@ -362,19 +335,19 @@
                         <span class="meta-value text-truncate w-100"><%= novel.author %></span>
                     </div>
                     <div class="meta-item">
-                        <i class="fa-solid fa-eye"></i>
+                        <i class="fa-regular fa-eye"></i>
                         <span class="meta-label">ยอดวิว</span>
                         <span class="meta-value"><%= (novel.views || 0).toLocaleString() %></span>
                     </div>
                     <div class="meta-item">
-                        <i class="fa-solid fa-layer-group"></i>
-                        <span class="meta-label">ตอนทั้งหมด</span>
+                        <i class="fa-solid fa-list-ol"></i>
+                        <span class="meta-label">ตอน</span>
                         <span class="meta-value"><%= totalChapters.toLocaleString() %></span>
                     </div>
                     <div class="meta-item">
-                        <i class="fa-solid fa-clock-rotate-left"></i>
+                        <i class="fa-regular fa-calendar-check"></i>
                         <span class="meta-label">อัปเดต</span>
-                        <span class="meta-value"><%= new Date(novel.updatedAt).toLocaleDateString('th-TH', {day: 'numeric', month: 'short', year: '2-digit'}) %></span>
+                        <span class="meta-value"><%= new Date(novel.updatedAt).toLocaleDateString('th-TH', {day: 'numeric', month: 'short'}) %></span>
                     </div>
                 </div>
 
@@ -386,7 +359,7 @@
                     
                     <% if(novel.originalLink) { %>
                         <div style="margin-top: 20px; padding-top: 15px; border-top: 1px dashed var(--border);">
-                            <a href="<%= novel.originalLink %>" target="_blank" class="btn-text" style="color: var(--accent); text-decoration: none; font-size: 0.9rem; display:inline-flex; align-items:center; gap:5px;">
+                            <a href="<%= novel.originalLink %>" target="_blank" style="color: var(--accent); text-decoration: none; font-size: 0.9rem; display:inline-flex; align-items:center; gap:5px;">
                                 <i class="fa-solid fa-external-link-alt"></i> แหล่งที่มาต้นฉบับ
                             </a>
                         </div>
@@ -398,120 +371,122 @@
 
     <div class="chapter-section">
         <% if (isAdmin) { %>
-            <div class="card d-flex align-center justify-between" style="border: 1px dashed var(--primary); background: rgba(99, 102, 241, 0.03); margin-bottom: 30px; padding: 20px;">
+            <div class="card d-flex align-center justify-between" style="border: 1px dashed var(--primary); background: rgba(99, 102, 241, 0.03); margin-bottom: 20px; padding: 15px;">
                 <div class="d-flex align-center gap-3">
-                    <div style="background: var(--primary); color: white; width: 45px; height: 45px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; box-shadow: 0 4px 10px rgba(var(--primary-rgb),0.3);">
+                    <div style="background: var(--primary); color: white; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
                         <i class="fa-solid fa-plus"></i>
                     </div>
-                    <div>
-                        <h4 style="margin: 0;">เพิ่มตอนใหม่</h4>
-                        <span class="text-muted" style="font-size: 0.9rem;">แปลด้วย AI หรือลงเนื้อหาเอง</span>
-                    </div>
+                    <div><h4 style="margin: 0; font-size:1rem;">เพิ่มตอนใหม่</h4></div>
                 </div>
-                <a href="/novel/<%= novel._id %>/add" class="btn btn-primary">
-                    ไปหน้าเพิ่มตอน <i class="fa-solid fa-arrow-right"></i>
-                </a>
+                <a href="/novel/<%= novel._id %>/add" class="btn btn-primary btn-sm">เพิ่มตอน <i class="fa-solid fa-arrow-right"></i></a>
             </div>
         <% } %>
 
         <div class="chapter-card">
             <div class="chapter-controls">
                 <div>
-                    <h3 style="margin:0; font-size: 1.5rem; font-weight: 700;">
-                        <span style="color:var(--primary);">|</span> สารบัญ
-                    </h3>
-                    <span class="text-muted" style="font-size: 0.9rem;">ทั้งหมด <%= totalChapters.toLocaleString() %> ตอน</span>
+                    <h3 style="margin:0; font-size: 1.3rem; font-weight: 700;">สารบัญ</h3>
+                    <span class="text-muted" style="font-size: 0.85rem;">ทั้งหมด <%= totalChapters.toLocaleString() %> ตอน</span>
                 </div>
 
                 <form action="/novel/<%= novel._id %>" method="GET" class="search-wrapper">
                     <input type="hidden" name="sort" value="<%= sortOrder %>"> 
-                    <i class="fa-solid fa-search"></i>
+                    <i class="fa-solid fa-magnifying-glass"></i>
                     <input type="text" name="qChapter" placeholder="ค้นหาตอน..." value="<%= typeof chapterSearch !== 'undefined' ? chapterSearch : '' %>">
                 </form>
 
                 <div class="d-flex gap-2">
-                    <div class="btn-group">
-                        <button class="btn btn-outline active" id="btn-grid" onclick="setView('grid')" title="มุมมองตาราง"><i class="fa-solid fa-border-all"></i></button>
-                        <button class="btn btn-outline" id="btn-list" onclick="setView('list')" title="มุมมองรายชื่อ"><i class="fa-solid fa-list-ul"></i></button>
+                    <div style="display:flex; background:var(--bg-input); border-radius:8px; padding:2px;">
+                        <button class="btn btn-sm active" id="btn-grid" onclick="setView('grid')" style="border-radius:6px; color:var(--text-muted); background:transparent; border:none;"><i class="fa-solid fa-border-all"></i></button>
+                        <button class="btn btn-sm" id="btn-list" onclick="setView('list')" style="border-radius:6px; color:var(--text-muted); background:transparent; border:none;"><i class="fa-solid fa-list-ul"></i></button>
                     </div>
                     
                     <a href="/novel/<%= novel._id %>?sort=<%= sortOrder === 'newest' ? 'oldest' : 'newest' %>&qChapter=<%= typeof chapterSearch !== 'undefined' ? chapterSearch : '' %>" 
-                    class="btn btn-outline" 
-                    title="เรียงลำดับ">
+                    class="btn btn-outline btn-sm" style="border-radius:8px;">
                         <i class="fa-solid fa-arrow-down-up-across-line"></i> 
-                        <%= sortOrder === 'newest' ? 'ล่าสุด' : 'แรกสุด' %>
+                        <span class="desktop-only"><%= sortOrder === 'newest' ? 'ล่าสุด' : 'แรกสุด' %></span>
                     </a>
                 </div>
             </div>
 
-            <% if(chapters.length === 0) { %>
-                <div class="text-center text-muted" style="padding: 60px 0;">
-                    <div style="font-size: 4rem; opacity: 0.2; margin-bottom: 20px;"><i class="fa-regular fa-folder-open"></i></div>
-                    <p style="font-size: 1.1rem;">ไม่พบตอนที่ค้นหา</p>
-                    <% if(typeof chapterSearch !== 'undefined' && chapterSearch) { %>
-                        <a href="/novel/<%= novel._id %>" class="btn btn-sm btn-outline mt-2">ล้างคำค้นหา</a>
-                    <% } %>
-                </div>
-            <% } else { %>
-                <div id="chapterContainer" class="chapter-grid">
-                    <% chapters.forEach(chapter => { %>
-                        <div class="chapter-wrapper-outer" style="position:relative;">
-                            <a href="/chapter/<%= chapter._id %>" class="chapter-item" id="chapter-<%= chapter._id %>">
-                                <div class="d-flex align-center gap-3 overflow-hidden">
-                                    <div class="chapter-title text-truncate">
-                                        <span style="color:var(--primary); font-weight:700; min-width:40px;">Ep.<%= chapter.chapterNumber %></span>
-                                        <%= chapter.title.replace(/^ตอนที่ \d+[:\s]*/, '') %>
-                                        <i class="fa-solid fa-check-circle text-success" style="display:none; font-size:0.9em;"></i>
-                                    </div>
+            <div id="chapterContainer" class="chapter-grid">
+                <% if(chapters.length === 0) { %>
+                    <div class="text-center text-muted" style="grid-column:1/-1; padding: 60px 0;">
+                        <i class="fa-regular fa-folder-open" style="font-size: 3rem; opacity: 0.2; margin-bottom: 15px;"></i>
+                        <p>ไม่พบตอนที่ค้นหา</p>
+                    </div>
+                <% } %>
+
+                <% chapters.forEach(chapter => { %>
+                    <div class="chapter-wrapper-outer" style="position:relative;">
+                        <a href="/chapter/<%= chapter._id %>" class="chapter-item" id="chapter-<%= chapter._id %>">
+                            <div style="flex:1; min-width:0;">
+                                <div class="chapter-title text-truncate">
+                                    <span style="color:var(--primary); font-weight:700; min-width:50px;">Ep.<%= chapter.chapterNumber %></span>
+                                    <%= chapter.title.replace(/^ตอนที่ \d+[:\s]*/, '') %>
                                 </div>
                                 <div class="chapter-meta">
                                     <span><%= new Date(chapter.createdAt).toLocaleDateString('th-TH') %></span>
+                                    <i class="fa-solid fa-check-circle text-success" style="display:none; margin-left:5px;"></i>
                                 </div>
-                            </a>
-
-                            <% if (isAdmin) { %>
-                                <div style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); display: flex; gap: 5px; z-index: 2;">
-                                    <a href="/chapter/<%= chapter._id %>/edit" class="btn btn-sm btn-outline" style="background:var(--bg-card); width:28px; height:28px; padding:0; display:flex; align-items:center; justify-content:center;"><i class="fa-solid fa-pen" style="font-size:0.7rem;"></i></a>
-                                    <form action="/chapter/<%= chapter._id %>?_method=DELETE" method="POST" onsubmit="return confirm('ลบตอนนี้?')" style="margin:0;">
-                                        <button type="submit" class="btn btn-sm btn-outline" style="color: var(--danger); background:var(--bg-card); border-color:transparent; width:28px; height:28px; padding:0;"><i class="fa-solid fa-trash" style="font-size:0.7rem;"></i></button>
-                                    </form>
-                                </div>
-                            <% } %>
-                        </div>
-                    <% }) %>
-                </div>
-            <% } %>
+                            </div>
+                        </a>
+                        <% if (isAdmin) { %>
+                            <div style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); display: flex; gap: 5px; z-index: 2;">
+                                <a href="/chapter/<%= chapter._id %>/edit" class="btn btn-sm btn-outline" style="width:28px; height:28px; padding:0; display:flex; align-items:center; justify-content:center; background:var(--bg-card);"><i class="fa-solid fa-pen" style="font-size:0.7rem;"></i></a>
+                            </div>
+                        <% } %>
+                    </div>
+                <% }) %>
+            </div>
 
             <% if (totalPages > 1) { %>
-                <div class="pagination-container" style="display: flex; justify-content: center; gap: 6px; margin-top: 50px; flex-wrap: wrap;">
+                <div class="pagination-container" style="display: flex; justify-content: center; gap: 6px; margin-top: 40px; flex-wrap: wrap;">
                     <% if (currentPage > 1) { %>
                         <a href="/novel/<%= novel._id %>?page=<%= currentPage - 1 %>&sort=<%= sortOrder %>&qChapter=<%= typeof chapterSearch !== 'undefined' ? chapterSearch : '' %>" 
-                           class="btn btn-outline" style="width: 40px; height: 40px; padding:0; display:flex; align-items:center; justify-content:center;">
+                           class="btn btn-outline" style="width: 36px; height: 36px; padding:0; display:flex; align-items:center; justify-content:center;">
                            <i class="fa-solid fa-chevron-left"></i>
                         </a>
                     <% } %>
-
-                    <% for(let i = 1; i <= totalPages; i++) { %>
-                        <% if (i === 1 || i === totalPages || (i >= currentPage - 2 && i <= currentPage + 2)) { %>
-                             <a href="/novel/<%= novel._id %>?page=<%= i %>&sort=<%= sortOrder %>&qChapter=<%= typeof chapterSearch !== 'undefined' ? chapterSearch : '' %>" 
-                               class="btn <%= currentPage === i ? 'btn-primary' : 'btn-outline' %>" 
-                               style="width: 40px; height: 40px; padding: 0; display: flex; align-items: center; justify-content: center;">
-                               <%= i %>
-                            </a>
-                        <% } else if (i === currentPage - 3 || i === currentPage + 3) { %>
-                            <span class="text-muted" style="align-self: flex-end; padding: 0 5px;">...</span>
-                        <% } %>
+                    
+                    <% 
+                       let startPage = Math.max(1, currentPage - 2);
+                       let endPage = Math.min(totalPages, currentPage + 2);
+                    %>
+                    <% for(let i = startPage; i <= endPage; i++) { %>
+                         <a href="/novel/<%= novel._id %>?page=<%= i %>&sort=<%= sortOrder %>&qChapter=<%= typeof chapterSearch !== 'undefined' ? chapterSearch : '' %>" 
+                           class="btn <%= currentPage === i ? 'btn-primary' : 'btn-outline' %>" 
+                           style="width: 36px; height: 36px; padding: 0; display: flex; align-items: center; justify-content: center;">
+                           <%= i %>
+                        </a>
                     <% } %>
 
                     <% if (currentPage < totalPages) { %>
                         <a href="/novel/<%= novel._id %>?page=<%= currentPage + 1 %>&sort=<%= sortOrder %>&qChapter=<%= typeof chapterSearch !== 'undefined' ? chapterSearch : '' %>" 
-                           class="btn btn-outline" style="width: 40px; height: 40px; padding:0; display:flex; align-items:center; justify-content:center;">
+                           class="btn btn-outline" style="width: 36px; height: 36px; padding:0; display:flex; align-items:center; justify-content:center;">
                            <i class="fa-solid fa-chevron-right"></i>
                         </a>
                     <% } %>
                 </div>
             <% } %>
         </div>
+    </div>
+
+    <div class="mobile-action-bar">
+        <% if (user) { %>
+            <button onclick="toggleFavorite()" id="mb-fav-btn" class="btn <%= isFav ? 'btn-primary' : 'btn-outline' %>" style="flex:1; border-radius:12px; padding:12px; font-weight:600;">
+                <i class="fa-<%= isFav ? 'solid' : 'regular' %> fa-heart"></i>
+                <span id="mb-fav-text"><%= isFav ? 'ติดตาม' : 'ติดตาม' %></span>
+            </button>
+        <% } %>
+        
+        <% if(totalChapters > 0) { %>
+            <a href="<%= firstChapterUrl %>" id="mb-read-btn" class="btn btn-primary" style="flex:2; border-radius:12px; padding:12px; font-weight:600; box-shadow:0 4px 15px rgba(99,102,241,0.3);">
+                <i class="fa-solid fa-book-open"></i> เริ่มอ่าน
+            </a>
+        <% } else { %>
+             <button class="btn btn-outline" disabled style="flex:2; border-radius:12px;">ยังไม่มีตอน</button>
+        <% } %>
     </div>
 
     <script>
@@ -521,52 +496,56 @@
             try {
                 const res = await fetch(`/novel/<%= novel._id %>/favorite`, { method: 'POST', headers: {'Accept': 'application/json'} });
                 const data = await res.json();
-                const btn = document.getElementById('fav-btn');
-                const icon = btn.querySelector('i');
-                const text = document.getElementById('fav-text');
                 
-                if (data.isFav) { 
-                    btn.classList.remove('btn-outline'); btn.classList.add('btn-primary');
-                    icon.classList.remove('fa-regular'); icon.classList.add('fa-solid');
-                    text.innerText = 'ติดตามแล้ว';
-                    showToast('ติดตามนิยายแล้ว', 'success');
-                } else { 
-                    btn.classList.remove('btn-primary'); btn.classList.add('btn-outline');
-                    icon.classList.remove('fa-solid'); icon.classList.add('fa-regular');
-                    text.innerText = 'กดติดตาม';
-                    showToast('เลิกติดตามแล้ว', 'info');
-                }
+                // อัปเดตปุ่มทั้ง Desktop และ Mobile
+                const updateBtn = (btnId, textId) => {
+                    const btn = document.getElementById(btnId);
+                    const icon = btn?.querySelector('i');
+                    const text = document.getElementById(textId);
+                    
+                    if(btn && icon) {
+                        if (data.isFav) { 
+                            btn.classList.remove('btn-outline'); btn.classList.add('btn-primary');
+                            icon.classList.remove('fa-regular'); icon.classList.add('fa-solid');
+                            if(text) text.innerText = 'ติดตามแล้ว';
+                        } else { 
+                            btn.classList.remove('btn-primary'); btn.classList.add('btn-outline');
+                            icon.classList.remove('fa-solid'); icon.classList.add('fa-regular');
+                            if(text) text.innerText = 'กดติดตาม';
+                        }
+                    }
+                };
+
+                updateBtn('dt-fav-btn', 'dt-fav-text'); // Desktop
+                updateBtn('mb-fav-btn', 'mb-fav-text'); // Mobile
+
+                showToast(data.isFav ? 'ติดตามนิยายแล้ว' : 'เลิกติดตามแล้ว', data.isFav ? 'success' : 'info');
+
             } catch(e) { console.error(e); }
         }
 
-        function getReadHistory() {
-            try {
-                const raw = localStorage.getItem(`readHistory-${novelId}`);
-                return raw ? JSON.parse(raw) : [];
-            } catch(e) { return []; }
-        }
-
         function checkReadHistory() {
-            // 1. ปุ่มอ่านต่อ
             const lastRead = localStorage.getItem(`lastRead-${novelId}`);
             if (lastRead) {
-                const btn = document.getElementById('continue-reading-btn');
-                if(btn) {
-                    btn.style.display = 'inline-flex';
-                    // ปรับให้ปุ่มหากันง่ายขึ้นบน mobile
-                    btn.onclick = (e) => {
-                        e.preventDefault();
-                        window.location.href = `/chapter/${lastRead}`;
-                    };
+                // Update ทั้งปุ่มบนและล่าง
+                const updateReadBtn = (btnId) => {
+                    const btn = document.getElementById(btnId);
+                    if(btn) {
+                        btn.href = `/chapter/${lastRead}`;
+                        btn.innerHTML = `<i class="fa-solid fa-play"></i> อ่านต่อ`;
+                    }
                 }
+                updateReadBtn('dt-read-btn');
+                updateReadBtn('mb-read-btn');
             }
-            // 2. Mark as read
-            const history = getReadHistory();
+            
+            // Mark Read Chapters
+            const history = JSON.parse(localStorage.getItem(`readHistory-${novelId}`) || '[]');
             history.forEach(id => {
-                const chapterItem = document.getElementById(`chapter-${id}`);
-                if (chapterItem) {
-                    chapterItem.classList.add('read');
-                    const icon = chapterItem.querySelector('.fa-check-circle');
+                const item = document.getElementById(`chapter-${id}`);
+                if (item) {
+                    item.classList.add('read');
+                    const icon = item.querySelector('.fa-check-circle');
                     if(icon) icon.style.display = 'inline-block';
                 }
             });
@@ -577,19 +556,15 @@
             const btnGrid = document.getElementById('btn-grid');
             const btnList = document.getElementById('btn-list');
             if(!container || !btnGrid || !btnList) return;
-            
+
             if(mode === 'list') {
-                container.classList.add('view-list');
-                btnList.classList.add('active'); 
-                btnList.classList.remove('btn-outline'); btnList.classList.add('btn-primary'); // Highlight style
-                btnGrid.classList.remove('active');
-                btnGrid.classList.remove('btn-primary'); btnGrid.classList.add('btn-outline');
+                container.classList.remove('chapter-grid'); container.classList.add('chapter-grid', 'view-list');
+                btnList.classList.add('active'); btnList.style.background = 'var(--bg-card)'; btnList.style.color = 'var(--primary)';
+                btnGrid.classList.remove('active'); btnGrid.style.background = 'transparent'; btnGrid.style.color = 'var(--text-muted)';
             } else {
                 container.classList.remove('view-list');
-                btnGrid.classList.add('active'); 
-                btnGrid.classList.remove('btn-outline'); btnGrid.classList.add('btn-primary'); // Highlight style
-                btnList.classList.remove('active');
-                btnList.classList.remove('btn-primary'); btnList.classList.add('btn-outline');
+                btnGrid.classList.add('active'); btnGrid.style.background = 'var(--bg-card)'; btnGrid.style.color = 'var(--primary)';
+                btnList.classList.remove('active'); btnList.style.background = 'transparent'; btnList.style.color = 'var(--text-muted)';
             }
             localStorage.setItem('chapterView', mode);
         }
@@ -598,22 +573,30 @@
             const container = document.getElementById('toast-container');
             const div = document.createElement('div');
             div.className = `toast ${type}`;
-            div.innerHTML = `<i class="fa-solid fa-info-circle"></i> ${msg}`;
+            div.innerHTML = `<i class="fa-solid fa-circle-info"></i> ${msg}`;
             container.appendChild(div);
-            setTimeout(() => div.remove(), 3000);
+            setTimeout(() => {
+                div.style.opacity = '0';
+                div.style.transform = 'translateX(100%)';
+                setTimeout(() => div.remove(), 300);
+            }, 3000);
         }
 
-        // Theme Toggler
         function toggleTheme() {
             const current = document.documentElement.getAttribute('data-theme');
-            const next = current === 'light' ? 'dark' : (current === 'dark' ? 'sepia' : 'light');
+            const next = current === 'light' ? 'dark' : 'light';
             document.documentElement.setAttribute('data-theme', next);
             localStorage.setItem('theme', next);
         }
 
         document.addEventListener('DOMContentLoaded', () => {
             const savedView = localStorage.getItem('chapterView') || 'grid';
-            setView(savedView);
+            // ถ้าเป็นมือถือ ให้ default เป็น list เพื่อให้อ่านง่าย
+            if(window.innerWidth < 768 && !localStorage.getItem('chapterView')) {
+                setView('list');
+            } else {
+                setView(savedView);
+            }
             checkReadHistory(); 
             setTimeout(() => document.body.classList.remove('preload'), 100);
         });
