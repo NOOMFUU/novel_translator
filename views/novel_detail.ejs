@@ -444,9 +444,14 @@
                     <button class="rank-tab active" id="btn-grid" onclick="setView('grid')"><i class="fa-solid fa-border-all"></i> Grid</button>
                     <button class="rank-tab" id="btn-list" onclick="setView('list')"><i class="fa-solid fa-list-ul"></i> List</button>
                 </div>
-                <button class="btn btn-outline btn-sm" onclick="reverseSort()" title="เรียงลำดับใหม่">
-                    <i class="fa-solid fa-arrow-down-up-across-line"></i>
-                </button>
+                <div class="d-flex gap-2">
+                    <a href="/novel/<%= novel._id %>?sort=<%= sortOrder === 'newest' ? 'oldest' : 'newest' %>" 
+                    class="btn btn-outline btn-sm" 
+                    title="เรียงลำดับ <%= sortOrder === 'newest' ? 'เก่า -> ใหม่' : 'ใหม่ -> เก่า' %>">
+                        <i class="fa-solid fa-arrow-down-up-across-line"></i> 
+                        <%= sortOrder === 'newest' ? 'ล่าสุด' : 'แรกสุด' %>
+                    </a>
+                </div>
             </div>
         </div>
 
@@ -475,6 +480,37 @@
                 </div>
             <% }) %>
         </div>
+
+        <% if (totalPages > 1) { %>
+    <div class="pagination-container" style="display: flex; justify-content: center; gap: 8px; margin-top: 40px; flex-wrap: wrap;">
+        
+        <% if (currentPage > 1) { %>
+            <a href="/novel/<%= novel._id %>?page=<%= currentPage - 1 %>&sort=<%= sortOrder %>" 
+               class="btn btn-outline" style="border-radius: 8px;">
+               <i class="fa-solid fa-chevron-left"></i>
+            </a>
+        <% } %>
+
+        <% for(let i = 1; i <= totalPages; i++) { %>
+            <% if (i === 1 || i === totalPages || (i >= currentPage - 2 && i <= currentPage + 2)) { %>
+                <a href="/novel/<%= novel._id %>?page=<%= i %>&sort=<%= sortOrder %>" 
+                   class="btn <%= currentPage === i ? 'btn-primary' : 'btn-outline' %>" 
+                   style="width: 40px; height: 40px; padding: 0; display: flex; align-items: center; justify-content: center; border-radius: 8px;">
+                   <%= i %>
+                </a>
+            <% } else if (i === currentPage - 3 || i === currentPage + 3) { %>
+                <span class="text-muted" style="align-self: flex-end; padding: 0 5px;">...</span>
+            <% } %>
+        <% } %>
+
+        <% if (currentPage < totalPages) { %>
+            <a href="/novel/<%= novel._id %>?page=<%= currentPage + 1 %>&sort=<%= sortOrder %>" 
+               class="btn btn-outline" style="border-radius: 8px;">
+               <i class="fa-solid fa-chevron-right"></i>
+            </a>
+        <% } %>
+    </div>
+<% } %>
     </div>
 
     <script>

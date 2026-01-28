@@ -170,32 +170,57 @@ app.get('/favorites', requireLogin, async (req, res) => {
 app.get('/novel/:id', async (req, res) => {
     try {
         const novelId = req.params.id;
+        
+        // --- 1. ตั้งค่า Pagination ---
+        const page = parseInt(req.query.page) || 1; // หน้าปัจจุบัน (default = 1)
+        const limit = 50; // จำนวนตอนต่อหน้า (ปรับเลขนี้ได้ตามต้องการ)
+        const skip = (page - 1) * limit;
+        
+        // --- 2. ตั้งค่า Sort (เรียงใหม่/เก่า) ---
+        const sortParam = req.query.sort || 'newest';
+        const sortOrder = sortParam === 'oldest' ? 1 : -1; // 1 = เก่าไปใหม่, -1 = ใหม่ไปเก่า
+
         let novel;
 
-        // 1. ตรวจสอบและสร้างตัวแปรเก็บประวัติการดูใน Session
+        // (โค้ดส่วนนับ View เหมือนเดิม)
         if (!req.session.viewedNovels) {
             req.session.viewedNovels = [];
         }
-
-        // 2. เช็คเงื่อนไข: ถ้ายังไม่เคยดูใน Session นี้ ให้บวกวิว
         if (!req.session.viewedNovels.includes(novelId)) {
             novel = await Novel.findByIdAndUpdate(novelId, { $inc: { views: 1 } }, { new: true });
-            req.session.viewedNovels.push(novelId); // บันทึกว่าดูแล้ว
+            req.session.viewedNovels.push(novelId);
         } else {
-            // ถ้าเคยดูแล้ว (รีเฟรช) ให้ดึงข้อมูลเฉยๆ ไม่บวกวิว
             novel = await Novel.findById(novelId);
         }
 
-        const chapters = await Chapter.find({ novelId: novelId }).sort({ chapterNumber: -1 });
+        // --- 3. ดึงข้อมูลแบบแบ่งหน้า ---
+        // นับจำนวนตอนทั้งหมดก่อน
+        const totalChapters = await Chapter.countDocuments({ novelId: novelId });
+        const totalPages = Math.ceil(totalChapters / limit);
+
+        // ดึงเฉพาะตอนของหน้านั้นๆ
+        const chapters = await Chapter.find({ novelId: novelId })
+            .sort({ chapterNumber: sortOrder }) // ใช้ตัวแปร sortOrder
+            .skip(skip)
+            .limit(limit);
         
-        // ... (โค้ดส่วนเช็ค isFav และ res.render เหมือนเดิมข้างล่าง)
         let isFav = false;
         if(req.session.user) {
             const user = await User.findById(req.session.user._id);
             if(user.favorites.includes(novel._id)) isFav = true;
         }
 
-        res.render('novel_detail', { novel, chapters, isFav });
+        // ส่งตัวแปร Pagination ไปที่หน้าเว็บ
+        res.render('novel_detail', { 
+            novel, 
+            chapters, 
+            isFav,
+            currentPage: page,
+            totalPages: totalPages,
+            sortOrder: sortParam, // ส่งค่า sort กลับไปเพื่อคงสถานะปุ่ม
+            totalChapters // ส่งจำนวนรวมไปด้วยเผื่อใช้แสดงผล
+        });
+
     } catch (err) { console.error(err); res.redirect('/'); }
 });
 
