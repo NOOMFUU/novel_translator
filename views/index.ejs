@@ -543,22 +543,32 @@
         </div>
 
         <% if (totalPages > 1) { %>
-            <div style="display:flex; justify-content:center; gap:8px; margin-top:40px;">
-                <% if (currentPage > 1) { %>
-                    <a href="<%= buildUrl({page: currentPage - 1}) %>" style="width:40px; height:40px; display:flex; align-items:center; justify-content:center; background:var(--bg-surface); border:1px solid var(--border); border-radius:var(--radius-sm); color:var(--text-main);">
-                        <i class="fa-solid fa-chevron-left"></i>
-                    </a>
-                <% } %>
-                
-                <div style="display:flex; align-items:center; padding:0 16px; background:var(--bg-surface); border:1px solid var(--border); border-radius:var(--radius-sm); font-weight:600; font-size:0.9rem;">
-                    <%= currentPage %> / <%= totalPages %>
-                </div>
+            <div class="pagination-wrapper">
+                <a href="<%= currentPage > 1 ? buildUrl({page: currentPage - 1}) : 'javascript:void(0)' %>" 
+                   class="page-nav-btn <%= currentPage <= 1 ? 'disabled' : '' %>">
+                    <i class="fa-solid fa-chevron-left"></i>
+                </a>
 
-                <% if (currentPage < totalPages) { %>
-                    <a href="<%= buildUrl({page: currentPage + 1}) %>" style="width:40px; height:40px; display:flex; align-items:center; justify-content:center; background:var(--bg-surface); border:1px solid var(--border); border-radius:var(--radius-sm); color:var(--text-main);">
-                        <i class="fa-solid fa-chevron-right"></i>
-                    </a>
-                <% } %>
+                <form action="/" method="GET" class="page-input-group">
+                    <% if(locals.query) { %><input type="hidden" name="q" value="<%= query %>"><% } %>
+                    <% if(locals.currentCategory) { %><input type="hidden" name="category" value="<%= currentCategory %>"><% } %>
+                    <% if(locals.currentStatus) { %><input type="hidden" name="status" value="<%= currentStatus %>"><% } %>
+                    <% if(locals.sort) { %><input type="hidden" name="sort" value="<%= sort %>"><% } %>
+                    <% if(locals.currentTags && currentTags.length > 0) { 
+                         currentTags.forEach(t => { %>
+                            <input type="hidden" name="tag" value="<%= t %>">
+                    <%   }); 
+                       } %>
+                    
+                    <span class="page-label">หน้า</span>
+                    <input type="number" name="page" value="<%= currentPage %>" min="1" max="<%= totalPages %>" class="page-input" onfocus="this.select()" autocomplete="off">
+                    <span class="page-label">/ <%= totalPages %></span>
+                </form>
+
+                <a href="<%= currentPage < totalPages ? buildUrl({page: currentPage + 1}) : 'javascript:void(0)' %>" 
+                   class="page-nav-btn <%= currentPage >= totalPages ? 'disabled' : '' %>">
+                    <i class="fa-solid fa-chevron-right"></i>
+                </a>
             </div>
         <% } %>
 

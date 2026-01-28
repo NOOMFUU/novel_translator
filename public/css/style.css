@@ -461,3 +461,98 @@ input:focus, textarea:focus, select:focus {
 @keyframes toastFadeOut {
     to { opacity: 0; transform: translateX(100%); }
 }
+
+/* --- Modern Pagination Styles --- */
+.pagination-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    margin: 40px 0;
+    flex-wrap: wrap;
+    font-family: 'Sarabun', sans-serif;
+}
+
+/* ปุ่มกดซ้าย-ขวา */
+.page-nav-btn {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    
+    /* สีพื้นฐาน (ตามธีม) */
+    background: var(--bg-surface, #fff);
+    border: 1px solid var(--border, #e2e8f0);
+    color: var(--text-muted, #64748b);
+    
+    border-radius: 10px;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+.page-nav-btn:hover:not(.disabled) {
+    /* ใช้สี Primary Light แบบจางๆ (คีย์สำคัญที่ทำให้ดูสวย) */
+    background: var(--primary-light, #e0e7ff);
+    color: var(--primary, #6366f1);
+    border-color: var(--primary, #6366f1);
+    transform: translateY(-2px);
+}
+
+.page-nav-btn.disabled {
+    opacity: 0.4;
+    cursor: default;
+    background: var(--bg-body, #f1f5f9);
+    border-color: transparent;
+}
+
+/* กล่องกรอกเลขหน้า */
+.page-input-group {
+    display: flex;
+    align-items: center;
+    height: 40px;
+    padding: 0 12px;
+    
+    background: var(--bg-surface, #fff);
+    border: 1px solid var(--border, #e2e8f0);
+    border-radius: 10px;
+    transition: all 0.2s ease;
+}
+
+.page-input-group:focus-within {
+    border-color: var(--primary, #6366f1);
+    /* เงาเรืองแสงสี Primary */
+    box-shadow: 0 0 0 3px var(--primary-light, rgba(99, 102, 241, 0.2));
+}
+
+.page-label {
+    font-size: 0.85rem;
+    color: var(--text-muted, #64748b);
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+.page-input {
+    width: 40px;
+    border: none;
+    background: transparent;
+    text-align: center;
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--text-main, #333); /* ใช้สี Text Main เพื่อให้อ่านง่าย */
+    outline: none;
+    margin: 0 4px;
+    padding: 0;
+}
+
+/* ปรับสีตัวเลขเวลากด Active */
+.page-input:focus {
+    color: var(--primary, #6366f1);
+}
+
+/* ซ่อนปุ่มลูกศรใน Input Number */
+.page-input::-webkit-outer-spin-button,
+.page-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+.page-input { -moz-appearance: textfield; }
