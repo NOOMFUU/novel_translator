@@ -8,6 +8,9 @@ const session = require('express-session');
 const multer = require('multer');
 const upload = multer({ storage: multer.memoryStorage() });
 const sanitizeHtml = require('sanitize-html');
+
+const { body, validationResult } = require('express-validator');
+const rateLimit = require('express-rate-limit');
 // Models
 const User = require('./models/User');
 const Novel = require('./models/Novel');
@@ -16,6 +19,12 @@ const Chapter = require('./models/Chapter');
 
 const app = express();
 const port = process.env.PORT || 3000;
+
+const authLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 นาที
+    max: 100, 
+    message: "มีการพยายามเข้าระบบมากเกินไป กรุณาลองใหม่ในภายหลัง"
+});
 
 // Connect DB
 mongoose.connect(process.env.MONGODB_URI)
@@ -68,10 +77,18 @@ const requireAdmin = (req, res, next) => {
 // --- Auth Routes ---
 app.get('/login', (req, res) => res.render('login', { error: null }));
 
-app.post('/login', async (req, res) => {
+app.post('/login', authLimiter, [
+    body('username').trim().notEmpty().withMessage('กรุณากรอกชื่อผู้ใช้'),
+    body('password').notEmpty().withMessage('กรุณากรอกรหัสผ่าน')
+], async (req, res) => {
+    // ตรวจสอบ Error จาก Validation
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.render('login', { error: errors.array()[0].msg });
+    }
+
     const { username, password } = req.body;
     try {
-        // แก้ไขตรงนี้: ใช้ Regex ค้นหาชื่อ โดยใส่ ^ และ $ เพื่อให้ตรงทั้งคำ และ 'i' คือไม่สนตัวเล็กใหญ่
         const user = await User.findOne({ 
             username: { $regex: new RegExp("^" + username + "$", "i") } 
         });
@@ -79,7 +96,7 @@ app.post('/login', async (req, res) => {
         if (user && await bcrypt.compare(password, user.password)) {
             req.session.user = {
                 _id: user._id,
-                username: user.username, // ใช้ชื่อจริงจากในฐานข้อมูลเก็บเข้า Session
+                username: user.username,
                 role: user.role
             };
             res.redirect('/');
@@ -87,25 +104,41 @@ app.post('/login', async (req, res) => {
             res.render('login', { error: 'ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง' });
         }
     } catch (err) { 
-        console.error(err);
-        res.redirect('/login'); 
+        next(err); // ส่งไปให้ Error Handler จัดการ
     }
 });
 
 app.get('/register', (req, res) => res.render('register', { error: null }));
 
-app.post('/register', async (req, res) => {
-    const { username, password, confirmPassword } = req.body;
-    if(password !== confirmPassword) {
-        return res.render('register', { error: 'รหัสผ่านไม่ตรงกัน' });
+app.post('/register', authLimiter, [
+    body('username')
+        .trim()
+        .isLength({ min: 4, max: 20 }).withMessage('ชื่อผู้ใช้ต้องมีความยาว 4-20 ตัวอักษร')
+        .matches(/^[a-zA-Z0-9_]+$/).withMessage('ชื่อผู้ใช้ห้ามมีอักขระพิเศษ'),
+    body('password')
+        .isLength({ min: 6 }).withMessage('รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร'),
+    body('confirmPassword').custom((value, { req }) => {
+        if (value !== req.body.password) throw new Error('รหัสผ่านยืนยันไม่ตรงกัน');
+        return true;
+    })
+], async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        // ส่งข้อความ Error แรกที่เจอไปแสดงผล
+        return res.render('register', { error: errors.array()[0].msg });
     }
+
+    const { username, password } = req.body;
     try {
         const hashedPassword = await bcrypt.hash(password, 10);
-        // User ใหม่จะเป็น reader โดย default
         await User.create({ username, password: hashedPassword, role: 'reader' });
         res.redirect('/login');
     } catch (err) {
-        res.render('register', { error: 'ชื่อผู้ใช้นี้ถูกใช้งานแล้ว' });
+        // เช็ค Error จาก Mongo (Duplicate Key)
+        if (err.code === 11000) {
+            return res.render('register', { error: 'ชื่อผู้ใช้นี้ถูกใช้งานแล้ว' });
+        }
+        next(err);
     }
 });
 

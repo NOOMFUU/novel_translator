@@ -446,6 +446,8 @@
                     <a href="/logout" class="desktop-only" style="color:var(--text-muted); font-size:0.9rem;">ออกระบบ</a>
                 <% } else { %>
                     <a href="/login" class="desktop-only" style="background:var(--primary); color:white; padding:8px 20px; border-radius:var(--radius-full); font-size:0.9rem; font-weight:600;">เข้าสู่ระบบ</a>
+
+                    <a href="/register" class="desktop-only">สมัครสมาชิก</a>
                 <% } %>
             </div>
         </div>
@@ -656,7 +658,7 @@
             <i class="fa-regular fa-heart"></i> คลัง
         </a>
         <a href="<%= user ? '/logout' : '/login' %>" class="b-nav-item">
-            <i class="<%= user ? 'fa-solid fa-arrow-right-from-bracket' : 'fa-regular fa-user' %>"></i> <%= user ? 'บัญชี' : 'เข้าสู่ระบบ' %>
+            <i class="<%= user ? 'fa-solid fa-arrow-right-from-bracket' : 'fa-regular fa-user' %>"></i> <%= user ? 'ออกระบบ' : 'เข้าสู่ระบบ/สมัครสมาชิก' %>
         </a>
     </nav>
 
