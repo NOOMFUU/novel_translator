@@ -6,108 +6,162 @@
     <title>รายการโปรดของฉัน - Novel Library</title>
     <link rel="stylesheet" href="/css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script> document.documentElement.setAttribute('data-theme', localStorage.getItem('theme') || 'light'); </script>
 
     <style>
-        /* CSS เฉพาะหน้านี้ (Inline เพื่อความสะดวก) */
+        /* Header Card */
         .fav-header-card {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--accent, #a855f7) 100%);
-            border-radius: var(--radius-card, 16px);
-            padding: 30px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+            border-radius: var(--radius-xl);
+            padding: 40px;
             color: white;
-            box-shadow: 0 10px 25px rgba(var(--primary-rgb, 99, 102, 241), 0.3);
-            margin-bottom: 30px;
             position: relative;
             overflow: hidden;
+            box-shadow: 0 10px 25px rgba(99, 102, 241, 0.25);
+            margin-bottom: 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            flex-wrap: wrap;
+            gap: 20px;
         }
 
         .fav-header-bg {
             position: absolute;
-            right: -20px; top: -30px;
-            font-size: 10rem;
+            right: -10px; top: -40px;
+            font-size: 12rem;
             opacity: 0.1;
-            transform: rotate(15deg);
+            transform: rotate(10deg);
+            pointer-events: none;
         }
 
-        .fav-stats {
-            display: inline-flex;
-            gap: 20px;
-            margin-top: 15px;
+        .fav-info h1 { margin: 0; font-size: 2rem; font-weight: 800; text-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .fav-info p { margin: 5px 0 0 0; opacity: 0.9; font-size: 1.1rem; }
+
+        .fav-stats-badge {
             background: rgba(255,255,255,0.2);
-            padding: 10px 20px;
+            padding: 8px 20px;
             border-radius: 50px;
             backdrop-filter: blur(5px);
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
         }
 
-        /* ปุ่มลบ (Overlay บนการ์ด) */
-        .remove-overlay {
-            position: absolute;
-            top: 5px;
-            right: 5px;
-            z-index: 10;
-            opacity: 0;
-            transition: all 0.2s;
-            transform: scale(0.8);
+        /* Search Bar */
+        .search-container {
+            position: relative;
+            max-width: 300px;
+            width: 100%;
         }
-        
-        /* แสดงปุ่มเมื่อเอาเมาส์ชี้ที่การ์ด (Desktop) หรือแสดงตลอดใน Mobile */
-        .novel-card:hover .remove-overlay {
-            opacity: 1;
-            transform: scale(1);
-        }
-        @media (max-width: 768px) {
-            .remove-overlay { opacity: 1; transform: scale(1); }
-        }
-
-        .btn-remove {
-            width: 32px; height: 32px;
-            border-radius: 50%;
-            background: rgba(239, 68, 68, 0.9); /* สีแดง */
+        .search-input {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
             color: white;
-            border: none;
+            padding: 10px 15px 10px 40px;
+            border-radius: 50px;
+            backdrop-filter: blur(5px);
+            font-size: 0.95rem;
+        }
+        .search-input::placeholder { color: rgba(255, 255, 255, 0.7); }
+        .search-input:focus { 
+            background: rgba(255, 255, 255, 0.3); 
+            outline: none; 
+            border-color: white;
+            box-shadow: 0 0 0 4px rgba(255,255,255,0.1);
+        }
+        .search-icon {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        /* Novel Card Enhancements */
+        .novel-card-wrapper {
+            transition: all 0.3s ease;
+        }
+        .novel-update-info {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-top: 4px;
             display: flex;
             align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-            font-size: 0.8rem;
+            gap: 5px;
         }
-        .btn-remove:hover {
-            background: #dc2626;
-            transform: scale(1.1);
+        .novel-last-chapter {
+            font-size: 0.85rem;
+            color: var(--primary);
+            font-weight: 600;
+            margin-top: 4px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        /* Remove Button */
+        .btn-remove-fav {
+            position: absolute;
+            top: 10px; right: 10px;
+            z-index: 10;
+            width: 32px; height: 32px;
+            border-radius: 50%;
+            background: rgba(239, 68, 68, 0.9);
+            color: white;
+            border: none;
+            cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            opacity: 0; transform: scale(0.8);
+            transition: all 0.2s;
+        }
+        .novel-card-wrapper:hover .btn-remove-fav { opacity: 1; transform: scale(1); }
+        
+        /* Mobile adjustment for remove button */
+        @media (max-width: 768px) {
+            .btn-remove-fav { opacity: 1; transform: scale(1); }
+            .fav-header-card { flex-direction: column; align-items: flex-start; }
+            .search-container { max-width: 100%; margin-top: 10px; }
         }
 
-        /* Empty State */
         .empty-state {
-            background: var(--bg-glass);
+            background: var(--bg-card);
             border: 1px dashed var(--border);
-            border-radius: 16px;
-            padding: 60px 20px;
+            border-radius: var(--radius);
+            padding: 80px 20px;
             text-align: center;
         }
     </style>
 </head>
 <body>
     <header class="main-header">
-        <div class="container header-content">
-            <a href="/" class="logo" style="text-decoration: none;">
-                <i class="fa-solid fa-arrow-left"></i> 
-                <span style="font-size: 1rem; font-weight: 600;">กลับหน้าหลัก</span>
-            </a>
-            <div style="font-weight: 700; font-size: 1.1rem;">ชั้นหนังสือของฉัน 📚</div>
+        <div class="container d-flex justify-between h-100">
+            <a href="/" class="logo"><i class="fa-solid fa-book-open"></i> Novel Library</a>
         </div>
     </header>
+
 
     <div class="container" style="padding-top: 30px;">
         
         <div class="fav-header-card">
             <i class="fa-solid fa-heart fav-header-bg"></i>
-            <h1 style="margin: 0; font-size: 1.8rem; font-weight: 800;">My Collection</h1>
-            <p style="margin: 5px 0 0 0; opacity: 0.9;">ยินดีต้อนรับคุณ <strong><%= user.username %></strong></p>
+            <div class="fav-info">
+                <h1>My Collection</h1>
+                <p>ชั้นหนังสือของคุณ <strong><%= user.username %></strong></p>
+                <div style="margin-top: 15px;">
+                    <div class="fav-stats-badge">
+                        <i class="fa-solid fa-book-bookmark"></i> 
+                        ติดตามอยู่ <span id="fav-count"><%= novels ? novels.length : 0 %></span> เรื่อง
+                    </div>
+                </div>
+            </div>
             
-            <div class="fav-stats">
-                <span><i class="fa-solid fa-book-bookmark"></i> ติดตามอยู่ <strong><%= novels ? novels.length : 0 %></strong> เรื่อง</span>
+            <div class="search-container">
+                <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                <input type="text" class="search-input" id="favSearch" placeholder="ค้นหาชื่อนิยาย..." onkeyup="filterNovels()">
             </div>
         </div>
 
@@ -116,7 +170,7 @@
                 <div style="width: 80px; height: 80px; background: var(--bg-input); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px;">
                     <i class="fa-solid fa-layer-group" style="font-size: 2.5rem; color: var(--text-muted); opacity: 0.5;"></i>
                 </div>
-                <h3 style="margin-bottom: 10px;">ชั้นหนังสือของคุณยังว่างเปล่า</h3>
+                <h3>ชั้นหนังสือของคุณยังว่างเปล่า</h3>
                 <p class="text-muted" style="margin-bottom: 25px;">คุณยังไม่ได้กดติดตามนิยายเรื่องใดเลย</p>
                 <a href="/" class="btn btn-primary">
                     <i class="fa-solid fa-compass"></i> ค้นหานิยายอ่านเลย
@@ -124,24 +178,23 @@
             </div>
         <% } else { %>
             
-            <div class="novel-grid">
+            <div class="novel-grid" id="novelGrid">
                 <% novels.forEach(novel => { %>
-                    <div class="novel-card-wrapper" id="card-<%= novel._id %>" style="position: relative;">
-                        <div class="remove-overlay">
-                            <button onclick="removeFav(event, '<%= novel._id %>', '<%= novel.title %>')" class="btn-remove" title="เลิกติดตาม">
-                                <i class="fa-solid fa-trash"></i>
-                            </button>
-                        </div>
+                    <div class="novel-card-wrapper" id="card-<%= novel._id %>" data-title="<%= novel.title.toLowerCase() %>">
+                        
+                        <button onclick="removeFav(event, '<%= novel._id %>', '<%= novel.title %>')" class="btn-remove-fav" title="เลิกติดตาม">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
 
                         <a href="/novel/<%= novel._id %>" class="novel-card">
-                            <div class="cover-wrapper">
+                            <div class="novel-cover-wrapper">
                                 <% 
-                                    let statusClass = 'status-on';
+                                    let statusClass = 'badge-on';
                                     let statusText = 'ON GOING';
-                                    if(novel.status === 'Completed') { statusClass = 'status-end'; statusText = 'END'; }
-                                    if(novel.status === 'Hiatus') { statusClass = 'status-hiatus'; statusText = 'HIATUS'; }
+                                    if(novel.status === 'Completed') { statusClass = 'badge-end'; statusText = 'END'; }
+                                    if(novel.status === 'Hiatus') { statusClass = 'badge-hiatus'; statusText = 'HIATUS'; }
                                 %>
-                                <div class="status-badge <%= statusClass %>"><%= statusText %></div>
+                                <div class="novel-badge <%= statusClass %>"><%= statusText %></div>
                                 
                                 <img src="<%= novel.imageUrl || defaultCover %>" 
                                      onerror="this.onerror=null;this.src='<%= defaultCover %>';"
@@ -150,61 +203,113 @@
                             
                             <div class="novel-title"><%= novel.title %></div>
                             
-                            <div class="novel-stats">
-                                <span><i class="fa-regular fa-eye"></i> <%= (novel.views || 0).toLocaleString() %></span>
-                                <% if(novel.categories && novel.categories.length > 0) { %>
-                                    <span style="color:var(--primary); font-size:0.65rem; background:rgba(99,102,241,0.1); padding:2px 6px; border-radius:4px; font-weight:600;">
-                                        <%= novel.categories[0] %>
-                                    </span>
-                                <% } %>
+                            <% if (novel.lastChapter && novel.lastChapter.chapterNumber) { %>
+                                <div class="novel-last-chapter">
+                                    <i class="fa-solid fa-file-invoice"></i> <%= novel.lastChapter.title %>
+                                </div>
+                            <% } else { %>
+                                <div class="novel-last-chapter text-muted" style="font-weight: 400;">
+                                    <i class="fa-solid fa-minus"></i> ยังไม่มีตอนใหม่
+                                </div>
+                            <% } %>
+
+                            <div class="d-flex justify-between align-center" style="margin-top: 8px;">
+                                <div class="novel-update-info">
+                                    <i class="fa-regular fa-clock"></i>
+                                    <% 
+                                        const date = new Date(novel.updatedAt);
+                                        const now = new Date();
+                                        const diffTime = Math.abs(now - date);
+                                        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
+                                        let timeText = date.toLocaleDateString('th-TH');
+                                        if (diffDays <= 1) timeText = 'วันนี้';
+                                        else if (diffDays <= 2) timeText = 'เมื่อวาน';
+                                    %>
+                                    <%= timeText %>
+                                </div>
+                                <div class="novel-update-info">
+                                    <i class="fa-regular fa-eye"></i> <%= (novel.views || 0).toLocaleString() %>
+                                </div>
                             </div>
                         </a>
                     </div>
                 <% }) %>
             </div>
+            
+            <div id="noResult" style="display: none; text-align: center; padding: 40px; color: var(--text-muted);">
+                <i class="fa-solid fa-magnifying-glass" style="font-size: 2rem; margin-bottom: 10px; opacity: 0.5;"></i>
+                <p>ไม่พบนิยายที่คุณค้นหา</p>
+            </div>
+
         <% } %>
     </div>
 
     <script>
+        // ฟังก์ชันค้นหานิยายในหน้า (Client-side)
+        function filterNovels() {
+            const input = document.getElementById('favSearch');
+            const filter = input.value.toLowerCase();
+            const grid = document.getElementById('novelGrid');
+            const cards = grid.getElementsByClassName('novel-card-wrapper');
+            let hasResult = false;
+
+            for (let i = 0; i < cards.length; i++) {
+                const title = cards[i].getAttribute('data-title');
+                if (title.includes(filter)) {
+                    cards[i].style.display = "";
+                    hasResult = true;
+                } else {
+                    cards[i].style.display = "none";
+                }
+            }
+
+            // แสดงข้อความเมื่อไม่เจอผลลัพธ์
+            const noResult = document.getElementById('noResult');
+            if (noResult) noResult.style.display = hasResult ? "none" : "block";
+        }
+
+        // ฟังก์ชันลบรายการโปรด
         async function removeFav(event, novelId, title) {
-            // ป้องกันไม่ให้คลิกทะลุไปลิงก์นิยาย
             event.preventDefault();
             event.stopPropagation();
 
-            if (!confirm(`ต้องการเลิกติดตามเรื่อง "${title}" ใช่หรือไม่?`)) return;
+            if (!confirm(`ต้องการเลิกติดตาม "${title}" ใช่หรือไม่?`)) return;
 
-            // เอฟเฟกต์ระหว่างรอ
             const btn = event.currentTarget;
+            const originalContent = btn.innerHTML;
             btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
 
             try {
-                // เรียก API เดิมที่มีอยู่ (Toggle Logic จะทำการ remove ออกถ้ามีอยู่แล้ว)
                 const res = await fetch(`/novel/${novelId}/favorite`, {
                     method: 'POST',
                     headers: { 'Accept': 'application/json' }
                 });
                 const data = await res.json();
-
-                if (data.success && !data.isFav) { // isFav = false แปลว่าเอาออกสำเร็จ
-                    // ลบการ์ดออกจากหน้าจอด้วย Animation
+                
+                if (data.success && !data.isFav) {
                     const card = document.getElementById(`card-${novelId}`);
                     card.style.transition = 'all 0.3s';
                     card.style.transform = 'scale(0.8)';
                     card.style.opacity = '0';
+                    
                     setTimeout(() => {
                         card.remove();
-                        // เช็คว่าถ้าลบหมดแล้ว ให้รีโหลดหน้าเพื่อโชว์ Empty State
+                        // อัปเดตตัวเลขจำนวนเรื่อง
+                        const countSpan = document.getElementById('fav-count');
+                        if(countSpan) countSpan.innerText = parseInt(countSpan.innerText) - 1;
+
+                        // ถ้าลบหมดแล้วรีโหลดหน้า
                         const remaining = document.querySelectorAll('.novel-card-wrapper');
                         if (remaining.length === 0) location.reload();
                     }, 300);
                 } else {
-                    alert('เกิดข้อผิดพลาด กรุณาลองใหม่');
-                    btn.innerHTML = '<i class="fa-solid fa-trash"></i>';
+                    alert('เกิดข้อผิดพลาด');
+                    btn.innerHTML = originalContent;
                 }
             } catch (err) {
                 console.error(err);
                 alert('เชื่อมต่อเซิร์ฟเวอร์ล้มเหลว');
-                btn.innerHTML = '<i class="fa-solid fa-trash"></i>';
+                btn.innerHTML = originalContent;
             }
         }
     </script>

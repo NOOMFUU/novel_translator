@@ -155,10 +155,12 @@ app.get('/', async (req, res) => {
 
 app.get('/favorites', requireLogin, async (req, res) => {
     try {
-        // ดึงข้อมูล User พร้อม Populate นิยายที่อยู่ใน favorites
-        const user = await User.findById(req.session.user._id).populate('favorites');
+        // ดึงข้อมูล User พร้อม Populate นิยาย โดยเรียงตาม updatedAt ล่าสุดมาก่อน
+        const user = await User.findById(req.session.user._id).populate({
+            path: 'favorites',
+            options: { sort: { updatedAt: -1 } } // เรียงลำดับ: ล่าสุดขึ้นก่อน
+        });
         
-        // ส่งรายการนิยาย (user.favorites) ไปที่หน้า favorites.ejs
         res.render('favorites', { novels: user.favorites });
     } catch (err) {
         console.error(err);
