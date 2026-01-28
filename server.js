@@ -43,6 +43,7 @@ app.use(async (req, res, next) => {
     res.locals.isAdmin = req.session.user?.role === 'admin';
     res.locals.isWriter = ['admin', 'writer'].includes(req.session.user?.role);
     res.locals.currentUrl = req.path;
+    res.locals.req = req;
     res.locals.defaultCover = 'https://placehold.co/400x600/png?text=No+Cover'; 
     res.locals.categories = await Novel.distinct('categories'); 
     next();
@@ -114,8 +115,16 @@ app.get('/logout', (req, res) => req.session.destroy(() => res.redirect('/')));
 app.get('/', async (req, res) => {
     const query = req.query.q;
     const category = req.query.category;
-    const tag = req.query.tag; // [เพิ่ม] รับค่า tag
-    const sortParam = req.query.sort || 'latest'; // [เพิ่ม] รับค่าเรียงลำดับ
+    const status = req.query.status;
+    const sortParam = req.query.sort || 'latest';
+    
+    // [แก้ไข] รับค่า tag เป็น Array เพื่อรองรับการเลือกหลายอัน
+    let tagsParam = req.query.tag;
+    let selectedTags = [];
+    if (tagsParam) {
+        // ถ้าส่งมาค่าเดียวจะเป็น String, ถ้าหลายค่าจะเป็น Array -> แปลงให้เป็น Array เสมอ
+        selectedTags = Array.isArray(tagsParam) ? tagsParam : [tagsParam];
+    }
 
     const page = parseInt(req.query.page) || 1;
     const limit = 12;
@@ -124,10 +133,15 @@ app.get('/', async (req, res) => {
     let filter = {};
     if (query) filter.title = { $regex: query, $options: 'i' };
     if (category) filter.categories = category;
-    if (tag) filter.tags = tag; // [เพิ่ม] กรองด้วย Tag
+    if (status) filter.status = status;
+    
+    // [แก้ไข] Logic กรอง Tag: ต้องมีครบทุก Tag ที่เลือก ($all)
+    if (selectedTags.length > 0) {
+        filter.tags = { $all: selectedTags };
+    }
 
-    // [เพิ่ม] Logic การเรียงลำดับ
-    let sortConfig = { updatedAt: -1 }; // Default: ล่าสุด
+    // Logic เรียงลำดับ
+    let sortConfig = { updatedAt: -1 };
     if (sortParam === 'oldest') sortConfig = { updatedAt: 1 };
     else if (sortParam === 'popular') sortConfig = { views: -1 };
     else if (sortParam === 'az') sortConfig = { title: 1 };
@@ -136,19 +150,17 @@ app.get('/', async (req, res) => {
         const totalNovels = await Novel.countDocuments(filter);
         const totalPages = Math.ceil(totalNovels / limit);
         
-        // ดึงนิยายตาม Filter
         const novels = await Novel.find(filter)
             .sort(sortConfig) 
             .skip(skip)
             .limit(limit);
 
-        // [เพิ่ม] ดึงข้อมูลสำหรับ Sidebar/Menu
         const topNovels = await Novel.find().sort({ views: -1 }).limit(5);
-        const allTags = await Novel.distinct('tags'); // ดึง Tag ทั้งหมดที่มีในระบบ
+        const allTags = await Novel.distinct('tags');
         
-        // Recommended Logic (เหมือนเดิม)
+        // Recommended Logic
         let recommended = null;
-        if (!query && !category && !tag && page === 1) {
+        if (!query && !category && selectedTags.length === 0 && !status && page === 1) {
              const count = await Novel.countDocuments({ imageUrl: { $ne: "" } });
              if(count > 0) {
                  const random = Math.floor(Math.random() * count);
@@ -160,9 +172,10 @@ app.get('/', async (req, res) => {
             novels, 
             query, 
             currentCategory: category,
-            currentTag: tag, // ส่งค่า tag ปัจจุบันไป
-            sort: sortParam, // ส่งค่า sort ปัจจุบันไป
-            allTags, // ส่งรายการ tag ทั้งหมดไป
+            currentTags: selectedTags, // [แก้ไข] ส่งเป็น Array กลับไป
+            currentStatus: status,
+            sort: sortParam, 
+            allTags, 
             recommended, 
             topNovels, 
             currentPage: page, 
