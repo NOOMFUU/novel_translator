@@ -7,7 +7,7 @@ const methodOverride = require('method-override');
 const session = require('express-session');
 const multer = require('multer');
 const upload = multer({ storage: multer.memoryStorage() });
-
+const sanitizeHtml = require('sanitize-html');
 // Models
 const User = require('./models/User');
 const Novel = require('./models/Novel');
@@ -299,6 +299,35 @@ app.get('/novel/:id/add', requireWriter, async (req, res) => {
     res.render('add_chapter', { novel, nextChapterNumber });
 });
 
+const sanitizeContent = (content) => {
+    if (!content) return "";
+    return sanitizeHtml(content, {
+        // อนุญาต Tag พวกนี้ (ตัวหนา, เอียง, ขีดเส้น, ย่อหน้า, รูป, เส้นคั่น, จัดกล่อง)
+        allowedTags: [ 
+            'b', 'i', 'em', 'strong', 'u', 'p', 'br', 'hr', 'img', 'div', 'span', 'center', 'h1', 'h2', 'h3' 
+        ],
+        // อนุญาต Attribute พวกนี้ (เช่น style สำหรับจัดกลาง, src สำหรับรูป)
+        allowedAttributes: {
+            'img': [ 'src', 'alt', 'style', 'width', 'height' ],
+            'p': [ 'style', 'align' ],
+            'div': [ 'style', 'align' ],
+            'span': [ 'style' ],
+            'center': [] 
+        },
+        // อนุญาตให้ใช้ style อะไรได้บ้าง (สำคัญมากสำหรับจัดหน้า)
+        allowedStyles: {
+            '*': {
+                // อนุญาตเรื่องสีและการจัดวาง
+                'color': [/^#(0x)?[0-9a-f]+$/i, /^rgb\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})\s*\)$/],
+                'text-align': [/^left$/, /^right$/, /^center$/, /^justify$/],
+                'font-size': [/^\d+(?:px|em|%)$/]
+            }
+        },
+        // อนุญาตให้ใส่รูปจากเว็บอื่นได้ (http/https)
+        allowedSchemes: [ 'http', 'https', 'data' ] 
+    });
+};
+
 app.post('/novel/:id/chapters', requireWriter, upload.single('txtFile'), async (req, res) => {
     try {
         const { manualTitle, manualChapterNumber, manualTranslated } = req.body;
@@ -308,12 +337,14 @@ app.post('/novel/:id/chapters', requireWriter, upload.single('txtFile'), async (
             content = req.file.buffer.toString('utf-8');
         }
 
+        const cleanContent = sanitizeContent(content);
+
         // สร้างตอนใหม่
         const newChapter = await Chapter.create({
             novelId: req.params.id,
             chapterNumber: manualChapterNumber,
             title: manualTitle || `ตอนที่ ${manualChapterNumber}`,
-            translatedContent: content
+            translatedContent: cleanContent
         });
 
         // [จุดสำคัญ] อัปเดตข้อมูลนิยาย: เวลาล่าสุด และ ข้อมูลตอนล่าสุด
@@ -367,9 +398,30 @@ app.get('/chapter/:id/edit', requireWriter, async (req, res) => {
     res.render('edit', { chapter });
 });
 app.put('/chapter/:id', requireWriter, async (req, res) => {
-    await Chapter.findByIdAndUpdate(req.params.id, req.body);
-    if(req.xhr) res.json({ success: true });
-    else res.redirect(`/chapter/${req.params.id}`);
+    try {
+        // ดึงข้อมูลออกมาก่อน เพื่อจะเอาเฉพาะ content ไปล้าง
+        const { translatedContent, ...otherData } = req.body;
+        
+        // ถ้ามีการแก้เนื้อหา ให้ล้างก่อน
+        let dataToUpdate = { ...otherData };
+        
+        if (translatedContent) {
+            dataToUpdate.translatedContent = sanitizeContent(translatedContent);
+        }
+
+        // อัปเดตด้วยข้อมูลที่ปลอดภัยแล้ว
+        await Chapter.findByIdAndUpdate(req.params.id, dataToUpdate);
+        
+        if(req.xhr || req.headers.accept.includes('json')) {
+            res.json({ success: true });
+        } else {
+            res.redirect(`/chapter/${req.params.id}`);
+        }
+    } catch (err) {
+        console.error(err);
+        if(req.xhr) res.status(500).json({ success: false, error: err.message });
+        else res.redirect('back');
+    }
 });
 app.delete('/chapter/:id', requireWriter, async (req, res) => {
     const chapter = await Chapter.findByIdAndDelete(req.params.id);
