@@ -7,40 +7,43 @@
     <link rel="stylesheet" href="/css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
-<body style="display: flex; justify-content: center; align-items: center; min-height: 100vh; background: var(--bg-body);">
+<body style="display: flex; justify-content: center; align-items: center; min-height: 100vh; background: var(--bg-body); overflow: hidden; position: relative;">
     
-    <div style="position:fixed; top:-10%; right:-10%; width:50vw; height:50vw; background:radial-gradient(circle, rgba(var(--primary-rgb),0.1) 0%, transparent 70%); border-radius:50%; pointer-events:none;"></div>
+    <div style="position:fixed; top:-15%; right:-10%; width:60vw; height:60vw; background:radial-gradient(circle, rgba(99, 102, 241, 0.1) 0%, transparent 70%); border-radius:50%; pointer-events:none;"></div>
+    <div style="position:fixed; bottom:-15%; left:-10%; width:50vw; height:50vw; background:radial-gradient(circle, rgba(236, 72, 153, 0.1) 0%, transparent 70%); border-radius:50%; pointer-events:none;"></div>
 
     <div class="auth-card">
         <div class="auth-header">
-            <div class="auth-icon"><i class="fa-solid fa-user-plus"></i></div>
+            <div class="auth-icon">
+                <i class="fa-solid fa-user-plus"></i>
+            </div>
             <h2 style="margin:0; font-weight:800;">Create Account</h2>
             <p class="text-muted" style="margin-top:5px;">เข้าร่วมสังคมนักอ่านนิยายแปล</p>
         </div>
 
         <% if (error) { %>
-            <div style="background: rgba(239, 68, 68, 0.1); color: var(--danger); padding: 12px; border-radius: 12px; margin-bottom: 20px; display:flex; align-items:center; gap:10px; font-size:0.9rem;">
+            <div style="background: rgba(239, 68, 68, 0.1); color: #ef4444; padding: 12px; border-radius: 12px; margin-bottom: 20px; display:flex; align-items:center; gap:10px; font-size:0.9rem; border: 1px solid rgba(239, 68, 68, 0.2);">
                 <i class="fa-solid fa-circle-exclamation"></i> <%= error %>
             </div>
         <% } %>
 
         <form action="/register" method="POST">
             <div class="form-floating">
-                <input type="text" name="username" placeholder="ตั้งชื่อผู้ใช้ (Username)" required class="modern-input" autocomplete="off">
+                <input type="text" name="username" placeholder="ตั้งชื่อผู้ใช้ (Username)" required autocomplete="off">
                 <i class="fa-solid fa-user"></i>
             </div>
             
             <div class="form-floating">
-                <input type="password" name="password" placeholder="รหัสผ่าน (Password)" required class="modern-input">
+                <input type="password" name="password" placeholder="รหัสผ่าน (Password)" required>
                 <i class="fa-solid fa-lock"></i>
             </div>
             
             <div class="form-floating">
-                <input type="password" name="confirmPassword" placeholder="ยืนยันรหัสผ่านอีกครั้ง" required class="modern-input">
+                <input type="password" name="confirmPassword" placeholder="ยืนยันรหัสผ่านอีกครั้ง" required>
                 <i class="fa-solid fa-shield-halved"></i>
             </div>
 
-            <button type="submit" class="btn btn-primary w-100" style="padding: 12px; font-size: 1rem; margin-top: 10px; border-radius: 12px;">
+            <button type="submit" class="btn btn-primary w-100" style="padding: 14px; font-size: 1rem; margin-top: 10px; border-radius: 12px;">
                 <i class="fa-solid fa-rocket"></i> สมัครสมาชิกทันที
             </button>
         </form>
@@ -48,11 +51,16 @@
         <div class="text-center mt-4" style="border-top: 1px solid var(--border); padding-top: 20px; margin-top: 25px;">
             <p class="text-muted" style="font-size: 0.9rem; margin:0;">มีบัญชีอยู่แล้ว?</p>
             <a href="/login" style="color: var(--primary); text-decoration: none; font-weight: 600;">เข้าสู่ระบบที่นี่</a>
+             
+            <div style="margin-top: 15px;">
+                <a href="/" style="color: var(--text-muted); text-decoration: none; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 5px;">
+                    <i class="fa-solid fa-arrow-left"></i> กลับหน้าหลัก
+                </a>
+            </div>
         </div>
     </div>
 
     <script>
-        // Theme Check
         document.documentElement.setAttribute('data-theme', localStorage.getItem('theme') || 'light');
     </script>
 </body>

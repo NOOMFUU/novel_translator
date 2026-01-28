@@ -3,39 +3,54 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>เข้าสู่ระบบแอดมิน</title>
+    <title>เข้าสู่ระบบ - NovelHub</title>
     <link rel="stylesheet" href="/css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
-<body style="display: flex; justify-content: center; align-items: center; min-height: 100vh;">
+<body style="display: flex; justify-content: center; align-items: center; min-height: 100vh; background: var(--bg-body); overflow: hidden; position: relative;">
     
-    <div class="card" style="width: 100%; max-width: 400px; text-align: center; padding: 40px; border-top: 5px solid var(--primary);">
-        <div style="margin-bottom: 20px;">
-            <i class="fa-solid fa-shield-halved" style="font-size: 3rem; color: var(--primary);"></i>
+    <div style="position:fixed; top:-10%; left:-10%; width:50vw; height:50vw; background:radial-gradient(circle, rgba(99, 102, 241, 0.15) 0%, transparent 70%); border-radius:50%; pointer-events:none;"></div>
+    <div style="position:fixed; bottom:-10%; right:-10%; width:50vw; height:50vw; background:radial-gradient(circle, rgba(236, 72, 153, 0.1) 0%, transparent 70%); border-radius:50%; pointer-events:none;"></div>
+
+    <div class="auth-card">
+        <div class="auth-header">
+            <div class="auth-icon">
+                <i class="fa-solid fa-shield-cat"></i> </div>
+            <h2 style="margin:0; font-weight:800;">Welcome Back!</h2>
+            <p class="text-muted" style="margin-top:5px;">ลงชื่อเข้าใช้เพื่อจัดการนิยายของคุณ</p>
         </div>
-        <h2 style="margin-bottom: 5px;">Admin Login</h2>
-        <p class="text-muted" style="margin-bottom: 30px;">เข้าสู่ระบบจัดการห้องสมุด</p>
         
         <% if (error) { %>
-            <div style="background: rgba(239, 68, 68, 0.1); color: var(--danger); padding: 10px; border-radius: 8px; margin-bottom: 20px;">
-                <%= error %>
+            <div style="background: rgba(239, 68, 68, 0.1); color: #ef4444; padding: 12px; border-radius: 12px; margin-bottom: 20px; display:flex; align-items:center; gap:10px; font-size:0.9rem; border: 1px solid rgba(239, 68, 68, 0.2);">
+                <i class="fa-solid fa-circle-exclamation"></i> <%= error %>
             </div>
         <% } %>
 
-        <form action="/login" method="POST" style="text-align: left;">
-            <div style="margin-bottom: 20px;">
-                <label style="display: block; margin-bottom: 5px; font-weight: 600;">Username</label>
-                <input type="text" name="username" required>
+        <form action="/login" method="POST">
+            <div class="form-floating">
+                <input type="text" name="username" placeholder="ชื่อผู้ใช้ (Username)" required autocomplete="off">
+                <i class="fa-solid fa-user"></i>
             </div>
-            <div style="margin-bottom: 20px;">
-                <label style="display: block; margin-bottom: 5px; font-weight: 600;">Password</label>
-                <input type="password" name="password" required>
+            
+            <div class="form-floating">
+                <input type="password" name="password" placeholder="รหัสผ่าน (Password)" required>
+                <i class="fa-solid fa-lock"></i>
             </div>
-            <button type="submit" class="btn btn-primary w-100">เข้าสู่ระบบ</button>
+            
+            <button type="submit" class="btn btn-primary w-100" style="padding: 14px; font-size: 1rem; margin-top: 10px; border-radius: 12px;">
+                <i class="fa-solid fa-arrow-right-to-bracket"></i> เข้าสู่ระบบ
+            </button>
         </form>
 
-        <div style="margin-top: 20px;">
-            <a href="/" style="color: var(--text-muted); text-decoration: none; font-size: 0.9rem;">กลับหน้าหลัก</a>
+        <div class="text-center mt-4" style="border-top: 1px solid var(--border); padding-top: 20px; margin-top: 25px;">
+            <p class="text-muted" style="font-size: 0.9rem; margin:0;">ยังไม่มีบัญชี?</p>
+            <a href="/register" style="color: var(--primary); text-decoration: none; font-weight: 600;">สมัครสมาชิกที่นี่</a>
+            
+            <div style="margin-top: 15px;">
+                <a href="/" style="color: var(--text-muted); text-decoration: none; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 5px;">
+                    <i class="fa-solid fa-arrow-left"></i> กลับหน้าหลัก
+                </a>
+            </div>
         </div>
     </div>
 
