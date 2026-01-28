@@ -12,10 +12,8 @@ const NovelSchema = new mongoose.Schema({
   imageUrl: { type: String, default: "" },     
   tags: { type: [String], default: [] },       
   views: { type: Number, default: 0 },         
-  customPrompt: { type: String, default: "แปลให้อ่านง่าย เหมาะกับนิยายแฟนตาซี/Light Novel" },
-  glossary: { type: String, default: "" },
+  // ลบ customPrompt และ glossary ออกแล้ว
   
-  // [ส่วนที่เพิ่ม] เก็บเวลาอัปเดตล่าสุด และข้อมูลตอนล่าสุด
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now },
   lastChapter: {
@@ -25,7 +23,6 @@ const NovelSchema = new mongoose.Schema({
   }
 });
 
-// ✅ แก้เป็นแบบนี้
 NovelSchema.pre('save', async function() {
   this.updatedAt = new Date();
 });
