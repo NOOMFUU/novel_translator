@@ -171,18 +171,21 @@ app.get('/novel/:id', async (req, res) => {
     try {
         const novelId = req.params.id;
         
-        // --- 1. ตั้งค่า Pagination ---
-        const page = parseInt(req.query.page) || 1; // หน้าปัจจุบัน (default = 1)
-        const limit = 50; // จำนวนตอนต่อหน้า (ปรับเลขนี้ได้ตามต้องการ)
+        // --- 1. รับค่า Search ตอน ---
+        const chapterSearch = req.query.qChapter || ''; // รับคำค้นหา
+
+        // --- 2. ตั้งค่า Pagination ---
+        const page = parseInt(req.query.page) || 1; 
+        const limit = 50; 
         const skip = (page - 1) * limit;
         
-        // --- 2. ตั้งค่า Sort (เรียงใหม่/เก่า) ---
+        // --- 3. ตั้งค่า Sort ---
         const sortParam = req.query.sort || 'newest';
-        const sortOrder = sortParam === 'oldest' ? 1 : -1; // 1 = เก่าไปใหม่, -1 = ใหม่ไปเก่า
+        const sortOrder = sortParam === 'oldest' ? 1 : -1; 
 
         let novel;
 
-        // (โค้ดส่วนนับ View เหมือนเดิม)
+        // (Code ส่วนนับ View คงเดิม...)
         if (!req.session.viewedNovels) {
             req.session.viewedNovels = [];
         }
@@ -193,14 +196,34 @@ app.get('/novel/:id', async (req, res) => {
             novel = await Novel.findById(novelId);
         }
 
-        // --- 3. ดึงข้อมูลแบบแบ่งหน้า ---
-        // นับจำนวนตอนทั้งหมดก่อน
-        const totalChapters = await Chapter.countDocuments({ novelId: novelId });
-        const totalPages = Math.ceil(totalChapters / limit);
+        // --- 4. สร้าง Filter สำหรับ Query ตอน ---
+        let chapterFilter = { novelId: novelId };
+        
+        if (chapterSearch) {
+            // ถ้าเป็นตัวเลข ให้ค้นหาทั้งเลขตอนและชื่อตอน
+            // ถ้าเป็นตัวหนังสือ ให้ค้นหาเฉพาะชื่อตอน
+            const isNum = !isNaN(chapterSearch);
+            if (isNum) {
+                chapterFilter.$or = [
+                    { title: { $regex: chapterSearch, $options: 'i' } },
+                    { chapterNumber: parseInt(chapterSearch) }
+                ];
+            } else {
+                chapterFilter.title = { $regex: chapterSearch, $options: 'i' };
+            }
+        }
 
-        // ดึงเฉพาะตอนของหน้านั้นๆ
-        const chapters = await Chapter.find({ novelId: novelId })
-            .sort({ chapterNumber: sortOrder }) // ใช้ตัวแปร sortOrder
+        // --- 5. ดึงข้อมูลและนับจำนวน ---
+        // จำนวนตอน "ทั้งหมดจริงๆ" ของนิยายเรื่องนี้ (ไม่สน Filter)
+        const totalChaptersReal = await Chapter.countDocuments({ novelId: novelId });
+        
+        // จำนวนตอนที่ "ค้นหาเจอ" (สำหรับ Pagination)
+        const totalFilteredChapters = await Chapter.countDocuments(chapterFilter);
+        const totalPages = Math.ceil(totalFilteredChapters / limit);
+
+        // ดึงข้อมูลตอน
+        const chapters = await Chapter.find(chapterFilter)
+            .sort({ chapterNumber: sortOrder }) 
             .skip(skip)
             .limit(limit);
         
@@ -210,15 +233,15 @@ app.get('/novel/:id', async (req, res) => {
             if(user.favorites.includes(novel._id)) isFav = true;
         }
 
-        // ส่งตัวแปร Pagination ไปที่หน้าเว็บ
         res.render('novel_detail', { 
             novel, 
             chapters, 
             isFav,
             currentPage: page,
             totalPages: totalPages,
-            sortOrder: sortParam, // ส่งค่า sort กลับไปเพื่อคงสถานะปุ่ม
-            totalChapters // ส่งจำนวนรวมไปด้วยเผื่อใช้แสดงผล
+            sortOrder: sortParam,
+            totalChapters: totalChaptersReal, // ส่งจำนวนทั้งหมดจริงๆ ไปแสดงผล
+            chapterSearch // ส่งคำค้นหากลับไปแสดงในช่อง Input
         });
 
     } catch (err) { console.error(err); res.redirect('/'); }

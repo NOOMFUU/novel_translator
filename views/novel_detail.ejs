@@ -16,15 +16,10 @@
     </script>
     
     <style>
-        /* 🟢 Preload Class: ปิด Animation ชั่วคราวตอนโหลด */
-        .preload * {
-            transition: none !important;
-            -webkit-transition: none !important;
-        }
+        /* 🟢 Preload Class */
+        .preload * { transition: none !important; -webkit-transition: none !important; }
 
         /* --- Page Specific Styles --- */
-        
-        /* Layout Grid สำหรับส่วนหัวนิยาย */
         .novel-header-wrapper {
             display: grid;
             grid-template-columns: 280px 1fr;
@@ -41,116 +36,105 @@
             aspect-ratio: 2/3;
         }
         .novel-cover-box img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            transition: transform 0.3s;
+            width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s;
         }
-        .novel-cover-box:hover img {
-            transform: scale(1.03);
-        }
+        .novel-cover-box:hover img { transform: scale(1.03); }
 
         /* ข้อมูลนิยาย */
         .novel-info-header h1 {
-            font-size: 2.5rem;
-            font-weight: 800;
-            line-height: 1.2;
-            margin: 0 0 10px 0;
+            font-size: 2.5rem; font-weight: 800; line-height: 1.2; margin: 0 0 10px 0;
             background: linear-gradient(135deg, var(--text-main) 0%, var(--primary) 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
         }
         
         .novel-meta-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-            gap: 15px;
-            margin: 20px 0;
-            padding: 15px;
+            gap: 15px; margin: 20px 0; padding: 15px;
             background: rgba(255,255,255,0.3);
-            border-radius: var(--radius-sm);
-            border: 1px solid var(--border);
+            border-radius: var(--radius-sm); border: 1px solid var(--border);
         }
 
-        .meta-item {
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-        }
-        .meta-label {
-            font-size: 0.8rem;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            font-weight: 600;
-        }
-        .meta-value {
-            font-weight: 500;
-            color: var(--text-main);
-        }
+        .meta-item { display: flex; flex-direction: column; gap: 4px; }
+        .meta-label { font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; font-weight: 600; }
+        .meta-value { font-weight: 500; color: var(--text-main); }
 
         /* Tags */
-        .tag-container {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            margin-bottom: 25px;
-        }
+        .tag-container { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 25px; }
         .tag-pill {
-            background: rgba(99, 102, 241, 0.08);
-            color: var(--primary);
-            padding: 6px 14px;
-            border-radius: 50px;
-            font-size: 0.85rem;
-            font-weight: 600;
-            transition: all 0.2s;
+            background: rgba(99, 102, 241, 0.08); color: var(--primary);
+            padding: 6px 14px; border-radius: 50px; font-size: 0.85rem; font-weight: 600; transition: all 0.2s;
         }
-        .tag-pill:hover {
-            background: var(--primary);
-            color: white;
-            transform: translateY(-2px);
-        }
+        .tag-pill:hover { background: var(--primary); color: white; transform: translateY(-2px); }
 
         /* เรื่องย่อ */
         .synopsis-box {
-            background: rgba(var(--bg-card), 0.5);
-            padding: 24px;
-            border-radius: var(--radius-sm);
-            border: 1px solid var(--border);
-            line-height: 1.8;
-            color: var(--text-muted);
-            position: relative;
+            background: rgba(var(--bg-card), 0.5); padding: 24px;
+            border-radius: var(--radius-sm); border: 1px solid var(--border);
+            line-height: 1.8; color: var(--text-muted); position: relative;
         }
 
         /* ปุ่ม Action */
-        .action-buttons {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            margin-top: 24px;
+        .action-buttons { display: flex; flex-direction: column; gap: 12px; margin-top: 24px; }
+
+        /* --- Chapter List Section (New UI) --- */
+        .chapter-section {
+            margin-top: 40px;
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            padding: 24px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.03);
         }
 
-        /* --- Chapter List Section --- */
-        .chapter-controls {
+        .chapter-controls-wrapper {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin: 40px 0 20px 0;
             flex-wrap: wrap;
-            gap: 15px;
+            gap: 20px;
+            margin-bottom: 24px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .chapter-search-box {
+            position: relative;
+            flex: 1;
+            min-width: 200px;
+            max-width: 400px;
+        }
+        .chapter-search-box input {
+            width: 100%;
+            padding: 10px 15px 10px 40px;
+            border-radius: 50px;
+            border: 1px solid var(--border);
+            background: var(--bg-input);
+            color: var(--text-main);
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        .chapter-search-box input:focus { border-color: var(--primary); }
+        .chapter-search-box i {
+            position: absolute; left: 15px; top: 50%; transform: translateY(-50%);
+            color: var(--text-muted);
+        }
+
+        .filter-actions {
+            display: flex; gap: 10px; align-items: center;
         }
 
         .chapter-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 16px;
-            transition: all 0.3s ease;
+            gap: 12px;
         }
 
         .chapter-item {
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: var(--radius-sm);
-            padding: 16px;
+            background: var(--bg-input);
+            border: 1px solid transparent;
+            border-radius: 8px;
+            padding: 14px 18px;
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -158,111 +142,47 @@
             color: var(--text-main);
             transition: all 0.2s;
             position: relative;
-            overflow: hidden;
         }
-
         .chapter-item:hover {
             border-color: var(--primary);
-            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.15);
-            transform: translateY(-2px);
+            background: var(--bg-card);
+            transform: translateX(5px);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
         }
+        .chapter-item.read { opacity: 0.6; }
+        .chapter-item.read .fa-check-circle { display: inline-block; color: var(--success); }
+        .chapter-item .fa-check-circle { display: none; margin-left: 8px; }
 
-        .chapter-item.read {
-            opacity: 0.7;
-            background: var(--bg-input);
-        }
-        .chapter-item.read::after {
-            content: '\f00c';
-            font-family: "Font Awesome 6 Free";
-            font-weight: 900;
-            position: absolute;
-            top: 5px;
-            right: 5px;
-            color: var(--success);
-            font-size: 0.8rem;
-        }
-
-        .chapter-info h4 {
-            margin: 0 0 5px 0;
-            font-size: 1rem;
-            font-weight: 600;
-        }
-        .chapter-date {
-            font-size: 0.8rem;
-            color: var(--text-muted);
-        }
+        .chapter-info h4 { margin: 0; font-size: 0.95rem; font-weight: 500; }
+        .chapter-date { font-size: 0.75rem; color: var(--text-muted); margin-top: 4px; }
 
         /* View Mode: List */
-        .chapter-grid.view-list {
-            grid-template-columns: 1fr;
-            gap: 10px;
-        }
-        .chapter-grid.view-list .chapter-item {
-            padding: 12px 20px;
-        }
-
-        /* Toast Animation */
-        .toast-container {
-            position: fixed;
-            top: 90px; right: 20px; z-index: 1000;
-            display: flex; flex-direction: column; gap: 10px;
-        }
+        .chapter-grid.view-list { grid-template-columns: 1fr; gap: 8px; }
+        
+        /* Toast */
+        .toast-container { position: fixed; top: 90px; right: 20px; z-index: 1000; display: flex; flex-direction: column; gap: 10px; }
         .toast {
-            background: var(--bg-card);
-            color: var(--text-main);
-            padding: 12px 20px;
-            border-radius: var(--radius-sm);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-            border-left: 4px solid var(--primary);
-            display: flex; align-items: center;
-            gap: 10px;
+            background: var(--bg-card); color: var(--text-main); padding: 12px 20px;
+            border-radius: var(--radius-sm); box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            border-left: 4px solid var(--primary); display: flex; align-items: center; gap: 10px;
             animation: slideIn 0.3s ease;
         }
         .toast.error { border-left-color: var(--danger); }
-        @keyframes slideIn {
-            from { transform: translateX(100%); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
-        }
+        @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
 
-        /* --- Mobile Responsive --- */
-        @media (max-width: 900px) {
-            .novel-header-wrapper {
-                grid-template-columns: 220px 1fr;
-                gap: 30px;
-            }
-        }
-
+        /* Responsive */
+        @media (max-width: 900px) { .novel-header-wrapper { grid-template-columns: 220px 1fr; gap: 30px; } }
         @media (max-width: 768px) {
-            .novel-header-wrapper {
-                grid-template-columns: 1fr;
-                text-align: center;
-                gap: 20px;
-            }
-            
-            .novel-cover-box {
-                width: 200px;
-                margin: 0 auto;
-            }
-
-            .novel-info-header h1 {
-                font-size: 1.8rem;
-            }
-
-            .novel-meta-grid {
-                grid-template-columns: 1fr 1fr;
-                text-align: left;
-            }
-
-            .tag-container {
-                justify-content: center;
-            }
-            
-            .action-buttons {
-                flex-direction: row;
-            }
-            .action-buttons .btn {
-                flex: 1;
-            }
+            .novel-header-wrapper { grid-template-columns: 1fr; text-align: center; gap: 20px; }
+            .novel-cover-box { width: 200px; margin: 0 auto; }
+            .novel-info-header h1 { font-size: 1.8rem; }
+            .novel-meta-grid { grid-template-columns: 1fr 1fr; text-align: left; }
+            .tag-container { justify-content: center; }
+            .action-buttons { flex-direction: row; }
+            .action-buttons .btn { flex: 1; }
+            .chapter-controls-wrapper { flex-direction: column; align-items: stretch; }
+            .chapter-search-box { max-width: 100%; }
+            .filter-actions { justify-content: space-between; }
         }
     </style>
 </head>
@@ -271,7 +191,6 @@
 
     <header class="main-header">
         <div class="d-flex justify-between align-center w-100" style="padding: 0 24px; max-width: 100%;">
-            
             <nav class="breadcrumbs" style="display: flex; align-items: center; gap: 8px; font-size: 0.9rem;">
                 <a href="/" style="text-decoration: none; color: var(--text-muted); transition: color 0.2s;">
                     <i class="fa-solid fa-house"></i> หน้าหลัก
@@ -281,31 +200,20 @@
                     <%= novel.title %>
                 </span>
             </nav>
-
-            <style>
-                .breadcrumbs a:hover { color: var(--primary) !important; }
-            </style>
-            
             <div class="d-flex align-center gap-2">
                  <button onclick="toggleTheme()" class="btn btn-outline btn-sm" style="border-radius:50%; width:40px; height:40px; padding:0;">
                     <i class="fa-solid fa-moon"></i>
                 </button>
             </div>
-
         </div>
     </header>
 
     <div class="container" style="padding-top: 40px;">
         <div class="glass-panel novel-header-wrapper">
-            
             <div>
                 <div class="novel-cover-box">
-                    <img src="<%= novel.imageUrl || defaultCover %>" 
-                         onerror="this.onerror=null;this.src='<%= defaultCover %>';" 
-                         alt="<%= novel.title %>">
-                    
-                    <div class="novel-badge badge-<%= novel.status === 'จบแล้ว' ? 'end' : 'on' %>" 
-                         style="position:absolute; top:10px; left:10px;">
+                    <img src="<%= novel.imageUrl || defaultCover %>" onerror="this.onerror=null;this.src='<%= defaultCover %>';" alt="<%= novel.title %>">
+                    <div class="novel-badge badge-<%= novel.status === 'จบแล้ว' ? 'end' : 'on' %>" style="position:absolute; top:10px; left:10px;">
                         <%= novel.status %>
                     </div>
                 </div>
@@ -314,8 +222,8 @@
                     <button id="continue-reading-btn" class="btn btn-primary w-100" style="display:none;" onclick="continueReading()">
                         <i class="fa-solid fa-play"></i> อ่านต่อ
                     </button>
-                    <% if(chapters.length > 0) { %>
-                        <a href="/chapter/<%= chapters[chapters.length-1]._id %>" class="btn btn-outline w-100">
+                    <% if(totalChapters > 0) { %>
+                        <a href="/chapter/<%= chapters.length > 0 ? chapters[chapters.length-1]._id : '#' %>" class="btn btn-outline w-100">
                             <i class="fa-solid fa-book-open"></i> เริ่มอ่านตอนแรก
                         </a>
                     <% } %>
@@ -362,7 +270,7 @@
                     </div>
                     <div class="meta-item">
                         <span class="meta-label"><i class="fa-solid fa-layer-group"></i> จำนวนตอน</span>
-                        <span class="meta-value"><%= chapters.length %> ตอน</span>
+                        <span class="meta-value"><%= totalChapters.toLocaleString() %> ตอน</span>
                     </div>
                     <div class="meta-item">
                         <span class="meta-label"><i class="fa-solid fa-calendar"></i> อัปเดตล่าสุด</span>
@@ -380,12 +288,11 @@
                 <script>
                 async function toggleFavorite() {
                     try {
-                        const res = await fetch(`/novel/${novelId}/favorite`, { method: 'POST', headers: {'Accept': 'application/json'} });
+                        const res = await fetch(`/novel/<%= novel._id %>/favorite`, { method: 'POST', headers: {'Accept': 'application/json'} });
                         const data = await res.json();
                         const btn = document.getElementById('fav-btn');
                         const icon = btn.querySelector('i');
                         const text = document.getElementById('fav-text');
-                        
                         if (data.isFav) { // Add
                             btn.classList.remove('btn-outline'); btn.classList.add('btn-primary');
                             icon.classList.remove('fa-regular'); icon.classList.add('fa-solid');
@@ -433,19 +340,26 @@
         </div>
         <% } %>
 
-        <div class="chapter-controls">
-            <h3 style="margin:0; font-size: 1.6rem; font-weight: 700;">
-                <span style="border-left: 5px solid var(--primary); padding-left: 10px;">สารบัญ</span>
-                <span class="text-muted" style="font-size: 1rem; font-weight: 400; margin-left: 5px;">(<%= chapters.length %> ตอน)</span>
-            </h3>
-            
-            <div class="d-flex gap-2">
-                <div class="rank-tabs" style="margin:0;">
-                    <button class="rank-tab active" id="btn-grid" onclick="setView('grid')"><i class="fa-solid fa-border-all"></i> Grid</button>
-                    <button class="rank-tab" id="btn-list" onclick="setView('list')"><i class="fa-solid fa-list-ul"></i> List</button>
+        <div class="chapter-section">
+            <div class="chapter-controls-wrapper">
+                <div>
+                    <h3 style="margin:0; font-size: 1.5rem; font-weight: 700; display:flex; align-items:center; gap:10px;">
+                        <i class="fa-solid fa-list-ol" style="color:var(--primary);"></i> สารบัญ
+                    </h3>
                 </div>
-                <div class="d-flex gap-2">
-                    <a href="/novel/<%= novel._id %>?sort=<%= sortOrder === 'newest' ? 'oldest' : 'newest' %>" 
+
+                <form action="/novel/<%= novel._id %>" method="GET" class="chapter-search-box">
+                    <input type="hidden" name="sort" value="<%= sortOrder %>"> <i class="fa-solid fa-search"></i>
+                    <input type="text" name="qChapter" placeholder="ค้นหาตอน... (เช่น 1, บทนำ)" value="<%= typeof chapterSearch !== 'undefined' ? chapterSearch : '' %>">
+                </form>
+
+                <div class="filter-actions">
+                    <div class="rank-tabs" style="margin:0;">
+                        <button class="rank-tab active" id="btn-grid" onclick="setView('grid')"><i class="fa-solid fa-border-all"></i></button>
+                        <button class="rank-tab" id="btn-list" onclick="setView('list')"><i class="fa-solid fa-list-ul"></i></button>
+                    </div>
+                    
+                    <a href="/novel/<%= novel._id %>?sort=<%= sortOrder === 'newest' ? 'oldest' : 'newest' %>&qChapter=<%= typeof chapterSearch !== 'undefined' ? chapterSearch : '' %>" 
                     class="btn btn-outline btn-sm" 
                     title="เรียงลำดับ <%= sortOrder === 'newest' ? 'เก่า -> ใหม่' : 'ใหม่ -> เก่า' %>">
                         <i class="fa-solid fa-arrow-down-up-across-line"></i> 
@@ -453,71 +367,79 @@
                     </a>
                 </div>
             </div>
-        </div>
 
-        <div id="chapterContainer" class="chapter-grid">
-            <% chapters.forEach(chapter => { %>
-                <div class="chapter-item-wrapper" style="position: relative;">
-                    <a href="/chapter/<%= chapter._id %>" class="chapter-item" id="chapter-<%= chapter._id %>">
-                        <div class="chapter-info" style="flex: 1;">
-                            <h4 class="text-truncate">
-                                Ep.<%= chapter.chapterNumber %> : <%= chapter.title.replace(/^ตอนที่ \d+[:\s]*/, '') %>
-                            </h4>
-                            <div class="chapter-date">
-                                <i class="fa-regular fa-clock"></i> <%= new Date(chapter.createdAt).toLocaleDateString('th-TH') %>
-                            </div>
-                        </div>
-                    </a>
-
-                    <% if (isAdmin) { %>
-                        <div style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); display: flex; gap: 5px; z-index: 2;">
-                            <a href="/chapter/<%= chapter._id %>/edit" class="btn btn-sm btn-outline" style="background:var(--bg-card);"><i class="fa-solid fa-pen"></i></a>
-                            <form action="/chapter/<%= chapter._id %>?_method=DELETE" method="POST" onsubmit="return confirm('ลบตอนนี้?')" style="margin:0;">
-                                <button type="submit" class="btn btn-sm btn-outline" style="color: var(--danger); background:var(--bg-card); border-color:transparent;"><i class="fa-solid fa-trash"></i></button>
-                            </form>
-                        </div>
+            <% if(chapters.length === 0) { %>
+                <div class="text-center text-muted" style="padding: 40px;">
+                    <i class="fa-regular fa-folder-open" style="font-size: 3rem; margin-bottom: 10px; opacity: 0.5;"></i>
+                    <p>ไม่พบตอนที่ค้นหา</p>
+                    <% if(typeof chapterSearch !== 'undefined' && chapterSearch) { %>
+                        <a href="/novel/<%= novel._id %>" class="btn btn-sm btn-outline">ล้างคำค้นหา</a>
                     <% } %>
                 </div>
-            <% }) %>
-        </div>
+            <% } else { %>
+                <div id="chapterContainer" class="chapter-grid">
+                    <% chapters.forEach(chapter => { %>
+                        <div class="chapter-item-wrapper" style="position: relative;">
+                            <a href="/chapter/<%= chapter._id %>" class="chapter-item" id="chapter-<%= chapter._id %>">
+                                <div class="chapter-info" style="flex: 1;">
+                                    <h4 class="text-truncate">
+                                        Ep.<%= chapter.chapterNumber %> : <%= chapter.title.replace(/^ตอนที่ \d+[:\s]*/, '') %>
+                                        <i class="fa-solid fa-check-circle"></i>
+                                    </h4>
+                                    <div class="chapter-date">
+                                        <i class="fa-regular fa-clock"></i> <%= new Date(chapter.createdAt).toLocaleDateString('th-TH') %>
+                                    </div>
+                                </div>
+                            </a>
 
-        <% if (totalPages > 1) { %>
-    <div class="pagination-container" style="display: flex; justify-content: center; gap: 8px; margin-top: 40px; flex-wrap: wrap;">
-        
-        <% if (currentPage > 1) { %>
-            <a href="/novel/<%= novel._id %>?page=<%= currentPage - 1 %>&sort=<%= sortOrder %>" 
-               class="btn btn-outline" style="border-radius: 8px;">
-               <i class="fa-solid fa-chevron-left"></i>
-            </a>
-        <% } %>
-
-        <% for(let i = 1; i <= totalPages; i++) { %>
-            <% if (i === 1 || i === totalPages || (i >= currentPage - 2 && i <= currentPage + 2)) { %>
-                <a href="/novel/<%= novel._id %>?page=<%= i %>&sort=<%= sortOrder %>" 
-                   class="btn <%= currentPage === i ? 'btn-primary' : 'btn-outline' %>" 
-                   style="width: 40px; height: 40px; padding: 0; display: flex; align-items: center; justify-content: center; border-radius: 8px;">
-                   <%= i %>
-                </a>
-            <% } else if (i === currentPage - 3 || i === currentPage + 3) { %>
-                <span class="text-muted" style="align-self: flex-end; padding: 0 5px;">...</span>
+                            <% if (isAdmin) { %>
+                                <div style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); display: flex; gap: 5px; z-index: 2;">
+                                    <a href="/chapter/<%= chapter._id %>/edit" class="btn btn-sm btn-outline" style="background:var(--bg-card); width:30px; height:30px; padding:0; display:flex; align-items:center; justify-content:center;"><i class="fa-solid fa-pen" style="font-size:0.8rem;"></i></a>
+                                    <form action="/chapter/<%= chapter._id %>?_method=DELETE" method="POST" onsubmit="return confirm('ลบตอนนี้?')" style="margin:0;">
+                                        <button type="submit" class="btn btn-sm btn-outline" style="color: var(--danger); background:var(--bg-card); border-color:transparent; width:30px; height:30px; padding:0;"><i class="fa-solid fa-trash" style="font-size:0.8rem;"></i></button>
+                                    </form>
+                                </div>
+                            <% } %>
+                        </div>
+                    <% }) %>
+                </div>
             <% } %>
-        <% } %>
 
-        <% if (currentPage < totalPages) { %>
-            <a href="/novel/<%= novel._id %>?page=<%= currentPage + 1 %>&sort=<%= sortOrder %>" 
-               class="btn btn-outline" style="border-radius: 8px;">
-               <i class="fa-solid fa-chevron-right"></i>
-            </a>
-        <% } %>
-    </div>
-<% } %>
+            <% if (totalPages > 1) { %>
+                <div class="pagination-container" style="display: flex; justify-content: center; gap: 8px; margin-top: 40px; flex-wrap: wrap;">
+                    <% if (currentPage > 1) { %>
+                        <a href="/novel/<%= novel._id %>?page=<%= currentPage - 1 %>&sort=<%= sortOrder %>&qChapter=<%= typeof chapterSearch !== 'undefined' ? chapterSearch : '' %>" 
+                           class="btn btn-outline" style="border-radius: 8px;">
+                           <i class="fa-solid fa-chevron-left"></i>
+                        </a>
+                    <% } %>
+
+                    <% for(let i = 1; i <= totalPages; i++) { %>
+                        <% if (i === 1 || i === totalPages || (i >= currentPage - 2 && i <= currentPage + 2)) { %>
+                            <a href="/novel/<%= novel._id %>?page=<%= i %>&sort=<%= sortOrder %>&qChapter=<%= typeof chapterSearch !== 'undefined' ? chapterSearch : '' %>" 
+                               class="btn <%= currentPage === i ? 'btn-primary' : 'btn-outline' %>" 
+                               style="width: 40px; height: 40px; padding: 0; display: flex; align-items: center; justify-content: center; border-radius: 8px;">
+                               <%= i %>
+                            </a>
+                        <% } else if (i === currentPage - 3 || i === currentPage + 3) { %>
+                            <span class="text-muted" style="align-self: flex-end; padding: 0 5px;">...</span>
+                        <% } %>
+                    <% } %>
+
+                    <% if (currentPage < totalPages) { %>
+                        <a href="/novel/<%= novel._id %>?page=<%= currentPage + 1 %>&sort=<%= sortOrder %>&qChapter=<%= typeof chapterSearch !== 'undefined' ? chapterSearch : '' %>" 
+                           class="btn btn-outline" style="border-radius: 8px;">
+                           <i class="fa-solid fa-chevron-right"></i>
+                        </a>
+                    <% } %>
+                </div>
+            <% } %>
+        </div>
     </div>
 
     <script>
         const novelId = "<%= novel._id %>";
         
-        // --- UX: Read History & UI Logic ---
-
         function getReadHistory() {
             try {
                 const raw = localStorage.getItem(`readHistory-${novelId}`);
@@ -526,22 +448,19 @@
         }
 
         function checkReadHistory() {
-            // 1. ปุ่มอ่านต่อ (Last Read)
+            // 1. ปุ่มอ่านต่อ
             const lastRead = localStorage.getItem(`lastRead-${novelId}`);
-            
             if (lastRead) {
                 const btn = document.getElementById('continue-reading-btn');
                 if(btn) {
                     btn.style.display = 'inline-flex';
-                    // อัพเดท Link ให้ตรงกับตอนล่าสุด
                     btn.onclick = (e) => {
                         e.preventDefault();
                         window.location.href = `/chapter/${lastRead}`;
                     };
                 }
             }
-
-            // 2. แสดงเครื่องหมายถูก (Read List)
+            // 2. Mark as read
             const history = getReadHistory();
             history.forEach(id => {
                 const chapterItem = document.getElementById(`chapter-${id}`);
@@ -551,12 +470,12 @@
             });
         }
 
-        // View Toggler (Grid/List)
         function setView(mode) {
             const container = document.getElementById('chapterContainer');
             const btnGrid = document.getElementById('btn-grid');
             const btnList = document.getElementById('btn-list');
-            
+            if(!container || !btnGrid || !btnList) return; // กัน Error ถ้าไม่พบ Element
+
             if(mode === 'list') {
                 container.classList.add('view-list');
                 btnList.classList.add('active'); 
@@ -569,12 +488,6 @@
             localStorage.setItem('chapterView', mode);
         }
 
-        function reverseSort() {
-            const container = document.getElementById('chapterContainer');
-            const items = Array.from(container.children);
-            items.reverse().forEach(item => container.appendChild(item));
-        }
-
         // Theme Toggler
         function toggleTheme() {
             const current = document.documentElement.getAttribute('data-theme');
@@ -583,36 +496,13 @@
             localStorage.setItem('theme', next);
         }
 
-        // Toast Notification
-        function showToast(message, type = 'success') {
-            const container = document.getElementById('toast-container');
-            const toast = document.createElement('div');
-            toast.className = `toast ${type === 'error' ? 'error' : ''}`;
-            toast.innerHTML = `<i class="fa-solid fa-${type === 'success' ? 'circle-check' : 'circle-exclamation'}"></i> <span>${message}</span>`;
-            container.appendChild(toast);
-            setTimeout(() => {
-                toast.style.opacity = '0';
-                toast.style.transform = 'translateX(100%)';
-                setTimeout(() => toast.remove(), 300);
-            }, 3000);
-        }
-
-        // Init
         document.addEventListener('DOMContentLoaded', () => {
-            // Theme Setup
             document.documentElement.setAttribute('data-theme', localStorage.getItem('theme') || 'light');
-            
-            // View Setup
             const savedView = localStorage.getItem('chapterView') || 'grid';
             setView(savedView);
-            
-            // History Setup
             checkReadHistory(); 
-
-            // 🟢 เอา class preload ออกเมื่อโหลดเสร็จ
             setTimeout(() => document.body.classList.remove('preload'), 100);
         });
     </script>
-
 </body>
 </html>
