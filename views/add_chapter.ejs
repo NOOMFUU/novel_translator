@@ -3,129 +3,378 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>เพิ่มตอนใหม่: <%= novel.title %></title>
+    <title>เขียนตอนใหม่: <%= novel.title %></title>
     <link rel="stylesheet" href="/css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script> document.documentElement.setAttribute('data-theme', localStorage.getItem('theme') || 'light'); </script>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;700&display=swap" rel="stylesheet">
+    
+    <script>
+        (function() {
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+        })();
+    </script>
+
+    <style>
+        /* --- 🎨 Studio Theme Variables --- */
+        :root {
+            --studio-bg: #f8fafc;
+            --panel-bg: #ffffff;
+            --border-color: #e2e8f0;
+            --text-color: #334155;
+            --primary-color: var(--primary);
+            --header-height: 56px;
+        }
+
+        [data-theme="dark"] {
+            --studio-bg: #0f172a;
+            --panel-bg: #1e293b;
+            --border-color: #334155;
+            --text-color: #e2e8f0;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: var(--studio-bg);
+            color: var(--text-color);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden; /* ห้าม Scroll ที่ Body */
+            font-family: 'Sarabun', sans-serif;
+        }
+
+        /* --- Header --- */
+        .studio-header {
+            height: var(--header-height);
+            background: var(--panel-bg);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 20px;
+            flex-shrink: 0;
+            z-index: 10;
+        }
+
+        /* --- Main Layout --- */
+        .workspace {
+            display: flex;
+            flex: 1;
+            height: calc(100vh - var(--header-height));
+            overflow: hidden;
+        }
+
+        /* --- Left Panel: Smart Source (สำคัญที่สุด) --- */
+        .source-panel {
+            width: 40%;
+            min-width: 320px;
+            background: var(--studio-bg);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        .panel-header {
+            padding: 10px 15px;
+            font-weight: 700;
+            color: var(--text-color);
+            background: var(--studio-bg);
+            border-bottom: 1px solid var(--border-color);
+            display: flex; justify-content: space-between; align-items: center;
+        }
+
+        .smart-textarea {
+            flex: 1;
+            width: 100%;
+            border: none;
+            resize: none;
+            padding: 20px;
+            background: transparent;
+            color: var(--text-color);
+            font-family: 'Sarabun', monospace; /* Monospace for raw text */
+            font-size: 0.95rem;
+            line-height: 1.6;
+            outline: none;
+        }
+        .smart-textarea::placeholder { color: var(--text-color); opacity: 0.4; }
+
+        /* --- Right Panel: Editor Result --- */
+        .editor-panel {
+            flex: 1;
+            background: var(--panel-bg);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .editor-scroller {
+            flex: 1;
+            overflow-y: auto;
+            padding: 30px 40px;
+        }
+
+        /* Form Elements in Editor */
+        .form-row { margin-bottom: 20px; }
+        .label { display: block; font-size: 0.8rem; color: var(--text-color); opacity: 0.7; margin-bottom: 5px; }
+        
+        .input-title {
+            width: 100%;
+            font-size: 1.5rem;
+            font-weight: 700;
+            border: none;
+            border-bottom: 2px solid transparent;
+            background: transparent;
+            color: var(--text-color);
+            padding: 5px 0;
+            transition: border-color 0.2s;
+        }
+        .input-title:focus { outline: none; border-bottom-color: var(--primary-color); }
+
+        .input-content {
+            width: 100%;
+            min-height: 60vh;
+            border: none;
+            resize: none;
+            background: transparent;
+            color: var(--text-color);
+            font-size: 1.1rem;
+            line-height: 1.8;
+            outline: none;
+        }
+
+        /* --- Toolbar --- */
+        .toolbar {
+            padding: 8px 15px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex; gap: 8px;
+            background: var(--panel-bg);
+        }
+        .tool-btn {
+            background: transparent; border: 1px solid transparent;
+            border-radius: 6px; width: 32px; height: 32px;
+            cursor: pointer; color: var(--text-color); opacity: 0.7;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .tool-btn:hover { background: rgba(0,0,0,0.05); opacity: 1; }
+
+        /* --- Buttons --- */
+        .btn-save {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex; align-items: center; gap: 8px;
+        }
+        .btn-save:hover { filter: brightness(1.1); }
+        
+        .badge-ep {
+            background: var(--studio-bg);
+            border: 1px solid var(--border-color);
+            padding: 5px 10px;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            width: 80px;
+            text-align: center;
+            color: var(--primary-color);
+        }
+
+        /* --- 📱 Mobile Responsive --- */
+        @media (max-width: 768px) {
+            .workspace { flex-direction: column; overflow-y: auto; height: auto; }
+            .source-panel { width: 100%; height: 300px; border-right: none; border-bottom: 5px solid var(--border-color); }
+            .editor-panel { width: 100%; min-height: 500px; }
+            .studio-header { position: sticky; top: 0; }
+            body { overflow: auto; height: auto; }
+        }
+    </style>
 </head>
 <body>
-    <div id="toast-container" class="toast-container"></div>
-    <header class="main-header">
-        <div class="container d-flex justify-between align-center w-100">
-            <div class="d-flex align-center gap-2">
-                <a href="/novel/<%= novel._id %>" class="btn btn-outline btn-sm" style="border:none;"><i class="fa-solid fa-arrow-left"></i></a>
-                <div><div class="text-muted" style="font-size: 0.8rem;">เพิ่มตอนใหม่</div><div style="font-weight: 700;"><%= novel.title %></div></div>
+
+    <header class="studio-header">
+        <div style="display: flex; align-items: center; gap: 15px;">
+            <a href="/novel/<%= novel._id %>" style="color: var(--text-color); opacity: 0.7;"><i class="fa-solid fa-arrow-left"></i></a>
+            <div>
+                <span style="font-size: 0.8rem; opacity: 0.6; display: block; line-height: 1;">เพิ่มตอนใหม่</span>
+                <strong style="font-size: 1rem;"><%= novel.title %></strong>
             </div>
+        </div>
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <button onclick="toggleTheme()" class="tool-btn"><i class="fa-solid fa-circle-half-stroke"></i></button>
+            <button type="button" onclick="submitForm()" id="btn-submit" class="btn-save">
+                <i class="fa-solid fa-cloud-arrow-up"></i> <span>บันทึก</span>
+            </button>
         </div>
     </header>
 
-    <div class="container" style="max-width: 900px; padding-top: 30px;">
-        <div class="card">
-            <form id="form-manual" onsubmit="handleSubmit(event)">
-                
-                <div style="background: rgba(var(--primary-rgb), 0.05); border: 1px dashed var(--primary); padding: 20px; border-radius: 12px; margin-bottom: 25px;">
-                    <label style="color: var(--primary); font-weight: 600; display: block; margin-bottom: 8px;">
-                        <i class="fa-solid fa-bolt"></i> Smart Paste (วางเนื้อหาเพื่อแยกชื่อตอนอัตโนมัติ)
-                    </label>
-                    <textarea id="smartPasteInput" class="modern-textarea" style="border:none; background:transparent; min-height:80px;" placeholder="เช่น: ตอนที่ 10 การเริ่มต้นใหม่ ... (วางเนื้อหา)" oninput="detectHeader()"></textarea>
-                </div>
-
-                <div class="d-flex gap-3 mb-4 flex-wrap">
-                    <div style="flex: 0 0 120px;">
-                        <label class="form-label">ลำดับ (Ep)</label>
-                        <input type="number" step="0.1" id="manualChapterNumber" name="manualChapterNumber" value="<%= nextChapterNumber %>" class="modern-input" required>
-                    </div>
-                    <div style="flex: 1;">
-                        <label class="form-label">ชื่อตอน</label>
-                        <input type="text" id="manualTitle" name="manualTitle" class="modern-input" required>
-                    </div>
-                </div>
-
-                <div class="form-group mb-4">
-                    <label class="form-label">เนื้อหา</label>
-                    <textarea id="manualTranslated" name="manualTranslated" class="modern-textarea" style="height: 450px; font-family: 'Sarabun', sans-serif;" required placeholder="พิมพ์เนื้อหานิยายที่นี่..."></textarea>
-                </div>
-
-                <div class="d-flex justify-between align-center pt-4" style="border-top: 1px solid var(--border);">
-                    <button type="button" class="btn btn-outline" onclick="document.getElementById('form-manual').reset()"><i class="fa-solid fa-eraser"></i> ล้าง</button>
-                    <button type="submit" class="btn btn-primary btn-lg" id="btn-submit"><i class="fa-solid fa-save"></i> บันทึก</button>
-                </div>
-            </form>
+    <form id="form-chapter" class="workspace" onsubmit="event.preventDefault(); submitForm();">
+        
+        <div class="source-panel">
+            <div class="panel-header">
+                <span><i class="fa-solid fa-paste"></i> วางต้นฉบับ (Smart Paste)</span>
+                <span style="font-size: 0.7rem; opacity: 0.5;">Auto-detect Title & Body</span>
+            </div>
+            <textarea id="smartInput" class="smart-textarea" 
+                placeholder="วางเนื้อหาทั้งหมดที่นี่...&#10;เช่น:&#10;ตอนที่ 10 การเริ่มต้น&#10;เนื้อหาบรรทัดแรก..."
+                oninput="handleSmartPaste()"></textarea>
         </div>
-    </div>
+
+        <div class="editor-panel">
+            <div class="toolbar">
+                <input type="number" step="0.1" name="manualChapterNumber" id="manualChapterNumber" value="<%= nextChapterNumber %>" class="badge-ep" title="ลำดับตอน">
+                <div style="width: 1px; height: 20px; background: var(--border-color); margin: 6px 5px;"></div>
+                
+                <button type="button" class="tool-btn" onclick="wrapTag('b')" title="ตัวหนา"><i class="fa-solid fa-bold"></i></button>
+                <button type="button" class="tool-btn" onclick="wrapTag('i')" title="ตัวเอียง"><i class="fa-solid fa-italic"></i></button>
+                <button type="button" class="tool-btn" onclick="insertHtml('<br>')" title="เว้นบรรทัด"><i class="fa-solid fa-turn-down"></i></button>
+                <button type="button" class="tool-btn" onclick="insertHtml('\n<hr>\n')" title="เส้นคั่น"><i class="fa-solid fa-minus"></i></button>
+                <button type="button" class="tool-btn" onclick="insertImage()" title="แทรกรูปภาพ"><i class="fa-regular fa-image"></i></button>
+                
+                <div style="flex:1;"></div>
+                <span id="word-count" style="font-size: 0.8rem; opacity: 0.5; align-self: center;">0 คำ</span>
+            </div>
+
+            <div class="editor-scroller">
+                <div class="form-row">
+                    <input type="text" name="manualTitle" id="manualTitle" class="input-title" placeholder="ชื่อตอน (จะถูกแยกออกมาอัตโนมัติ)" required>
+                </div>
+                <div class="form-row" style="flex: 1; display: flex;">
+                    <textarea name="manualTranslated" id="manualTranslated" class="input-content" placeholder="เนื้อหาที่ผ่านการแยกแล้ว จะปรากฏที่นี่... (แก้ไขเพิ่มเติมได้)" required></textarea>
+                </div>
+            </div>
+        </div>
+    </form>
+
+    <div id="toast-container" style="position: fixed; top: 70px; right: 20px; z-index: 2000;"></div>
 
     <script>
         const novelId = "<%= novel._id %>";
         let nextChapterNum = parseFloat("<%= nextChapterNumber %>");
 
-        // [เพิ่ม] ฟังก์ชัน showToast
-        function showToast(message, type = 'success') {
-            const container = document.getElementById('toast-container');
-            const toast = document.createElement('div');
-            toast.className = `toast ${type}`;
-            const icon = type === 'success' ? 'fa-circle-check' : 'fa-circle-exclamation';
-            
-            toast.innerHTML = `
-                <i class="fa-solid ${icon}"></i>
-                <span>${message}</span>
-            `;
-            
-            container.appendChild(toast);
+        // --- 🧠 Smart Paste Logic (Core Feature) ---
+        function handleSmartPaste() {
+            const raw = document.getElementById('smartInput').value;
+            if (!raw.trim()) return;
 
-            // Auto remove
-            setTimeout(() => {
-                toast.style.animation = 'toastFadeOut 0.4s forwards';
-                setTimeout(() => toast.remove(), 400);
-            }, 3000);
-        }
-
-        async function handleSubmit(e) {
-            e.preventDefault();
-        
-            const btn = document.getElementById('btn-submit');
-            const originalText = btn.innerHTML;
-            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> กำลังบันทึก...';
-            btn.disabled = true;
-
-            const formData = new FormData(e.target);
-            try {
-                const res = await fetch(`/novel/${novelId}/chapters`, { method: 'POST', body: formData, headers: {'Accept': 'application/json'} });
-                const result = await res.json();
-                
-                if(result.success) {
-                    // [แก้ไข] เปลี่ยนจาก alert เป็น showToast
-                    showToast('บันทึกตอนใหม่เรียบร้อยแล้ว!', 'success');
-                    
-                    document.getElementById('form-manual').reset();
-                    nextChapterNum = parseFloat(result.chapter.chapterNumber) + 1;
-                    document.getElementById('manualChapterNumber').value = nextChapterNum;
-                } else { 
-                    throw new Error(result.message);
-                }
-            } catch(err) { 
-                // [แก้ไข] เปลี่ยนจาก alert เป็น showToast
-                showToast('เกิดข้อผิดพลาด: ' + err.message, 'error');
-            }
-            finally { 
-                btn.innerHTML = originalText; 
-                btn.disabled = false;
-            }
-        }
-
-        function detectHeader() {
-            const input = document.getElementById('smartPasteInput').value;
-            if (!input.trim()) return;
-            const lines = input.split('\n');
+            const lines = raw.split('\n');
             const firstLine = lines[0].trim();
-            const match = firstLine.match(/^(?:ตอนที่|บทที่|Chapter|Ep\.?|Episode|第)?\s*(\d+(\.\d+)?)\s*[:：.\s-]?\s*(.*)$/i);
-            if (match) {
-                document.getElementById('manualChapterNumber').value = match[1];
-                document.getElementById('manualTitle').value = match[3] ? `ตอนที่ ${match[1]} : ${match[3]}` : `ตอนที่ ${match[1]}`;
+            
+            // Regex จับแพทเทิร์นชื่อตอน
+            // รองรับ: "ตอนที่ 1", "Ep.1", "1. ชื่อตอน", "Chapter 1"
+            const headerMatch = firstLine.match(/^(?:ตอนที่|บทที่|Chapter|Ep\.?|Episode|第)?\s*(\d+(\.\d+)?)\s*[:：.\s-]?\s*(.*)$/i);
+
+            if (headerMatch) {
+                // ถ้าเจอ Pattern
+                document.getElementById('manualChapterNumber').value = headerMatch[1];
+                const titleText = headerMatch[3] ? headerMatch[3].trim() : "";
+                document.getElementById('manualTitle').value = titleText ? `ตอนที่ ${headerMatch[1]} : ${titleText}` : `ตอนที่ ${headerMatch[1]}`;
                 document.getElementById('manualTranslated').value = lines.slice(1).join('\n').trim();
             } else {
+                // ถ้าไม่เจอ Pattern -> บรรทัดแรกเป็นชื่อตอน
                 document.getElementById('manualTitle').value = firstLine;
                 document.getElementById('manualTranslated').value = lines.slice(1).join('\n').trim();
             }
+            
+            updateWordCount();
+        }
+
+        // --- Editor Tools ---
+        const contentInput = document.getElementById('manualTranslated');
+
+        function wrapTag(tag) {
+            const start = contentInput.selectionStart;
+            const end = contentInput.selectionEnd;
+            const text = contentInput.value;
+            const selected = text.substring(start, end);
+            const replacement = `<${tag}>${selected}</${tag}>`;
+            contentInput.value = text.substring(0, start) + replacement + text.substring(end);
+            contentInput.focus();
+            contentInput.selectionStart = start + replacement.length; 
+            contentInput.selectionEnd = start + replacement.length;
+        }
+
+        function insertHtml(html) {
+            const start = contentInput.selectionStart;
+            const text = contentInput.value;
+            contentInput.value = text.substring(0, start) + html + text.substring(contentInput.selectionEnd);
+            contentInput.focus();
+        }
+
+        function insertImage() {
+            const url = prompt("กรุณาวางลิงก์รูปภาพ (URL):");
+            if(url) insertHtml(`<img src="${url}" alt="image" style="display:block; margin:10px auto; max-width:100%;">`);
+        }
+
+        function updateWordCount() {
+            const text = contentInput.value.replace(/<[^>]*>/g, '');
+            const count = text.trim().length === 0 ? 0 : text.trim().split(/\s+/).length;
+            document.getElementById('word-count').innerText = `${count.toLocaleString()} คำ`;
+        }
+        
+        // Update word count manually when editing result directly
+        contentInput.addEventListener('input', updateWordCount);
+
+        // --- Submit ---
+        async function submitForm() {
+            const btn = document.getElementById('btn-submit');
+            const originalContent = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> บันทึก...`;
+
+            const form = document.getElementById('form-chapter');
+            const formData = new FormData(form);
+
+            try {
+                const res = await fetch(`/novel/${novelId}/chapters`, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {'Accept': 'application/json'}
+                });
+                const result = await res.json();
+
+                if(result.success) {
+                    showToast('บันทึกสำเร็จ!', 'success');
+                    
+                    // Reset fields
+                    document.getElementById('smartInput').value = '';
+                    document.getElementById('manualTitle').value = '';
+                    document.getElementById('manualTranslated').value = '';
+                    
+                    // Update Next Chapter Number
+                    nextChapterNum = parseFloat(result.chapter.chapterNumber) + 1;
+                    document.getElementById('manualChapterNumber').value = nextChapterNum;
+                } else {
+                    throw new Error(result.message);
+                }
+            } catch(err) {
+                showToast(err.message, 'error');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = originalContent;
+            }
+        }
+
+        function showToast(msg, type='success') {
+            const container = document.getElementById('toast-container');
+            const div = document.createElement('div');
+            const color = type === 'success' ? '#10b981' : '#ef4444';
+            div.style.cssText = `background:var(--panel-bg); color:var(--text-color); padding:10px 20px; border-radius:8px; border-left:4px solid ${color}; box-shadow:0 5px 15px rgba(0,0,0,0.2); margin-bottom:10px; display:flex; align-items:center; gap:10px; animation: slideIn 0.3s;`;
+            div.innerHTML = `<i class="fa-solid ${type==='success'?'fa-check':'fa-exclamation'}" style="color:${color}"></i> ${msg}`;
+            container.appendChild(div);
+            setTimeout(() => div.remove(), 3000);
+        }
+
+        function toggleTheme() {
+            const current = document.documentElement.getAttribute('data-theme');
+            const next = current === 'light' ? 'dark' : 'light';
+            document.documentElement.setAttribute('data-theme', next);
+            localStorage.setItem('theme', next);
         }
     </script>
 </body>

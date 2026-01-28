@@ -2,16 +2,13 @@
 <html lang="th">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Edit: <%= chapter.title %></title>
-    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>แก้ไขตอน: <%= chapter.title %></title>
     <link rel="stylesheet" href="/css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;700&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
-
+    
     <script>
-        // Anti-Flash & Theme Init
         (function() {
             const savedTheme = localStorage.getItem('theme') || 'light';
             document.documentElement.setAttribute('data-theme', savedTheme);
@@ -19,382 +16,365 @@
     </script>
 
     <style>
-        /* --- Layout Override for Editor --- */
+        /* --- 🎨 Studio Theme Variables --- */
+        :root {
+            --studio-bg: #f8fafc;
+            --panel-bg: #ffffff;
+            --border-color: #e2e8f0;
+            --text-color: #334155;
+            --primary-color: var(--primary);
+            --danger-color: #ef4444;
+            --header-height: 56px;
+        }
+
+        [data-theme="dark"] {
+            --studio-bg: #0f172a;
+            --panel-bg: #1e293b;
+            --border-color: #334155;
+            --text-color: #e2e8f0;
+        }
+
         body {
+            margin: 0;
+            padding: 0;
+            background-color: var(--studio-bg);
+            color: var(--text-color);
             height: 100vh;
             display: flex;
             flex-direction: column;
-            overflow: hidden; /* ป้องกัน Scroll ซ้อน */
-        }
-
-        .editor-container {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            padding: 0;
-            max-width: 100%;
-            height: 100%;
+            overflow: hidden;
+            font-family: 'Sarabun', sans-serif;
         }
 
         /* --- Header --- */
-        .editor-header {
-            padding: 15px 24px;
-            background: var(--nav-bg);
-            backdrop-filter: blur(10px);
-            border-bottom: 1px solid var(--border);
+        .studio-header {
+            height: var(--header-height);
+            background: var(--panel-bg);
+            border-bottom: 1px solid var(--border-color);
             display: flex;
-            justify-content: space-between;
             align-items: center;
-            z-index: 50;
+            justify-content: space-between;
+            padding: 0 20px;
+            flex-shrink: 0;
+            z-index: 10;
         }
 
-        /* --- Meta Inputs (Title/Number) --- */
-        .meta-bar {
-            padding: 15px 24px;
-            background: var(--bg-body);
-            border-bottom: 1px solid var(--border);
-            display: grid;
-            grid-template-columns: 100px 1fr;
-            gap: 15px;
+        /* --- Main Layout --- */
+        .workspace {
+            display: flex;
+            flex: 1;
+            height: calc(100vh - var(--header-height));
+            overflow: hidden;
         }
 
-        .input-group label {
-            display: block;
-            font-size: 0.75rem;
-            color: var(--text-muted);
-            margin-bottom: 4px;
-            font-weight: 600;
+        /* --- Left Panel: Smart Source --- */
+        .source-panel {
+            width: 40%;
+            min-width: 320px;
+            background: var(--studio-bg);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
         }
 
-        .editor-input {
+        .panel-header {
+            padding: 10px 15px;
+            font-weight: 700;
+            color: var(--text-color);
+            background: var(--studio-bg);
+            border-bottom: 1px solid var(--border-color);
+            display: flex; justify-content: space-between; align-items: center;
+        }
+
+        .smart-textarea {
+            flex: 1;
             width: 100%;
-            background: var(--bg-input);
-            border: 1px solid var(--border);
-            padding: 10px 14px;
-            border-radius: var(--radius-sm);
-            color: var(--text-main);
-            font-family: 'Sarabun', sans-serif;
-            transition: all 0.2s;
-        }
-        .editor-input:focus {
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+            border: none;
+            resize: none;
+            padding: 20px;
+            background: transparent;
+            color: var(--text-color);
+            font-family: 'Sarabun', monospace;
+            font-size: 0.95rem;
+            line-height: 1.6;
             outline: none;
         }
+        .smart-textarea::placeholder { color: var(--text-color); opacity: 0.4; }
 
-        /* --- Workspace (Split View) --- */
-        .workspace {
+        /* --- Right Panel: Editor --- */
+        .editor-panel {
             flex: 1;
-            display: flex;
-            overflow: hidden;
-            position: relative;
-        }
-
-        .pane {
-            flex: 1;
+            background: var(--panel-bg);
             display: flex;
             flex-direction: column;
             overflow: hidden;
         }
 
-        /* --- Code Editor Pane --- */
-        .pane-editor {
-            border-right: 1px solid var(--border);
-            background: var(--bg-card);
-        }
-
-        .toolbar {
-            padding: 8px 15px;
-            border-bottom: 1px solid var(--border);
-            background: var(--bg-input);
-            display: flex;
-            gap: 8px;
-            overflow-x: auto;
-        }
-
-        .tool-btn {
-            padding: 6px 10px;
-            border-radius: 6px;
-            border: 1px solid transparent;
-            background: transparent;
-            color: var(--text-muted);
-            cursor: pointer;
-            font-size: 0.9rem;
-            transition: 0.2s;
-        }
-        .tool-btn:hover {
-            background: rgba(0,0,0,0.05);
-            color: var(--primary);
-            border-color: var(--border);
-        }
-
-        textarea#editor {
+        .editor-scroller {
             flex: 1;
+            overflow-y: auto;
+            padding: 30px 40px;
+        }
+
+        .form-row { margin-bottom: 20px; }
+        
+        .input-title {
             width: 100%;
-            resize: none;
+            font-size: 1.5rem;
+            font-weight: 700;
             border: none;
-            padding: 20px;
-            font-family: 'JetBrains Mono', monospace; /* Font สำหรับเขียนโค้ด */
-            font-size: 15px;
-            line-height: 1.6;
-            background: var(--bg-card);
-            color: var(--text-main);
+            border-bottom: 2px solid transparent;
+            background: transparent;
+            color: var(--text-color);
+            padding: 5px 0;
+            transition: border-color 0.2s;
+        }
+        .input-title:focus { outline: none; border-bottom-color: var(--primary-color); }
+
+        .input-content {
+            width: 100%;
+            min-height: 60vh;
+            border: none;
+            resize: none;
+            background: transparent;
+            color: var(--text-color);
+            font-size: 1.1rem;
+            line-height: 1.8;
             outline: none;
         }
-        textarea#editor:focus { background: var(--bg-card); }
 
-        /* --- Preview Pane --- */
-        .pane-preview {
-            background: var(--bg-body);
-            overflow-y: auto;
-            padding: 40px;
+        /* --- Toolbar --- */
+        .toolbar {
+            padding: 8px 15px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex; gap: 8px;
+            background: var(--panel-bg);
         }
+        .tool-btn {
+            background: transparent; border: 1px solid transparent;
+            border-radius: 6px; width: 32px; height: 32px;
+            cursor: pointer; color: var(--text-color); opacity: 0.7;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .tool-btn:hover { background: rgba(0,0,0,0.05); opacity: 1; }
+        .tool-btn.btn-delete:hover { background: rgba(239, 68, 68, 0.1); color: var(--danger-color); opacity: 1; }
 
-        .preview-content {
-            max-width: 720px;
-            margin: 0 auto;
-            font-family: 'Sarabun', sans-serif;
-            font-size: 1.15rem; /* จำลองขนาดจริง */
-            line-height: 1.8;
-            color: var(--text-main);
-        }
-        .preview-content h2 { text-align: center; color: var(--primary); }
-        .preview-content p { margin-bottom: 1.5em; text-indent: 2.5em; }
-
-        /* --- Mobile Tabs --- */
-        .mobile-tabs {
-            display: none; /* Hidden on Desktop */
-            padding: 10px;
-            background: var(--bg-card);
-            border-bottom: 1px solid var(--border);
-            justify-content: center;
-            gap: 10px;
-        }
-        .tab-btn {
-            flex: 1;
-            padding: 8px;
-            border-radius: 50px;
-            border: 1px solid var(--border);
-            background: transparent;
-            color: var(--text-muted);
-            font-weight: 600;
-        }
-        .tab-btn.active {
-            background: var(--primary);
+        .btn-save {
+            background: var(--primary-color);
             color: white;
-            border-color: var(--primary);
+            border: none;
+            padding: 8px 20px;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex; align-items: center; gap: 8px;
+        }
+        .btn-save:hover { filter: brightness(1.1); }
+        
+        .badge-ep {
+            background: var(--studio-bg);
+            border: 1px solid var(--border-color);
+            padding: 5px 10px;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            width: 80px;
+            text-align: center;
+            color: var(--primary-color);
         }
 
-        /* --- Responsive --- */
+        /* --- 📱 Mobile --- */
         @media (max-width: 768px) {
-            .meta-bar { grid-template-columns: 1fr 1fr; }
-            .mobile-tabs { display: flex; }
-            
-            .pane { display: none; width: 100%; } /* ซ่อนทั้งคู่ก่อน */
-            .pane.active { display: flex; } /* แสดงเฉพาะอันที่ Active */
-            
-            .pane-preview { padding: 20px; }
-            .editor-header h2 { font-size: 1rem; }
-            .btn span { display: none; } /* ซ่อน text ปุ่มบน header */
+            .workspace { flex-direction: column; overflow-y: auto; height: auto; }
+            .source-panel { width: 100%; height: 250px; border-right: none; border-bottom: 5px solid var(--border-color); }
+            .editor-panel { width: 100%; min-height: 500px; }
+            .studio-header { position: sticky; top: 0; }
+            body { overflow: auto; height: auto; }
         }
     </style>
 </head>
 <body>
-    <div id="toast-container" class="toast-container"></div>
 
-    <form id="editForm" class="editor-container" onsubmit="return false;">
+    <header class="studio-header">
+        <div style="display: flex; align-items: center; gap: 15px;">
+            <a href="/chapter/<%= chapter._id %>" style="color: var(--text-color); opacity: 0.7;"><i class="fa-solid fa-arrow-left"></i></a>
+            <div>
+                <span style="font-size: 0.8rem; opacity: 0.6; display: block; line-height: 1;">กำลังแก้ไข</span>
+                <strong style="font-size: 1rem;"><%= chapter.title %></strong>
+            </div>
+        </div>
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <button type="button" onclick="deleteChapter()" class="tool-btn btn-delete" title="ลบตอนนี้">
+                <i class="fa-solid fa-trash"></i>
+            </button>
+            <div style="width:1px; height:24px; background:var(--border-color); margin:0 5px;"></div>
+            <button onclick="toggleTheme()" class="tool-btn"><i class="fa-solid fa-circle-half-stroke"></i></button>
+            <button type="button" onclick="submitForm()" id="btn-save" class="btn-save">
+                <i class="fa-solid fa-save"></i> <span>บันทึก</span>
+            </button>
+        </div>
+    </header>
+
+    <div class="workspace">
         
-        <header class="editor-header">
-            <div class="d-flex align-center gap-2">
-                <a href="/chapter/<%= chapter._id %>" class="btn btn-outline btn-sm" style="border:none;">
-                    <i class="fa-solid fa-arrow-left"></i>
-                </a>
-                <h2 style="margin:0; font-size:1.2rem;">แก้ไขตอน</h2>
+        <div class="source-panel">
+            <div class="panel-header">
+                <span><i class="fa-solid fa-rotate"></i> Smart Replace (วางทับเพื่อแก้ใหม่)</span>
+                <span style="font-size: 0.7rem; opacity: 0.5;">Auto-split Title/Content</span>
             </div>
-            
-            <div class="d-flex gap-2">
-                <button type="button" onclick="deleteChapter()" class="btn btn-outline btn-sm btn-outline-danger" title="ลบตอน">
-                    <i class="fa-solid fa-trash"></i> <span class="desktop-only">ลบ</span>
-                </button>
-                <button type="button" onclick="saveChapter()" class="btn btn-primary btn-sm">
-                    <i class="fa-solid fa-save"></i> <span>บันทึก</span>
-                </button>
-            </div>
-        </header>
-
-        <div class="meta-bar">
-            <div class="input-group">
-                <label>ลำดับ (Ep)</label>
-                <input type="number" step="0.1" name="chapterNumber" value="<%= chapter.chapterNumber %>" class="editor-input" required>
-            </div>
-            <div class="input-group">
-                <label>ชื่อตอน</label>
-                <input type="text" name="title" value="<%= chapter.title %>" class="editor-input" required>
-            </div>
+            <textarea id="smartInput" class="smart-textarea" 
+                placeholder="หากต้องการแทนที่เนื้อหาเดิมทั้งหมด ให้วางข้อความต้นฉบับใหม่ที่นี่..."
+                oninput="handleSmartPaste()"></textarea>
         </div>
 
-        <div class="mobile-tabs">
-            <button type="button" class="tab-btn active" onclick="switchTab('editor')"><i class="fa-solid fa-pen"></i> เขียน</button>
-            <button type="button" class="tab-btn" onclick="switchTab('preview')"><i class="fa-solid fa-eye"></i> ตัวอย่าง</button>
-        </div>
+        <form id="editForm" class="editor-panel" onsubmit="event.preventDefault(); submitForm();">
+            <div class="toolbar">
+                <input type="number" step="0.1" name="chapterNumber" id="chapterNumber" value="<%= chapter.chapterNumber %>" class="badge-ep" title="ลำดับตอน">
+                
+                <div style="width: 1px; height: 20px; background: var(--border-color); margin: 6px 5px;"></div>
+                
+                <button type="button" class="tool-btn" onclick="wrapTag('b')" title="ตัวหนา"><i class="fa-solid fa-bold"></i></button>
+                <button type="button" class="tool-btn" onclick="wrapTag('i')" title="ตัวเอียง"><i class="fa-solid fa-italic"></i></button>
+                <button type="button" class="tool-btn" onclick="insertHtml('<br>')" title="เว้นบรรทัด"><i class="fa-solid fa-turn-down"></i></button>
+                <button type="button" class="tool-btn" onclick="insertHtml('\n<hr>\n')" title="เส้นคั่น"><i class="fa-solid fa-minus"></i></button>
+                <button type="button" class="tool-btn" onclick="insertImage()" title="แทรกรูปภาพ"><i class="fa-regular fa-image"></i></button>
+                
+                <div style="flex:1;"></div>
+                <span id="word-count" style="font-size: 0.8rem; opacity: 0.5; align-self: center;">0 คำ</span>
+            </div>
 
-        <div class="workspace">
-            
-            <div class="pane pane-editor active" id="pane-editor">
-                <div class="toolbar">
-                    <button type="button" class="tool-btn" onclick="insertTag('<b>', '</b>')" title="ตัวหนา"><i class="fa-solid fa-bold"></i></button>
-                    <button type="button" class="tool-btn" onclick="insertTag('<i>', '</i>')" title="ตัวเอียง"><i class="fa-solid fa-italic"></i></button>
-                    <div style="width:1px; background:var(--border); margin:0 5px;"></div>
-                    <button type="button" class="tool-btn" onclick="insertTag('<br>', '')" title="ขึ้นบรรทัดใหม่">BR</button>
-                    <button type="button" class="tool-btn" onclick="insertTag('<hr>', '')" title="เส้นคั่น">HR</button>
-                    <button type="button" class="tool-btn" onclick="insertTag('<p align=\'center\'>', '</p>')" title="จัดกลาง"><i class="fa-solid fa-align-center"></i></button>
-                    <div style="width:1px; background:var(--border); margin:0 5px;"></div>
-                    <button type="button" class="tool-btn" onclick="clearEditor()" title="ล้างทั้งหมด"><i class="fa-solid fa-eraser"></i></button>
+            <div class="editor-scroller">
+                <div class="form-row">
+                    <input type="text" name="title" id="title" class="input-title" value="<%= chapter.title %>" placeholder="ชื่อตอน" required>
                 </div>
-                <textarea id="editor" name="translatedContent" placeholder="เริ่มเขียนนิยายที่นี่..." spellcheck="false"><%= chapter.translatedContent %></textarea>
+                <div class="form-row" style="flex: 1; display: flex;">
+                    <textarea name="translatedContent" id="translatedContent" class="input-content" placeholder="เนื้อหา..." required><%= chapter.translatedContent %></textarea>
+                </div>
             </div>
-
-            <div class="pane pane-preview" id="pane-preview">
-                <div id="preview-content" class="preview-content">
-                    </div>
-            </div>
-
-        </div>
-    </form>
+        </form>
+    </div>
 
     <form id="deleteForm" action="/chapter/<%= chapter._id %>?_method=DELETE" method="POST" style="display:none;"></form>
 
+    <div id="toast-container" style="position: fixed; top: 70px; right: 20px; z-index: 2000;"></div>
+
     <script>
         const chapterId = "<%= chapter._id %>";
-        const editor = document.getElementById('editor');
-        const previewDiv = document.getElementById('preview-content');
+        const contentInput = document.getElementById('translatedContent');
 
-        // --- Core Logic ---
+        // --- 🧠 Smart Paste Logic ---
+        function handleSmartPaste() {
+            const raw = document.getElementById('smartInput').value;
+            if (!raw.trim()) return;
 
-        function updatePreview() {
-            const raw = editor.value;
-            // แปลง Newline เป็น <br> และแสดงผล
-            // ถ้ามี tag HTML อยู่แล้วก็แสดงตามนั้น
-            const formatted = raw.replace(/\n/g, '<br>');
-            
-            previewDiv.innerHTML = `
-                <h2 style="margin-bottom:30px;">${document.querySelector('input[name="title"]').value}</h2>
-                <div style="line-height:1.8;">${formatted}</div>
-            `;
-        }
+            const lines = raw.split('\n');
+            const firstLine = lines[0].trim();
+            const headerMatch = firstLine.match(/^(?:ตอนที่|บทที่|Chapter|Ep\.?|Episode|第)?\s*(\d+(\.\d+)?)\s*[:：.\s-]?\s*(.*)$/i);
 
-        // --- Toolbar Functions ---
-        
-        function insertTag(open, close) {
-            const start = editor.selectionStart;
-            const end = editor.selectionEnd;
-            const text = editor.value;
-            const before = text.substring(0, start);
-            const selection = text.substring(start, end);
-            const after = text.substring(end);
-
-            editor.value = before + open + selection + close + after;
-            
-            // คืน Focus และขยับ Cursor
-            editor.focus();
-            const cursorNewPos = end + open.length + close.length; // ถ้าไม่ได้เลือกข้อความ ให้ cursor อยู่กลาง tag
-            editor.selectionStart = selection.length > 0 ? cursorNewPos : start + open.length;
-            editor.selectionEnd = editor.selectionStart;
-
-            updatePreview();
-        }
-
-        function clearEditor() {
-            if(confirm('ต้องการล้างเนื้อหาทั้งหมดหรือไม่?')) {
-                editor.value = '';
-                updatePreview();
+            if (headerMatch) {
+                document.getElementById('chapterNumber').value = headerMatch[1];
+                const titleText = headerMatch[3] ? headerMatch[3].trim() : "";
+                document.getElementById('title').value = titleText ? `ตอนที่ ${headerMatch[1]} : ${titleText}` : `ตอนที่ ${headerMatch[1]}`;
+                document.getElementById('translatedContent').value = lines.slice(1).join('\n').trim();
+            } else {
+                document.getElementById('title').value = firstLine;
+                document.getElementById('translatedContent').value = lines.slice(1).join('\n').trim();
             }
+            updateWordCount();
         }
 
-        // --- Save & Delete ---
+        // --- Editor Tools ---
+        function wrapTag(tag) {
+            const start = contentInput.selectionStart;
+            const end = contentInput.selectionEnd;
+            const text = contentInput.value;
+            const selected = text.substring(start, end);
+            const replacement = `<${tag}>${selected}</${tag}>`;
+            contentInput.value = text.substring(0, start) + replacement + text.substring(end);
+            contentInput.focus();
+            contentInput.selectionStart = start + replacement.length; 
+            contentInput.selectionEnd = start + replacement.length;
+        }
 
-        async function saveChapter() {
-            const btn = document.querySelector('button[onclick="saveChapter()"]');
-            const originalIcon = btn.innerHTML;
-            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> กำลังบันทึก...';
+        function insertHtml(html) {
+            const start = contentInput.selectionStart;
+            const text = contentInput.value;
+            contentInput.value = text.substring(0, start) + html + text.substring(contentInput.selectionEnd);
+            contentInput.focus();
+        }
+
+        function insertImage() {
+            const url = prompt("กรุณาวางลิงก์รูปภาพ (URL):");
+            if(url) insertHtml(`<img src="${url}" alt="image" style="display:block; margin:10px auto; max-width:100%;">`);
+        }
+
+        function updateWordCount() {
+            const text = contentInput.value.replace(/<[^>]*>/g, '');
+            const count = text.trim().length === 0 ? 0 : text.trim().split(/\s+/).length;
+            document.getElementById('word-count').innerText = `${count.toLocaleString()} คำ`;
+        }
+
+        // --- Actions ---
+        async function submitForm() {
+            const btn = document.getElementById('btn-save');
+            const originalContent = btn.innerHTML;
             btn.disabled = true;
+            btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> บันทึก...`;
+
+            const form = document.getElementById('editForm');
+            // Use URLSearchParams to mimic form submission via PUT
+            const formData = new URLSearchParams(new FormData(form));
 
             try {
-                const form = document.getElementById('editForm');
-                const formData = new URLSearchParams(new FormData(form));
-
                 const res = await fetch(`/chapter/${chapterId}?_method=PUT`, {
                     method: 'POST',
                     body: formData,
-                    headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'Accept': 'application/json' }
+                    headers: { 
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'Accept': 'application/json' 
+                    }
                 });
-
                 const result = await res.json();
+
                 if(result.success) {
-                    showToast('บันทึกเรียบร้อย!', 'success');
+                    showToast('บันทึกการแก้ไขแล้ว!', 'success');
                 } else {
-                    showToast('บันทึกไม่สำเร็จ: ' + (result.error || 'Unknown'), 'error');
+                    throw new Error(result.message || 'Error saving');
                 }
-            } catch(e) {
-                console.error(e);
-                showToast('เกิดข้อผิดพลาดในการเชื่อมต่อ', 'error');
+            } catch(err) {
+                showToast(err.message, 'error');
             } finally {
-                btn.innerHTML = originalIcon;
                 btn.disabled = false;
+                btn.innerHTML = originalContent;
             }
         }
 
         function deleteChapter() {
-            if(confirm('⚠️ คำเตือน: คุณต้องการลบตอนนี้ถาวรใช่หรือไม่?')) {
+            if(confirm('⚠️ ยืนยันการลบตอนนี้ถาวร? การกระทำนี้ไม่สามารถย้อนกลับได้')) {
                 document.getElementById('deleteForm').submit();
             }
         }
 
-        // --- UI Utils ---
-
-        function switchTab(mode) {
-            // Mobile Tabs Logic
-            const paneEditor = document.getElementById('pane-editor');
-            const panePreview = document.getElementById('pane-preview');
-            const btns = document.querySelectorAll('.tab-btn');
-
-            if (mode === 'editor') {
-                paneEditor.classList.add('active');
-                panePreview.classList.remove('active');
-                btns[0].classList.add('active');
-                btns[1].classList.remove('active');
-            } else {
-                updatePreview(); // อัปเดตล่าสุดก่อนโชว์
-                paneEditor.classList.remove('active');
-                panePreview.classList.add('active');
-                btns[0].classList.remove('active');
-                btns[1].classList.add('active');
-            }
-        }
-
-        function showToast(message, type = 'success') {
+        function showToast(msg, type='success') {
             const container = document.getElementById('toast-container');
-            const toast = document.createElement('div');
-            toast.className = `toast ${type}`;
-            // ปรับ icon ให้ตรงกับ style ใหม่
-            const icon = type === 'success' ? 'fa-circle-check' : 'fa-circle-exclamation';
-            toast.innerHTML = `<i class="fa-solid ${icon}"></i> <span>${message}</span>`;
-            
-            container.appendChild(toast);
-            
-            // ใช้ animation แบบใหม่
-            setTimeout(() => {
-                toast.style.animation = 'toastFadeOut 0.4s forwards';
-                setTimeout(() => toast.remove(), 400);
-            }, 3000);
+            const div = document.createElement('div');
+            const color = type === 'success' ? '#10b981' : '#ef4444';
+            div.style.cssText = `background:var(--panel-bg); color:var(--text-color); padding:10px 20px; border-radius:8px; border-left:4px solid ${color}; box-shadow:0 5px 15px rgba(0,0,0,0.2); margin-bottom:10px; display:flex; align-items:center; gap:10px; animation: slideIn 0.3s;`;
+            div.innerHTML = `<i class="fa-solid ${type==='success'?'fa-check':'fa-exclamation'}" style="color:${color}"></i> ${msg}`;
+            container.appendChild(div);
+            setTimeout(() => div.remove(), 3000);
         }
 
-        // --- Init ---
-        editor.addEventListener('input', updatePreview);
-        document.querySelector('input[name="title"]').addEventListener('input', updatePreview);
-        
-        // Initial Render
-        updatePreview();
+        function toggleTheme() {
+            const current = document.documentElement.getAttribute('data-theme');
+            const next = current === 'light' ? 'dark' : 'light';
+            document.documentElement.setAttribute('data-theme', next);
+            localStorage.setItem('theme', next);
+        }
+
+        // Init
+        contentInput.addEventListener('input', updateWordCount);
+        updateWordCount();
     </script>
 </body>
 </html>
