@@ -70,18 +70,25 @@ app.get('/login', (req, res) => res.render('login', { error: null }));
 app.post('/login', async (req, res) => {
     const { username, password } = req.body;
     try {
-        const user = await User.findOne({ username });
+        // แก้ไขตรงนี้: ใช้ Regex ค้นหาชื่อ โดยใส่ ^ และ $ เพื่อให้ตรงทั้งคำ และ 'i' คือไม่สนตัวเล็กใหญ่
+        const user = await User.findOne({ 
+            username: { $regex: new RegExp("^" + username + "$", "i") } 
+        });
+
         if (user && await bcrypt.compare(password, user.password)) {
             req.session.user = {
                 _id: user._id,
-                username: user.username,
+                username: user.username, // ใช้ชื่อจริงจากในฐานข้อมูลเก็บเข้า Session
                 role: user.role
             };
             res.redirect('/');
         } else {
             res.render('login', { error: 'ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง' });
         }
-    } catch (err) { res.redirect('/login'); }
+    } catch (err) { 
+        console.error(err);
+        res.redirect('/login'); 
+    }
 });
 
 app.get('/register', (req, res) => res.render('register', { error: null }));
@@ -162,17 +169,32 @@ app.get('/favorites', requireLogin, async (req, res) => {
 
 app.get('/novel/:id', async (req, res) => {
     try {
-        const novel = await Novel.findByIdAndUpdate(req.params.id, { $inc: { views: 1 } }, { new: true });
-        const chapters = await Chapter.find({ novelId: req.params.id }).sort({ chapterNumber: -1 });
+        const novelId = req.params.id;
+        let novel;
+
+        // 1. ตรวจสอบและสร้างตัวแปรเก็บประวัติการดูใน Session
+        if (!req.session.viewedNovels) {
+            req.session.viewedNovels = [];
+        }
+
+        // 2. เช็คเงื่อนไข: ถ้ายังไม่เคยดูใน Session นี้ ให้บวกวิว
+        if (!req.session.viewedNovels.includes(novelId)) {
+            novel = await Novel.findByIdAndUpdate(novelId, { $inc: { views: 1 } }, { new: true });
+            req.session.viewedNovels.push(novelId); // บันทึกว่าดูแล้ว
+        } else {
+            // ถ้าเคยดูแล้ว (รีเฟรช) ให้ดึงข้อมูลเฉยๆ ไม่บวกวิว
+            novel = await Novel.findById(novelId);
+        }
+
+        const chapters = await Chapter.find({ novelId: novelId }).sort({ chapterNumber: -1 });
         
-        // เช็คว่า User fav เรื่องนี้ไหม
+        // ... (โค้ดส่วนเช็ค isFav และ res.render เหมือนเดิมข้างล่าง)
         let isFav = false;
         if(req.session.user) {
             const user = await User.findById(req.session.user._id);
             if(user.favorites.includes(novel._id)) isFav = true;
         }
 
-        // ลบ comments ออกจากบรรทัดนี้
         res.render('novel_detail', { novel, chapters, isFav });
     } catch (err) { console.error(err); res.redirect('/'); }
 });
@@ -199,10 +221,26 @@ app.post('/novel/:id/favorite', requireLogin, async (req, res) => {
 
 // Writer/Admin Routes
 app.post('/novels', requireWriter, async (req, res) => {
-    const tagsArray = req.body.tags ? req.body.tags.split(',').map(t => t.trim()) : [];
-    const categoriesArray = req.body.categories ? req.body.categories.split(',').map(c => c.trim()).filter(c => c) : ['General'];
-    await Novel.create({ ...req.body, tags: tagsArray, categories: categoriesArray });
-    res.redirect('/');
+    try {
+        const tagsArray = req.body.tags ? req.body.tags.split(',').map(t => t.trim()) : [];
+        // ถ้าไม่มีหมวดหมู่ ให้ใส่ General เสมอ
+        const categoriesArray = req.body.categories ? req.body.categories.split(',').map(c => c.trim()).filter(c => c) : ['General'];
+        
+        // สร้างข้อมูล
+        await Novel.create({
+            title: req.body.title, // รับเฉพาะ title
+            description: req.body.description || "", // รับคำอธิบาย (ถ้ามี)
+            categories: categoriesArray,
+            tags: tagsArray,
+            author: req.session.user.username // (Optional) บันทึกชื่อคนสร้าง
+        });
+
+        res.redirect('/');
+    } catch (err) {
+        console.error("Create Novel Error:", err);
+        // ส่ง error กลับไปให้ User เห็น หรือ redirect กลับหน้าเดิม
+        res.status(500).send("เกิดข้อผิดพลาดในการสร้างนิยาย: " + err.message);
+    }
 });
 
 app.get('/novel/:id/add', requireWriter, async (req, res) => {

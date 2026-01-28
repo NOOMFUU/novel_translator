@@ -25,10 +25,9 @@ const NovelSchema = new mongoose.Schema({
   }
 });
 
-// Middleware: อัปเดตเวลาทุกครั้งที่มีการแก้ไข (เผื่อไว้)
-NovelSchema.pre('save', function(next) {
+// ✅ แก้เป็นแบบนี้
+NovelSchema.pre('save', async function() {
   this.updatedAt = new Date();
-  next();
 });
 
 module.exports = mongoose.model('Novel', NovelSchema);
