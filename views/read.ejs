@@ -4,15 +4,23 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title><%= chapter.title %></title>
-    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;700&family=Mali:wght@300;400;500&family=Noto+Serif+Thai:wght@300;400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <script>
         (function() {
+            // โหลดค่าที่บันทึกไว้ หรือใช้ค่า Default
             const savedTheme = localStorage.getItem('theme') || 'light';
-            document.documentElement.setAttribute('data-theme', savedTheme);
             const savedFont = localStorage.getItem('fontSize') || '20';
+            const savedFontFamily = localStorage.getItem('fontFamily') || "'Sarabun', sans-serif";
+            const savedLineHeight = localStorage.getItem('lineHeight') || '1.8';
+            const savedPadding = localStorage.getItem('padding') || '24'; // px
+
+            document.documentElement.setAttribute('data-theme', savedTheme);
             document.documentElement.style.setProperty('--reader-font-size', savedFont + 'px');
+            document.documentElement.style.setProperty('--reader-font-family', savedFontFamily);
+            document.documentElement.style.setProperty('--reader-line-height', savedLineHeight);
+            document.documentElement.style.setProperty('--reader-padding', savedPadding + 'px');
         })();
     </script>
 
@@ -27,7 +35,13 @@
             --accent-color: #2bace4;
             --hover-bg: #f9f9f9;
             --nav-bg: rgba(255, 255, 255, 0.98);
+            
+            /* Dynamic Settings Defaults */
             --reader-font-size: 20px;
+            --reader-font-family: 'Sarabun', sans-serif;
+            --reader-line-height: 1.8;
+            --reader-padding: 24px;
+
             --overlay-bg: rgba(0,0,0,0.5);
         }
         [data-theme="dark"] {
@@ -61,7 +75,7 @@
             overflow: hidden;
             height: 100vh;
             height: 100dvh;
-            font-family: 'Sarabun', sans-serif;
+            font-family: var(--reader-font-family); /* ใช้ตัวแปร */
             transition: background-color 0.3s, color 0.3s;
             -webkit-tap-highlight-color: transparent;
         }
@@ -137,6 +151,7 @@
             display: flex; align-items: center; gap: 8px;
             overflow: hidden; white-space: nowrap; text-overflow: ellipsis;
             max-width: 80%;
+            font-family: 'Sarabun', sans-serif;
         }
         .sidebar-title-link:hover { color: var(--accent-color); }
 
@@ -164,6 +179,7 @@
             line-height: 1.5;
             transition: background 0.15s;
             cursor: pointer;
+            font-family: 'Sarabun', sans-serif;
         }
 
         .chapter-link:active, .chapter-link:hover {
@@ -214,22 +230,24 @@
             flex: 1;
             overflow-y: auto; 
             padding: 0; 
-            scroll-behavior: smooth;
+            scroll-behavior: auto; /* Changed from smooth to allow better auto-scroll control */
             -webkit-overflow-scrolling: touch;
         }
 
         .reader-container {
-            max-width: 800px;
+            max-width: 1000px;
             margin: 0 auto; 
-            padding: 40px 24px 100px 24px;
+            /* ใช้ตัวแปร padding */
+            padding: 40px var(--reader-padding) 100px var(--reader-padding);
+            transition: padding 0.3s ease;
         }
 
         .reader-text {
             font-size: var(--reader-font-size);
-            line-height: 1.8;
-            font-family: 'Sarabun', sans-serif;
+            line-height: var(--reader-line-height); /* ใช้ตัวแปร */
+            font-family: var(--reader-font-family); /* ใช้ตัวแปร */
             color: var(--reader-text);
-            transition: font-size 0.2s ease;
+            transition: font-size 0.2s ease, line-height 0.2s ease;
             word-wrap: break-word;
             overflow-wrap: break-word;
         }
@@ -260,6 +278,7 @@
             transition: transform 0.1s, border-color 0.2s;
             cursor: pointer;
             user-select: none;
+            font-family: 'Sarabun', sans-serif;
         }
         .nav-btn-lg:active { transform: scale(0.98); }
         .nav-btn-lg:hover {
@@ -290,17 +309,69 @@
             border: 1px solid var(--sidebar-border);
             padding: 24px; border-radius: 16px;
             box-shadow: 0 20px 50px rgba(0,0,0,0.2);
-            z-index: 1000; width: 320px;
+            z-index: 1000; width: 340px; /* ขยายความกว้าง */
             display: none; opacity: 0; transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+            max-height: 90vh; overflow-y: auto; /* กันล้นจอ */
         }
         .settings-popup.show { display: block; opacity: 1; transform: translate(-50%, -50%) scale(1); }
 
+        /* ปุ่มและ Control ใน Setting */
+        .setting-section { margin-bottom: 20px; }
+        .setting-label { font-size: 0.9rem; opacity: 0.8; margin-bottom: 10px; display: flex; justify-content: space-between; }
+        
+        .control-group {
+            display: flex; align-items: center; gap: 8px;
+            background: var(--sidebar-border);
+            padding: 4px; border-radius: 10px;
+        }
+        
         .setting-btn {
-            height: 44px;
+            height: 40px;
             border-radius: 8px;
             cursor: pointer;
             font-weight: 500;
             transition: all 0.2s;
+            background: var(--reader-bg);
+            border: none;
+            color: var(--reader-text);
+            flex: 1;
+            font-size: 0.9rem;
+        }
+        .setting-btn:active { transform: scale(0.95); }
+        .setting-btn.active {
+            background: var(--accent-color);
+            color: white;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+        }
+
+        .font-btn { font-size: 1rem; }
+        .font-sarabun { font-family: 'Sarabun', sans-serif; }
+        .font-mali { font-family: 'Mali', cursive; }
+        .font-serif { font-family: 'Noto Serif Thai', serif; }
+
+        /* Auto Scroll Styles */
+        .auto-scroll-controls {
+            display: flex; gap: 10px; align-items: center;
+            background: var(--hover-bg); padding: 10px; border-radius: 10px;
+            margin-top: 5px;
+        }
+        .scroll-btn {
+            width: 40px; height: 40px; border-radius: 50%;
+            border: none; background: var(--accent-color); color: white;
+            cursor: pointer; font-size: 1rem;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .scroll-btn.paused { background: var(--sidebar-border); color: var(--sidebar-text); }
+        
+        input[type=range] {
+            flex: 1; height: 6px; border-radius: 5px;
+            background: var(--sidebar-border);
+            outline: none; -webkit-appearance: none;
+        }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 18px; height: 18px; border-radius: 50%;
+            background: var(--accent-color); cursor: pointer;
         }
 
         /* --- Mobile Responsive Styles --- */
@@ -316,7 +387,7 @@
             .sidebar.active { transform: translateX(0); }
             .sidebar.collapsed { width: 85%; max-width: 320px; } 
 
-            .reader-container { padding: 30px 16px 80px 16px; }
+            .reader-container { padding-top: 30px; padding-bottom: 80px; }
             .reader-navbar { padding: 0 12px; }
             .chapter-header-text { max-width: 180px; } 
 
@@ -325,7 +396,8 @@
             .nav-title { font-size: 0.9rem; }
 
             .settings-popup {
-                top: auto; bottom: 0; left: 0; right: 0;
+                top: auto;
+                bottom: 0; left: 0; right: 0;
                 transform: translateY(100%);
                 width: 100%;
                 max-width: 100%;
@@ -394,6 +466,10 @@
                 </div>
 
                 <div style="display:flex; gap:8px;">
+                    <button id="quickAutoScrollBtn" onclick="toggleAutoScroll()" style="background:none; border:none; color: var(--sidebar-text); opacity:0.6; cursor:pointer;" title="Auto Scroll">
+                        <i class="fa-solid fa-play"></i>
+                    </button>
+
                     <% if(isAdmin) { %>
                         <a href="/chapter/<%= chapter._id %>/edit" style="color: var(--sidebar-text); border:none; background:none; padding:8px;"><i class="fa-solid fa-pen"></i></a>
                     <% } %>
@@ -453,26 +529,66 @@
     <div class="settings-overlay" id="settingsOverlay" onclick="toggleSettings()"></div>
     <div class="settings-popup" id="settingsPopup">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-            <h3 style="margin:0; font-size:1.1rem; font-weight:600; color:var(--reader-text);">การแสดงผล</h3>
+            <h3 style="margin:0; font-size:1.1rem; font-weight:600; color:var(--reader-text);">การตั้งค่าการอ่าน</h3>
             <div style="width:40px; height:4px; background:var(--sidebar-border); border-radius:2px; position:absolute; top:10px; left:50%; transform:translateX(-50%); display:none;" class="mobile-drag-handle"></div>
             <button onclick="toggleSettings()" style="background:none; border:none; cursor:pointer; color:var(--reader-text); opacity:0.5; padding:5px;"><i class="fa-solid fa-xmark"></i></button>
         </div>
 
-        <div style="margin-bottom: 25px;">
-            <div style="font-size: 0.9rem; opacity: 0.8; margin-bottom: 10px;">ขนาดตัวอักษร</div>
-            <div style="display:flex; align-items:center; gap:10px; background:var(--sidebar-border); padding:6px; border-radius:12px;">
-                <button onclick="adjustFont(-2)" class="setting-btn" style="flex:1; background:var(--reader-bg); border:none; color:var(--reader-text);"><i class="fa-solid fa-minus"></i></button>
-                <div style="width: 50px; text-align: center; font-weight: 600; font-size: 1rem; color:var(--reader-text);" id="fontSizeDisplay">20</div>
-                <button onclick="adjustFont(2)" class="setting-btn" style="flex:1; background:var(--reader-bg); border:none; color:var(--reader-text);"><i class="fa-solid fa-plus"></i></button>
+        <div class="setting-section">
+            <div class="setting-label">รูปแบบตัวอักษร</div>
+            <div class="control-group">
+                <button onclick="setFontFamily('\'Sarabun\', sans-serif')" class="setting-btn font-sarabun active" id="btn-font-sarabun">สารบัญ</button>
+                <button onclick="setFontFamily('\'Mali\', cursive')" class="setting-btn font-mali" id="btn-font-mali">มะลิ</button>
+                <button onclick="setFontFamily('\'Noto Serif Thai\', serif')" class="setting-btn font-serif" id="btn-font-serif">โนโต</button>
             </div>
         </div>
 
-        <div>
-            <div style="font-size: 0.9rem; opacity: 0.8; margin-bottom: 10px;">ธีมสี</div>
+        <div class="setting-section">
+            <div class="setting-label">ขนาดตัวอักษร <span id="fontSizeDisplay">20</span></div>
+            <div class="control-group">
+                <button onclick="adjustFont(-2)" class="setting-btn"><i class="fa-solid fa-minus"></i></button>
+                <button onclick="adjustFont(2)" class="setting-btn"><i class="fa-solid fa-plus"></i></button>
+            </div>
+        </div>
+
+        <div style="display: flex; gap: 15px;">
+            <div class="setting-section" style="flex: 1;">
+                <div class="setting-label">ระยะบรรทัด <span id="lineHeightDisplay">1.8</span></div>
+                <div class="control-group">
+                    <button onclick="adjustLineHeight(-0.2)" class="setting-btn"><i class="fa-solid fa-compress-alt"></i></button>
+                    <button onclick="adjustLineHeight(0.2)" class="setting-btn"><i class="fa-solid fa-expand-alt"></i></button>
+                </div>
+            </div>
+            <div class="setting-section" style="flex: 1;">
+                <div class="setting-label">ขอบข้าง <span id="paddingDisplay">24</span></div>
+                <div class="control-group">
+                    <button onclick="adjustPadding(12)" class="setting-btn"><i class="fa-solid fa-compress"></i></button>
+                    <button onclick="adjustPadding(-12)" class="setting-btn"><i class="fa-solid fa-expand"></i></button>
+                </div>
+            </div>
+        </div>
+
+        <div class="setting-section">
+            <div class="setting-label">ธีมสี</div>
             <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:10px;">
-                <button onclick="setTheme('light')" class="setting-btn" style="border: 2px solid #eee; background:#fff; color:#333;">Light</button>
-                <button onclick="setTheme('sepia')" class="setting-btn" style="border: 2px solid #e0d8c8; background:#f6f1e1; color:#5f4b32;">Sepia</button>
-                <button onclick="setTheme('dark')" class="setting-btn" style="border: 2px solid #444; background:#1a1a1a; color:#ccc;">Dark</button>
+                <button onclick="setTheme('light')" class="setting-btn" id="btn-theme-light" style="border: 2px solid #eee; background:#fff; color:#333;">Light</button>
+                <button onclick="setTheme('sepia')" class="setting-btn" id="btn-theme-sepia" style="border: 2px solid #e0d8c8; background:#f6f1e1; color:#5f4b32;">Sepia</button>
+                <button onclick="setTheme('dark')" class="setting-btn" id="btn-theme-dark" style="border: 2px solid #444; background:#1a1a1a; color:#ccc;">Dark</button>
+            </div>
+        </div>
+
+        <div class="setting-section" style="border-top: 1px solid var(--sidebar-border); padding-top: 20px;">
+            <div class="setting-label">
+                <span><i class="fa-solid fa-angles-down"></i> เลื่อนอัตโนมัติ</span>
+                <span id="scrollSpeedDisplay" style="font-size:0.8rem; opacity:0.6;">1x</span>
+            </div>
+            <div class="auto-scroll-controls">
+                <button id="autoScrollToggle" onclick="toggleAutoScroll()" class="scroll-btn paused">
+                    <i class="fa-solid fa-play"></i>
+                </button>
+                <i class="fa-solid fa-person-walking" style="font-size:0.8rem; opacity:0.5;"></i>
+                <input type="range" id="scrollSpeedSlider" min="1" max="10" value="3" oninput="updateScrollSpeed(this.value)">
+                <i class="fa-solid fa-person-running" style="font-size:0.8rem; opacity:0.5;"></i>
             </div>
         </div>
     </div>
@@ -483,6 +599,20 @@
         const scrollArea = document.getElementById('scrollArea');
         const progressBar = document.getElementById('readingProgress');
 
+        // State Variables
+        let fontSize = parseInt(localStorage.getItem('fontSize')) || 20;
+        let lineHeight = parseFloat(localStorage.getItem('lineHeight')) || 1.8;
+        let padding = parseInt(localStorage.getItem('padding')) || 24;
+        let currentTheme = localStorage.getItem('theme') || 'light';
+        let currentFontFamily = localStorage.getItem('fontFamily') || "'Sarabun', sans-serif";
+
+        // Auto Scroll State
+        let isAutoScrolling = false;
+        let scrollSpeed = 3; // 1-10
+        let scrollInterval;
+        let lastScrollTime = 0;
+
+        // --- Basic UI Logic ---
         if(scrollArea && progressBar) {
             scrollArea.addEventListener('scroll', () => {
                 const scrollTop = scrollArea.scrollTop;
@@ -492,21 +622,122 @@
             });
         }
 
-        let fontSize = parseInt(localStorage.getItem('fontSize')) || 20;
-        const fontSizeDisplay = document.getElementById('fontSizeDisplay');
-        if(fontSizeDisplay) fontSizeDisplay.innerText = fontSize;
+        // --- Settings Functions ---
+
+        function updateDisplays() {
+            document.getElementById('fontSizeDisplay').innerText = fontSize;
+            document.getElementById('lineHeightDisplay').innerText = lineHeight.toFixed(1);
+            document.getElementById('paddingDisplay').innerText = padding;
+            
+            // Update Active Buttons
+            document.querySelectorAll('[id^="btn-font-"]').forEach(btn => btn.classList.remove('active'));
+            if(currentFontFamily.includes('Sarabun')) document.getElementById('btn-font-sarabun').classList.add('active');
+            else if(currentFontFamily.includes('Mali')) document.getElementById('btn-font-mali').classList.add('active');
+            else if(currentFontFamily.includes('Noto')) document.getElementById('btn-font-serif').classList.add('active');
+
+            document.querySelectorAll('[id^="btn-theme-"]').forEach(btn => btn.style.borderColor = '');
+            const activeThemeBtn = document.getElementById(`btn-theme-${currentTheme}`);
+            if(activeThemeBtn) activeThemeBtn.style.borderColor = 'var(--accent-color)';
+        }
 
         function adjustFont(delta) {
-            fontSize = Math.max(16, Math.min(36, fontSize + delta));
+            fontSize = Math.max(16, Math.min(48, fontSize + delta));
             document.documentElement.style.setProperty('--reader-font-size', fontSize + 'px');
-            if(fontSizeDisplay) fontSizeDisplay.innerText = fontSize;
             localStorage.setItem('fontSize', fontSize);
+            updateDisplays();
+        }
+
+        function adjustLineHeight(delta) {
+            lineHeight = Math.max(1.2, Math.min(3.0, parseFloat((lineHeight + delta).toFixed(1))));
+            document.documentElement.style.setProperty('--reader-line-height', lineHeight);
+            localStorage.setItem('lineHeight', lineHeight);
+            updateDisplays();
+        }
+
+        function adjustPadding(delta) {
+            padding = Math.max(0, Math.min(100, padding + delta)); // Limit padding 0-100px
+            document.documentElement.style.setProperty('--reader-padding', padding + 'px');
+            localStorage.setItem('padding', padding);
+            updateDisplays();
+        }
+
+        function setFontFamily(font) {
+            currentFontFamily = font;
+            document.documentElement.style.setProperty('--reader-font-family', font);
+            localStorage.setItem('fontFamily', font);
+            updateDisplays();
         }
 
         function setTheme(theme) {
+            currentTheme = theme;
             document.documentElement.setAttribute('data-theme', theme);
             localStorage.setItem('theme', theme);
+            updateDisplays();
         }
+
+        // --- Auto Scroll Logic ---
+
+        function toggleAutoScroll() {
+            isAutoScrolling = !isAutoScrolling;
+            const btn = document.getElementById('autoScrollToggle');
+            const quickBtn = document.getElementById('quickAutoScrollBtn');
+            const icon = btn.querySelector('i');
+            const quickIcon = quickBtn.querySelector('i');
+
+            if (isAutoScrolling) {
+                btn.classList.remove('paused');
+                btn.style.background = '#ef4444'; // Stop color
+                icon.className = 'fa-solid fa-pause';
+                quickIcon.className = 'fa-solid fa-pause';
+                quickBtn.style.color = 'var(--accent-color)';
+                startScrolling();
+            } else {
+                btn.classList.add('paused');
+                btn.style.background = 'var(--accent-color)';
+                icon.className = 'fa-solid fa-play';
+                quickIcon.className = 'fa-solid fa-play';
+                quickBtn.style.color = '';
+                stopScrolling();
+            }
+        }
+
+        function updateScrollSpeed(val) {
+            scrollSpeed = parseInt(val);
+            document.getElementById('scrollSpeedDisplay').innerText = scrollSpeed + 'x';
+        }
+
+        function startScrolling() {
+            if (!isAutoScrolling) return;
+            
+            // Logic: เลื่อนลงทีละนิด โดยใช้ requestAnimationFrame เพื่อความลื่นไหล
+            function step(timestamp) {
+                if (!isAutoScrolling) return;
+
+                if (timestamp - lastScrollTime > (20 - scrollSpeed)) { // Control speed by delay
+                    scrollArea.scrollTop += 1; // Pixel per step
+                    lastScrollTime = timestamp;
+                }
+                
+                // Stop if reached bottom
+                if(scrollArea.scrollTop + scrollArea.clientHeight >= scrollArea.scrollHeight - 1) {
+                    toggleAutoScroll(); // Stop automatically
+                    return;
+                }
+
+                requestAnimationFrame(step);
+            }
+            requestAnimationFrame(step);
+        }
+
+        function stopScrolling() {
+            isAutoScrolling = false;
+        }
+        
+        // Stop auto scroll on user interaction
+        scrollArea.addEventListener('touchstart', () => { if(isAutoScrolling) toggleAutoScroll(); });
+        scrollArea.addEventListener('wheel', () => { if(isAutoScrolling) toggleAutoScroll(); });
+
+        // --- Other Logic (Existing) ---
 
         function saveLastRead() {
              localStorage.setItem(`lastRead-${novelId}`, chapterId);
@@ -572,17 +803,6 @@
             }
         }
 
-        function toggleSidebar() {
-            const sidebar = document.getElementById('sidebar');
-            if (window.innerWidth <= 768) {
-                if(sidebar.classList.contains('active')) closeSidebar();
-                else openSidebar();
-            } else {
-                if(sidebar.classList.contains('collapsed')) openSidebar();
-                else closeSidebar();
-            }
-        }
-
         function toggleSettings() {
             const overlay = document.getElementById('settingsOverlay');
             const popup = document.getElementById('settingsPopup');
@@ -597,6 +817,8 @@
             } else {
                 popup.style.display = 'block';
                 overlay.style.display = 'block';
+                // Update UI based on current state before showing
+                updateDisplays();
                 setTimeout(() => { 
                     popup.classList.add('show'); 
                     overlay.classList.add('show'); 
@@ -607,11 +829,11 @@
         window.addEventListener('load', () => {
             document.body.classList.remove('preload');
         });
-
         document.addEventListener('DOMContentLoaded', () => {
             saveLastRead();
             setupScrollObserver();
             loadSidebarHistory();
+            updateDisplays(); // Init displays
             
             const activeLink = document.querySelector('.chapter-link.active');
             if(activeLink) {
