@@ -114,7 +114,9 @@ app.get('/logout', (req, res) => req.session.destroy(() => res.redirect('/')));
 app.get('/', async (req, res) => {
     const query = req.query.q;
     const category = req.query.category;
-    
+    const tag = req.query.tag; // [เพิ่ม] รับค่า tag
+    const sortParam = req.query.sort || 'latest'; // [เพิ่ม] รับค่าเรียงลำดับ
+
     const page = parseInt(req.query.page) || 1;
     const limit = 12;
     const skip = (page - 1) * limit;
@@ -122,21 +124,31 @@ app.get('/', async (req, res) => {
     let filter = {};
     if (query) filter.title = { $regex: query, $options: 'i' };
     if (category) filter.categories = category;
+    if (tag) filter.tags = tag; // [เพิ่ม] กรองด้วย Tag
+
+    // [เพิ่ม] Logic การเรียงลำดับ
+    let sortConfig = { updatedAt: -1 }; // Default: ล่าสุด
+    if (sortParam === 'oldest') sortConfig = { updatedAt: 1 };
+    else if (sortParam === 'popular') sortConfig = { views: -1 };
+    else if (sortParam === 'az') sortConfig = { title: 1 };
 
     try {
         const totalNovels = await Novel.countDocuments(filter);
         const totalPages = Math.ceil(totalNovels / limit);
         
-        // [จุดสำคัญ] เปลี่ยน sort เป็น updatedAt: -1 (ล่าสุดขึ้นก่อน)
+        // ดึงนิยายตาม Filter
         const novels = await Novel.find(filter)
-            .sort({ updatedAt: -1 }) 
+            .sort(sortConfig) 
             .skip(skip)
             .limit(limit);
 
-        // ... (ส่วน Top Novels และ Recommended เหมือนเดิม)
+        // [เพิ่ม] ดึงข้อมูลสำหรับ Sidebar/Menu
         const topNovels = await Novel.find().sort({ views: -1 }).limit(5);
+        const allTags = await Novel.distinct('tags'); // ดึง Tag ทั้งหมดที่มีในระบบ
+        
+        // Recommended Logic (เหมือนเดิม)
         let recommended = null;
-        if (!query && !category && page === 1) {
+        if (!query && !category && !tag && page === 1) {
              const count = await Novel.countDocuments({ imageUrl: { $ne: "" } });
              if(count > 0) {
                  const random = Math.floor(Math.random() * count);
@@ -145,7 +157,16 @@ app.get('/', async (req, res) => {
         }
 
         res.render('index', { 
-            novels, query, currentCategory: category, recommended, topNovels, currentPage: page, totalPages: totalPages 
+            novels, 
+            query, 
+            currentCategory: category,
+            currentTag: tag, // ส่งค่า tag ปัจจุบันไป
+            sort: sortParam, // ส่งค่า sort ปัจจุบันไป
+            allTags, // ส่งรายการ tag ทั้งหมดไป
+            recommended, 
+            topNovels, 
+            currentPage: page, 
+            totalPages: totalPages 
         });
     } catch (err) {
         console.error(err);
