@@ -442,7 +442,26 @@
         @media (max-width: 768px) {
             .desktop-only { display: none !important; }
             .mobile-nav { display: flex; }
-            .search-form { display: none; }
+
+            .search-form { 
+                display: none; /* ซ่อนไว้ก่อนเป็นค่าเริ่มต้น */
+                position: fixed; /* ให้ลอยทับ Header เดิม */
+                top: 0; left: 0; right: 0;
+                height: var(--header-height);
+                background: var(--nav-bg);
+                z-index: 1100; /* ให้สูงกว่า Header ปกติ */
+                padding: 0 16px;
+                align-items: center;
+                backdrop-filter: blur(12px);
+                border-bottom: 1px solid var(--border);
+            }
+            .search-form.active {
+                display: flex; /* แสดงผลเมื่อมีคลาส active */
+            }
+            .search-input {
+                margin: 0;
+                width: 100%; /* ให้ช่องค้นหาเต็มความกว้าง */
+            }
             
             /* Container Adjustments */
             .container { padding: 0 16px; }
@@ -736,16 +755,19 @@
             <i class="fa-solid fa-house"></i>
             <span>หน้าหลัก</span>
         </a>
-        <a href="#" class="nav-link" onclick="document.querySelector('.search-input').focus(); return false;">
+        
+        <a href="#" class="nav-link" onclick="toggleSearch(); return false;">
             <i class="fa-solid fa-magnifying-glass"></i>
             <span>ค้นหา</span>
         </a>
-        <a href="/random" class="nav-link">
-            <i class="fa-solid fa-shuffle"></i>
-            <span>สุ่ม</span>
+
+        <a href="/favorites" class="nav-link">
+            <i class="fa-solid fa-heart"></i>
+            <span>รายการโปรด</span>
         </a>
+
         <% if (isAdmin) { %>
-             <a href="/logout" class="nav-link" style="color:var(--danger);">
+            <a href="/logout" class="nav-link" style="color:var(--danger);">
                 <i class="fa-solid fa-right-from-bracket"></i>
                 <span>Logout</span>
             </a>
@@ -776,6 +798,19 @@
             setTimeout(() => {
                 list.style.opacity = '1';
             }, 300);
+        }
+
+        function toggleSearch() {
+            const searchForm = document.querySelector('.search-form');
+            const searchInput = document.querySelector('.search-input');
+            
+            // สลับคลาส active
+            searchForm.classList.toggle('active');
+            
+            // ถ้าเปิดอยู่ ให้โฟกัสที่ช่องกรอกข้อความทันที
+            if (searchForm.classList.contains('active')) {
+                searchInput.focus();
+            }
         }
     </script>
 </body>
