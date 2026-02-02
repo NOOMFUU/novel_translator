@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>เพิ่มนิยายใหม่ - NovelHub</title>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css">
+
+    <script>
+        (function() {
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+        })();
+    </script>
+
+    <style>
+        /* สไตล์เพิ่มเติมเฉพาะหน้านี้ */
+        .form-container {
+            background: var(--bg-surface);
+            padding: 30px;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-md);
+            max-width: 800px;
+            margin: 40px auto;
+            border: 1px solid var(--border);
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--text-main);
+        }
+        
+        .form-input, .form-textarea {
+            width: 100%;
+            padding: 12px;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border);
+            background: var(--bg-body);
+            color: var(--text-main);
+            font-family: inherit;
+            font-size: 1rem;
+            transition: 0.2s;
+        }
+        
+        .form-input:focus, .form-textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px var(--primary-light);
+        }
+
+        .btn-submit {
+            background: var(--primary);
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: var(--radius-full);
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: 0.2s;
+        }
+        
+        .btn-submit:hover {
+            filter: brightness(1.1);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn-cancel {
+            color: var(--text-muted);
+            margin-left: 15px;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .btn-cancel:hover {
+            color: var(--text-main);
+        }
+    </style>
+</head>
+<body>
+    <header class="main-header">
+        <div class="container header-content">
+            <a href="/" class="logo">
+                <i class="fa-solid fa-book-open-reader"></i>
+                <span>NOOMFUUWN</span>
+            </a>
+            <div style="display:flex; gap:10px;">
+                <a href="/" style="font-weight:600;"><i class="fa-solid fa-arrow-left"></i> กลับหน้าแรก</a>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="form-container">
+            <h1 style="margin-top:0; margin-bottom:24px; font-size:1.8rem;">
+                <i class="fa-solid fa-pen-to-square" style="color:var(--primary);"></i> เขียนนิยายเรื่องใหม่
+            </h1>
+            
+            <form action="/novels" method="POST">
+                <div class="form-group">
+                    <label class="form-label">ชื่อเรื่อง <span style="color:var(--secondary)">*</span></label>
+                    <input type="text" name="title" class="form-input" required placeholder="ใส่ชื่อนิยายของคุณ...">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">หมวดหมู่ (Categories)</label>
+                    <input type="text" name="categories" class="form-input" placeholder="เช่น แฟนตาซี, กำลังภายใน, ระบบ (คั่นด้วยเครื่องหมายจุลภาค ,)">
+                    <small style="color:var(--text-muted); display:block; margin-top:4px;">ใส่ได้หลายหมวดหมู่ โดยคั่นด้วยเครื่องหมาย , (เช่น Action, Drama)</small>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">ป้ายกำกับ (Tags)</label>
+                    <input type="text" name="tags" class="form-input" placeholder="เช่น พระเอกเก่ง, ฮาเร็ม, เกิดใหม่">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">คำโปรย / เรื่องย่อ</label>
+                    <textarea name="description" class="form-textarea" rows="6" placeholder="เกริ่นนำเรื่องย่อให้น่าสนใจ..."></textarea>
+                </div>
+
+                <div style="margin-top: 30px; display:flex; align-items:center;">
+                    <button type="submit" class="btn-submit">
+                        <i class="fa-solid fa-save"></i> บันทึกนิยาย
+                    </button>
+                    <a href="/" class="btn-cancel">ยกเลิก</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+</body>
+</html>

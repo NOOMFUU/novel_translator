@@ -335,6 +335,10 @@ app.post('/novel/:id/favorite', requireLogin, async (req, res) => {
     } catch(err) { res.status(500).send('Error'); }
 });
 
+app.get('/novels/new', requireWriter, (req, res) => {
+    res.render('add_novel'); // คุณต้องสร้างไฟล์ views/add_novel.ejs ด้วย (ดูข้อ 3)
+});
+
 // Writer/Admin Routes
 app.post('/novels', requireWriter, async (req, res) => {
     try {

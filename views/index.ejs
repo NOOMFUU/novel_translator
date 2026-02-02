@@ -482,7 +482,15 @@
                 <% if(locals.query) { %> <i class="fa-solid fa-magnifying-glass"></i> ผลการค้นหา "<%= query %>"
                 <% } else if(currentCategory) { %> <i class="fa-solid fa-folder-open"></i> หมวด: <%= currentCategory %>
                 <% } else { %> <i class="fa-solid fa-fire" style="color:#f59e0b;"></i> นิยายล่าสุด <% } %>
+                <div style="display:flex; gap:8px;">
+                <% if (locals.isWriter) { %>
+                    <a href="/novels/new" class="desktop-only" style="background:var(--primary); color:white; border:none; padding:8px 16px; border-radius:var(--radius-full); font-weight:600; font-size:0.9rem; display:flex; align-items:center; gap:6px;">
+                        <i class="fa-solid fa-plus"></i> เพิ่มนิยาย
+                    </a>
+                <% } %>
             </h2>
+
+            
             
             <button class="desktop-only" onclick="openDrawer()" style="background:var(--bg-surface); border:1px solid var(--border); padding:8px 16px; border-radius:var(--radius-full); cursor:pointer; font-family:inherit; color:var(--text-main); font-weight:500;">
                 <i class="fa-solid fa-sliders"></i> ตัวกรอง <%= filterCount > 0 ? `(${filterCount})` : '' %>
@@ -513,7 +521,7 @@
                 <a href="/novel/<%= novel._id %>" class="novel-card">
                     <div class="card-cover-wrapper">
                         <% 
-                            let stClass = 'st-on'; let stText = 'ONGOING';
+                            let stClass = 'st-on'; let stText = 'ON GOING';
                             if(novel.status === 'Completed') { stClass = 'st-end'; stText = 'COMPLETE'; }
                             else if(novel.status === 'Hiatus') { stClass = 'st-pause'; stText = 'PAUSE'; }
                         %>
