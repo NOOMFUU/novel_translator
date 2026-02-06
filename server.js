@@ -456,12 +456,34 @@ app.delete('/novel/:id', requireAdmin, async (req, res) => {
 });
 
 // Chapter Routes
-app.get('/chapter/:id', async (req, res) => {
-    const chapter = await Chapter.findById(req.params.id).populate('novelId');
-    const prevChapter = await Chapter.findOne({ novelId: chapter.novelId._id, chapterNumber: { $lt: chapter.chapterNumber } }).sort({ chapterNumber: -1 });
-    const nextChapter = await Chapter.findOne({ novelId: chapter.novelId._id, chapterNumber: { $gt: chapter.chapterNumber } }).sort({ chapterNumber: 1 });
-    const allChapters = await Chapter.find({ novelId: chapter.novelId._id }).select('title chapterNumber _id').sort({ chapterNumber: 1 });
-    res.render('read', { chapter, prevChapter, nextChapter, allChapters });
+app.get('/novel/:novelId/chapter/:chapterNum', async (req, res) => {
+    try {
+        const { novelId, chapterNum } = req.params;
+        
+        // [Logic ใหม่] ค้นหาด้วย novelId และ chapterNumber แทน _id
+        const chapter = await Chapter.findOne({ novelId: novelId, chapterNumber: chapterNum }).populate('novelId');
+        
+        if (isNaN(chapterNum)) {
+            return res.redirect(`/novel/${novelId}`);
+        }
+
+        // ถ้าไม่เจอ ให้ดีดกลับไปหน้านิยาย
+        if (!chapter) {
+            return res.redirect(`/novel/${novelId}`);
+        }
+
+        // หาตอนก่อนหน้า/ถัดไป (Logic เดิม แต่เปลี่ยนตัวแปรอ้างอิงนิดหน่อย)
+        const prevChapter = await Chapter.findOne({ novelId: chapter.novelId._id, chapterNumber: { $lt: chapter.chapterNumber } }).sort({ chapterNumber: -1 });
+        const nextChapter = await Chapter.findOne({ novelId: chapter.novelId._id, chapterNumber: { $gt: chapter.chapterNumber } }).sort({ chapterNumber: 1 });
+        
+        // ดึงสารบัญ
+        const allChapters = await Chapter.find({ novelId: chapter.novelId._id }).select('title chapterNumber _id').sort({ chapterNumber: 1 });
+        
+        res.render('read', { chapter, prevChapter, nextChapter, allChapters });
+    } catch (err) {
+        console.error(err);
+        res.redirect('/');
+    }
 });
 
 app.get('/chapter/:id/edit', requireWriter, async (req, res) => {
@@ -483,10 +505,13 @@ app.put('/chapter/:id', requireWriter, async (req, res) => {
         // อัปเดตด้วยข้อมูลที่ปลอดภัยแล้ว
         await Chapter.findByIdAndUpdate(req.params.id, dataToUpdate);
         
+        const updatedChapter = await Chapter.findByIdAndUpdate(req.params.id, dataToUpdate, { new: true });
+        
         if(req.xhr || req.headers.accept.includes('json')) {
             res.json({ success: true });
         } else {
-            res.redirect(`/chapter/${req.params.id}`);
+            // Redirect ไป URL รูปแบบใหม่
+            res.redirect(`/novel/${updatedChapter.novelId}/chapter/${updatedChapter.chapterNumber}`);
         }
     } catch (err) {
         console.error(err);

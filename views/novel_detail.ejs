@@ -369,7 +369,7 @@
                     <% 
                         let firstChapterUrl = '#';
                         if(chapters.length > 0) {
-                            firstChapterUrl = '/chapter/' + chapters[chapters.length-1]._id;
+                            firstChapterUrl = '/novel/' + novel._id + '/chapter/' + chapters[chapters.length-1].chapterNumber;
                         }
                     %>
                     <a href="<%= firstChapterUrl %>" id="dt-read-btn" class="btn btn-read-anim btn-xl w-100" style="text-decoration:none; justify-content:center;">
@@ -503,7 +503,7 @@
 
                 <% chapters.forEach(chapter => { %>
                     <div class="chapter-wrapper-outer" style="position:relative;">
-                        <a href="/chapter/<%= chapter._id %>" class="chapter-item" id="chapter-<%= chapter._id %>">
+                        <a href="/novel/<%= novel._id %>/chapter/<%= chapter.chapterNumber %>" class="chapter-item" id="chapter-<%= chapter._id %>">
                             <div style="flex:1; min-width:0;">
                                 <div class="chapter-title text-truncate">
                                     <span style="color:var(--primary); font-weight:700; min-width:50px;">Ep.<%= chapter.chapterNumber %></span>
@@ -608,7 +608,7 @@
                 const updateReadBtn = (btnId) => {
                     const btn = document.getElementById(btnId);
                     if(btn) {
-                        btn.href = `/chapter/${lastRead}`;
+                        btn.href = `/novel/${novelId}/chapter/${lastRead}`;
                         btn.innerHTML = `<i class="fa-solid fa-play"></i> อ่านต่อ`;
                     }
                 }

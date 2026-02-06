@@ -8,8 +8,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
-    <link rel="stylesheet" href="/css/style.css">
-
     <script>
         // Prevent Flash of Unstyled Content (FOUC)
         (function() {
@@ -22,7 +20,7 @@
         /* --- DESIGN SYSTEM (Premium Theme) --- */
         :root {
             --header-height: 64px;
-            --bottom-nav-height: 70px; /* สูงขึ้นนิดเพื่อให้แตะง่าย */
+            --bottom-nav-height: 70px;
             --container-max: 1240px;
             
             /* Color Palette (Modern Indigo/Violet) */
@@ -41,7 +39,7 @@
             
             --border: #e2e8f0;
             --border-glass: rgba(255, 255, 255, 0.5);
-            
+
             /* Shadows */
             --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
             --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
@@ -77,13 +75,14 @@
             margin: 0;
             padding-top: var(--header-height);
             padding-bottom: 90px;
-            opacity: 0; animation: pageFadeIn 0.6s var(--ease-out) forwards; /* Fade In Effect */
+            opacity: 0; animation: pageFadeIn 0.6s var(--ease-out) forwards;
         }
         
         @keyframes pageFadeIn { to { opacity: 1; } }
 
         a { text-decoration: none; color: inherit; }
         ul { list-style: none; padding: 0; margin: 0; }
+        button, input, select { font-family: inherit; }
 
         .container {
             max-width: var(--container-max);
@@ -93,7 +92,8 @@
 
         /* --- HEADER (Glassmorphism) --- */
         .main-header {
-            position: fixed; top: 0; left: 0; right: 0;
+            position: fixed;
+            top: 0; left: 0; right: 0;
             height: var(--header-height);
             background: var(--bg-surface-glass);
             backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
@@ -103,13 +103,15 @@
         }
         
         .header-content {
-            display: flex; justify-content: space-between; align-items: center;
+            display: flex;
+            justify-content: space-between; align-items: center;
             height: 100%;
             width: 100%;
         }
 
         .logo {
-            font-size: 1.5rem; font-weight: 800; letter-spacing: -0.5px;
+            font-size: 1.5rem;
+            font-weight: 800; letter-spacing: -0.5px;
             background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
             -webkit-background-clip: text; -webkit-text-fill-color: transparent;
             display: flex; align-items: center; gap: 10px;
@@ -117,15 +119,17 @@
 
         /* Search Bar Desktop */
         .search-container {
-            flex: 1; max-width: 480px; margin: 0 40px;
+            flex: 1;
+            max-width: 480px; margin: 0 40px;
             position: relative; display: none;
         }
         .search-input {
-            width: 100%; padding: 10px 20px 10px 48px;
+            width: 100%;
+            padding: 10px 20px 10px 48px;
             border-radius: var(--radius-full);
             border: 2px solid transparent;
             background: var(--bg-body);
-            color: var(--text-main); font-size: 0.95rem; font-family: inherit;
+            color: var(--text-main); font-size: 0.95rem;
             transition: all 0.3s var(--ease-out);
         }
         .search-input:focus {
@@ -135,7 +139,8 @@
             outline: none;
         }
         .search-icon {
-            position: absolute; left: 18px; top: 50%; transform: translateY(-50%);
+            position: absolute;
+            left: 18px; top: 50%; transform: translateY(-50%);
             color: var(--text-muted); pointer-events: none;
         }
 
@@ -149,16 +154,18 @@
         }
         
         .hero-backdrop {
-            position: absolute; inset: 0;
+            position: absolute;
+            inset: 0;
             background-size: cover; background-position: center;
-            filter: blur(40px) brightness(0.6); /* Blur Effect */
+            filter: blur(40px) brightness(0.6);
             transform: scale(1.1); /* Prevent blur edges */
             z-index: 0;
         }
         [data-theme="light"] .hero-backdrop { filter: blur(50px) brightness(0.9) saturate(1.2); opacity: 0.8; }
         
         .hero-content {
-            position: relative; z-index: 2;
+            position: relative;
+            z-index: 2;
             padding: 30px 40px; width: 100%;
             display: flex; gap: 40px; align-items: center;
             color: white;
@@ -167,7 +174,8 @@
         [data-theme="light"] .hero-content { color: var(--text-main); text-shadow: none; }
 
         .hero-cover {
-            width: 160px; aspect-ratio: 2/3; object-fit: cover;
+            width: 160px;
+            aspect-ratio: 2/3; object-fit: cover;
             border-radius: var(--radius-md);
             box-shadow: 0 20px 40px rgba(0,0,0,0.3);
             transform: rotate(-3deg) translateY(0);
@@ -177,47 +185,60 @@
         .hero-section:hover .hero-cover { transform: rotate(0deg) translateY(-5px); }
 
         .hero-details h1 {
-            font-size: 2rem; margin: 10px 0 15px; line-height: 1.5;
+            font-size: 2rem;
+            margin: 10px 0 15px; line-height: 1.5;
             display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
         }
         
         .badge {
-            display: inline-flex; align-items: center; padding: 4px 10px;
+            display: inline-flex;
+            align-items: center; padding: 4px 10px;
             border-radius: var(--radius-sm); font-size: 0.75rem; font-weight: 700;
             letter-spacing: 0.5px; text-transform: uppercase;
         }
         .badge-glass {
-            background: rgba(255,255,255,0.2); backdrop-filter: blur(8px); border: 1px solid rgba(255,255,255,0.3);
+            background: rgba(255,255,255,0.2);
+            backdrop-filter: blur(8px); border: 1px solid rgba(255,255,255,0.3);
         }
         [data-theme="light"] .badge-glass { background: rgba(0,0,0,0.05); border-color: rgba(0,0,0,0.05); color: var(--text-main); }
 
-        /* --- QUICK FILTERS (Scrollable) --- */
+        /* --- QUICK FILTERS --- */
         .quick-filter-bar {
-            display: flex; gap: 12px; margin-bottom: 24px;
-            overflow-x: auto; padding-bottom: 8px; /* For scrollbar space */
-            scrollbar-width: none; -ms-overflow-style: none; /* Hide Scrollbar */
+            display: flex;
+            gap: 12px; margin-bottom: 24px;
+            overflow-x: auto; padding-bottom: 8px;
+            scrollbar-width: none; -ms-overflow-style: none;
         }
         .quick-filter-bar::-webkit-scrollbar { display: none; }
 
         .q-chip {
-            white-space: nowrap; padding: 8px 16px;
+            white-space: nowrap;
+            padding: 8px 16px;
             border-radius: var(--radius-full);
             background: var(--bg-surface); border: 1px solid var(--border);
             color: var(--text-muted); font-size: 0.9rem; font-weight: 500;
-            transition: all 0.2s; user-select: none;
+            transition: all 0.2s;
+            user-select: none;
+            cursor: pointer;
+            display: flex; align-items: center; gap: 6px;
         }
         .q-chip:hover { transform: translateY(-2px); border-color: var(--primary); color: var(--primary); }
         .q-chip.active {
-            background: var(--primary); border-color: var(--primary); color: white;
+            background: var(--primary);
+            border-color: var(--primary); color: white;
             box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
         }
 
         /* --- NOVEL GRID --- */
         .grid-header {
-            display: flex; justify-content: space-between; align-items: flex-end;
+            display: flex;
+            justify-content: space-between; align-items: flex-end;
             margin-bottom: 20px;
         }
-        .grid-title { font-size: 1.25rem; font-weight: 700; margin: 0; display: flex; align-items: center; gap: 8px; }
+        .grid-title { 
+            font-size: 1.25rem; font-weight: 700;
+            margin: 0; display: flex; align-items: center; gap: 8px; 
+        }
 
         .novel-grid {
             display: grid;
@@ -229,15 +250,18 @@
             background: transparent;
             position: relative; 
             transition: 0.3s var(--ease-out);
+            display: block;
         }
         
         .card-cover-wrapper {
-            position: relative; border-radius: var(--radius-md); overflow: hidden;
+            position: relative;
+            border-radius: var(--radius-md); overflow: hidden;
             aspect-ratio: 2/3; box-shadow: var(--shadow-md);
             margin-bottom: 12px; background: var(--bg-body);
         }
-        .card-cover-wrapper::after { /* Shine Effect on Hover */
-            content: ''; position: absolute; inset: 0;
+        .card-cover-wrapper::after { /* Shine Effect */
+            content: '';
+            position: absolute; inset: 0;
             background: linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.05) 100%);
             opacity: 0; transition: opacity 0.3s;
         }
@@ -248,10 +272,12 @@
         .novel-card:hover .card-img { transform: scale(1.08); }
 
         .card-status {
-            position: absolute; top: 8px; right: 8px;
+            position: absolute;
+            top: 8px; right: 8px;
             padding: 4px 8px; border-radius: 6px;
             font-size: 0.65rem; font-weight: 800; color: white;
-            backdrop-filter: blur(8px); box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            backdrop-filter: blur(8px);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
             text-transform: uppercase; z-index: 2;
         }
         .st-on { background: rgba(16, 185, 129, 0.9); }
@@ -259,22 +285,47 @@
         .st-pause { background: rgba(245, 158, 11, 0.9); }
 
         .card-info h3 {
-            font-size: 1rem; font-weight: 700; margin: 0 0 4px 0;
+            font-size: 1rem;
+            font-weight: 700; margin: 0 0 4px 0;
             line-height: 1.4; height: 2.8em;
             display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
-            transition: color 0.2s;
+            transition: color 0.2s; color: var(--text-main);
         }
         .novel-card:hover .card-info h3 { color: var(--primary); }
 
         .card-meta {
-            display: flex; justify-content: space-between; align-items: center;
+            display: flex;
+            justify-content: space-between; align-items: center;
             font-size: 0.8rem; color: var(--text-muted);
         }
         .ep-badge { color: var(--primary); font-weight: 600; display: flex; align-items: center; gap: 4px; }
 
+        /* --- PAGINATION --- */
+        .pagination-wrapper {
+            display: flex; justify-content: center; align-items: center; gap: 12px;
+            margin-top: 40px; padding-top: 20px; border-top: 1px solid var(--border);
+        }
+        .page-nav-btn {
+            width: 40px; height: 40px; border-radius: 50%;
+            background: var(--bg-surface); border: 1px solid var(--border);
+            display: flex; align-items: center; justify-content: center;
+            color: var(--text-main); transition: 0.2s;
+        }
+        .page-nav-btn:hover:not(.disabled) { border-color: var(--primary); color: var(--primary); }
+        .page-nav-btn.disabled { opacity: 0.5; pointer-events: none; }
+        
+        .page-input-group { display: flex; align-items: center; gap: 8px; }
+        .page-input {
+            width: 50px; text-align: center; padding: 6px;
+            border-radius: var(--radius-sm); border: 1px solid var(--border);
+            background: var(--bg-body); color: var(--text-main); font-weight: 600;
+        }
+        .page-label { font-size: 0.9rem; color: var(--text-muted); }
+
         /* --- MOBILE FLOATING BUTTON (FAB) --- */
         .fab-filter {
-            position: fixed; bottom: calc(var(--bottom-nav-height) + 20px); right: 20px;
+            position: fixed;
+            bottom: calc(var(--bottom-nav-height) + 20px); right: 20px;
             width: 56px; height: 56px; border-radius: 50%;
             background: var(--primary); color: white;
             box-shadow: var(--shadow-float);
@@ -285,31 +336,34 @@
         }
         .fab-filter:active { transform: scale(0.9); }
         .fab-badge {
-            position: absolute; top: 0; right: 0;
-            width: 18px; height: 18px; background: var(--secondary);
+            position: absolute;
+            top: 0; right: 0;
+            width: 14px; height: 14px; background: var(--secondary);
             border-radius: 50%; border: 2px solid var(--bg-body);
             display: block;
         }
 
         /* --- DRAWER (FILTER) --- */
         .drawer-overlay {
-            position: fixed; inset: 0; background: rgba(0,0,0,0.6);
+            position: fixed;
+            inset: 0; background: rgba(0,0,0,0.6);
             z-index: 2000; opacity: 0; visibility: hidden; transition: 0.3s;
             backdrop-filter: blur(4px);
         }
         .drawer-overlay.open { opacity: 1; visibility: visible; }
         
         .drawer-panel {
-            position: fixed; bottom: 0; left: 0; right: 0;
+            position: fixed;
+            bottom: 0; left: 0; right: 0;
             background: var(--bg-surface);
             border-radius: 24px 24px 0 0;
             padding: 24px; z-index: 2001;
-            transform: translateY(100%); transition: 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            transform: translateY(100%);
+            transition: 0.3s cubic-bezier(0.16, 1, 0.3, 1);
             max-height: 85vh; overflow-y: auto;
             box-shadow: 0 -10px 40px rgba(0,0,0,0.2);
         }
         .drawer-overlay.open .drawer-panel { transform: translateY(0); }
-
         .drawer-handle {
             width: 40px; height: 4px; background: var(--border);
             border-radius: 2px; margin: 0 auto 20px; opacity: 0.5;
@@ -329,7 +383,8 @@
         }
         
         .b-nav-item {
-            display: flex; flex-direction: column; align-items: center; gap: 4px;
+            display: flex;
+            flex-direction: column; align-items: center; gap: 4px;
             color: var(--text-muted); font-size: 0.7rem; font-weight: 500;
             width: 100%; height: 100%; justify-content: center;
             transition: color 0.2s; position: relative;
@@ -351,7 +406,8 @@
                 opacity: 0;
             }
             .drawer-overlay.open .drawer-panel {
-                transform: translate(-50%, -50%) scale(1); opacity: 1;
+                transform: translate(-50%, -50%) scale(1);
+                opacity: 1;
             }
             .drawer-handle { display: none; }
         }
@@ -359,10 +415,9 @@
         @media (max-width: 768px) {
             .container { padding: 0 16px; }
             .hero-section {
-                flex-direction: column; text-align: left;
-                align-items: flex-start; padding: 20px;
-                min-height: auto;
-                margin-top: 16px;
+                flex-direction: column;
+                text-align: left; align-items: flex-start; padding: 20px;
+                min-height: auto; margin-top: 16px;
             }
             .hero-content { padding: 0; gap: 20px; flex-direction: row; }
             .hero-cover { width: 90px; border-width: 2px; transform: none; }
@@ -372,7 +427,6 @@
                 grid-template-columns: repeat(2, 1fr); /* 2 Column Mobile */
                 gap: 12px; row-gap: 24px;
             }
-            .novel-title { font-size: 0.9rem; }
             
             .bottom-nav { display: flex; }
             .fab-filter { display: flex; }
@@ -385,44 +439,55 @@
 <body>
 
     <%
-        // URL Builder Helper
+        // --- HELPERS SERVER-SIDE ---
+        // URL Builder Helper for Filters & Pagination
         const buildUrl = (overrides = {}) => {
             let params = new URLSearchParams();
             if(locals.query) params.append('q', locals.query);
             
+            // Handle Tags
             let tags = locals.currentTags ? [...locals.currentTags] : [];
             if(overrides.clearTags) tags = [];
             else if(overrides.toggleTag) {
                 if(tags.includes(overrides.toggleTag)) tags = tags.filter(t => t !== overrides.toggleTag);
                 else tags.push(overrides.toggleTag);
             }
-
             if(!overrides.clearTags) tags.forEach(t => params.append('tag', t));
 
+            // Handle Category
             const cat = overrides.category !== undefined ? overrides.category : locals.currentCategory;
             if(cat) params.append('category', cat);
             
+            // Handle Status
             const stat = overrides.status !== undefined ? overrides.status : locals.currentStatus;
             if(stat) params.append('status', stat);
             
+            // Handle Sort
             const srt = overrides.sort !== undefined ? overrides.sort : locals.sort;
             if(srt) params.append('sort', srt);
-            
+
+            // Handle Page
             const pg = overrides.page !== undefined ? overrides.page : 1;
             params.append('page', pg);
 
             return '/?' + params.toString();
         }
         
-        // Count active filters for badge
-        let filterCount = (currentCategory ? 1 : 0) + (currentStatus ? 1 : 0) + (currentTags ? currentTags.length : 0);
+        // Calculate active filters for badge
+        const currentCategory = locals.currentCategory || '';
+        const currentStatus = locals.currentStatus || '';
+        const currentTags = locals.currentTags || [];
+        let filterCount = (currentCategory ? 1 : 0) + (currentStatus ? 1 : 0) + (currentTags.length);
+        
+        // Defaults
+        const defaultCover = 'https://placehold.co/400x600/e2e8f0/1e293b?text=No+Cover'; // Path รูป default
     %>
 
     <header class="main-header">
         <div class="container header-content">
             <a href="/" class="logo">
                 <i class="fa-solid fa-book-open-reader"></i>
-                <span>NOOMFUUWN</span>
+                <span>NOVELHUB</span>
             </a>
 
             <form action="/" method="GET" class="search-container">
@@ -431,22 +496,21 @@
             </form>
 
             <div style="display:flex; gap:8px; align-items:center;">
-                <button onclick="toggleTheme()" style="width:40px; height:40px; border-radius:50%; border:none; background:transparent; color:var(--text-main); cursor:pointer; font-size:1.1rem;">
-                    <i class="fa-solid fa-moon"></i>
+                <button onclick="toggleTheme()" class="theme-btn" style="width:40px; height:40px; border-radius:50%; border:none; background:transparent; color:var(--text-main); cursor:pointer; font-size:1.1rem;">
+                    <i class="fa-solid fa-moon" id="themeIcon"></i>
                 </button>
                 
                 <button class="mobile-only" onclick="document.getElementById('mobileSearch').classList.add('open')" style="width:40px; height:40px; border-radius:50%; border:none; background:transparent; color:var(--text-main); cursor:pointer; font-size:1.1rem;">
                     <i class="fa-solid fa-magnifying-glass"></i>
                 </button>
 
-                <% if(user) { %>
+                <% if(locals.user) { %>
                     <a href="/favorites" class="desktop-only" style="margin:0 10px; font-weight:600; font-size:0.9rem;">
                         <i class="fa-regular fa-heart" style="color:var(--secondary);"></i> คลัง
                     </a>
                     <a href="/logout" class="desktop-only" style="color:var(--text-muted); font-size:0.9rem;">ออกระบบ</a>
                 <% } else { %>
                     <a href="/login" class="desktop-only" style="background:var(--primary); color:white; padding:8px 20px; border-radius:var(--radius-full); font-size:0.9rem; font-weight:600;">เข้าสู่ระบบ</a>
-
                     <a href="/register" class="desktop-only">สมัครสมาชิก</a>
                 <% } %>
             </div>
@@ -466,7 +530,7 @@
                         <h1><%= recommended.title %></h1>
                         <div style="display:flex; gap:12px; font-size:0.9rem; opacity:0.9; flex-wrap:wrap;">
                             <span><i class="fa-solid fa-pen-nib"></i> <%= recommended.author %></span>
-                            <span><i class="fa-solid fa-layer-group"></i> <%= recommended.categories[0] || 'General' %></span>
+                            <span><i class="fa-solid fa-layer-group"></i> <%= recommended.categories?.[0] || 'General' %></span>
                         </div>
                         <a href="/novel/<%= recommended._id %>" style="display:inline-block; margin-top:16px; background:var(--primary); color:white; padding:10px 24px; border-radius:var(--radius-full); font-weight:600; box-shadow:0 4px 15px rgba(99,102,241,0.4);">
                             อ่านเลย
@@ -482,26 +546,32 @@
                 <% if(locals.query) { %> <i class="fa-solid fa-magnifying-glass"></i> ผลการค้นหา "<%= query %>"
                 <% } else if(currentCategory) { %> <i class="fa-solid fa-folder-open"></i> หมวด: <%= currentCategory %>
                 <% } else { %> <i class="fa-solid fa-fire" style="color:#f59e0b;"></i> นิยายล่าสุด <% } %>
-                <div style="display:flex; gap:8px;">
+            </h2>
+            
+            <div style="display:flex; gap:8px;">
                 <% if (locals.isWriter) { %>
                     <a href="/novels/new" class="desktop-only" style="background:var(--primary); color:white; border:none; padding:8px 16px; border-radius:var(--radius-full); font-weight:600; font-size:0.9rem; display:flex; align-items:center; gap:6px;">
                         <i class="fa-solid fa-plus"></i> เพิ่มนิยาย
                     </a>
                 <% } %>
-            </h2>
-
-            
-            
-            <button class="desktop-only" onclick="openDrawer()" style="background:var(--bg-surface); border:1px solid var(--border); padding:8px 16px; border-radius:var(--radius-full); cursor:pointer; font-family:inherit; color:var(--text-main); font-weight:500;">
-                <i class="fa-solid fa-sliders"></i> ตัวกรอง <%= filterCount > 0 ? `(${filterCount})` : '' %>
-            </button>
+                <button class="desktop-only" onclick="openDrawer()" style="background:var(--bg-surface); border:1px solid var(--border); padding:8px 16px; border-radius:var(--radius-full); cursor:pointer; font-family:inherit; color:var(--text-main); font-weight:500;">
+                    <i class="fa-solid fa-sliders"></i> ตัวกรอง <%= filterCount > 0 ? `(${filterCount})` : '' %>
+                </button>
+            </div>
         </div>
 
         <div class="quick-filter-bar">
             <a href="/" class="q-chip <%= filterCount === 0 ? 'active' : '' %>">
                 ทั้งหมด
             </a>
-            
+            <% if(locals.allTags && allTags.length > 0) { %>
+                <% allTags.slice(0, 5).forEach(tag => { %>
+                    <% const isActive = currentTags.includes(tag); %>
+                    <a href="<%= buildUrl({toggleTag: tag, page: 1}) %>" class="q-chip <%= isActive ? 'active' : '' %>">
+                        #<%= tag %>
+                    </a>
+                <% }) %>
+            <% } %>
             
             <button onclick="openDrawer()" class="q-chip" style="border-style:dashed;">
                 <i class="fa-solid fa-plus"></i> เพิ่มเติม
@@ -559,14 +629,13 @@
 
                 <form action="/" method="GET" class="page-input-group">
                     <% if(locals.query) { %><input type="hidden" name="q" value="<%= query %>"><% } %>
-                    <% if(locals.currentCategory) { %><input type="hidden" name="category" value="<%= currentCategory %>"><% } %>
-                    <% if(locals.currentStatus) { %><input type="hidden" name="status" value="<%= currentStatus %>"><% } %>
+                    <% if(currentCategory) { %><input type="hidden" name="category" value="<%= currentCategory %>"><% } %>
+                    <% if(currentStatus) { %><input type="hidden" name="status" value="<%= currentStatus %>"><% } %>
                     <% if(locals.sort) { %><input type="hidden" name="sort" value="<%= sort %>"><% } %>
-                    <% if(locals.currentTags && currentTags.length > 0) { 
+                    <% if(currentTags.length > 0) { 
                          currentTags.forEach(t => { %>
                             <input type="hidden" name="tag" value="<%= t %>">
-                    <%   }); 
-                       } %>
+                    <%   }); } %>
                     
                     <span class="page-label">หน้า</span>
                     <input type="number" name="page" value="<%= currentPage %>" min="1" max="<%= totalPages %>" class="page-input" onfocus="this.select()" autocomplete="off">
@@ -602,17 +671,17 @@
                 <div style="margin-bottom:20px;">
                     <label style="display:block; font-weight:600; margin-bottom:10px;">เรียงลำดับ</label>
                     <div style="display:flex; flex-wrap:wrap; gap:8px;">
-                        <label class="q-chip <%= sort === 'latest' ? 'active' : '' %>">
-                            <input type="radio" name="sort" value="latest" <%= sort === 'latest' ? 'checked' : '' %> hidden> ล่าสุด
+                        <label class="q-chip <%= locals.sort === 'latest' ? 'active' : '' %>">
+                            <input type="radio" name="sort" value="latest" <%= locals.sort === 'latest' ? 'checked' : '' %> hidden> ล่าสุด
                         </label>
-                        <label class="q-chip <%= sort === 'popular' ? 'active' : '' %>">
-                            <input type="radio" name="sort" value="popular" <%= sort === 'popular' ? 'checked' : '' %> hidden> ยอดนิยม
+                        <label class="q-chip <%= locals.sort === 'popular' ? 'active' : '' %>">
+                            <input type="radio" name="sort" value="popular" <%= locals.sort === 'popular' ? 'checked' : '' %> hidden> ยอดนิยม
                         </label>
-                        <label class="q-chip <%= sort === 'oldest' ? 'active' : '' %>">
-                            <input type="radio" name="sort" value="oldest" <%= sort === 'oldest' ? 'checked' : '' %> hidden> เก่าสุด
+                        <label class="q-chip <%= locals.sort === 'oldest' ? 'active' : '' %>">
+                            <input type="radio" name="sort" value="oldest" <%= locals.sort === 'oldest' ? 'checked' : '' %> hidden> เก่าสุด
                         </label>
-                        <label class="q-chip <%= sort === 'az' ? 'active' : '' %>">
-                            <input type="radio" name="sort" value="az" <%= sort === 'az' ? 'checked' : '' %> hidden> A-Z
+                        <label class="q-chip <%= locals.sort === 'az' ? 'active' : '' %>">
+                            <input type="radio" name="sort" value="az" <%= locals.sort === 'az' ? 'checked' : '' %> hidden> A-Z
                         </label>
                     </div>
                 </div>
@@ -631,9 +700,11 @@
                     <label style="display:block; font-weight:600; margin-bottom:10px;">หมวดหมู่</label>
                     <select name="category" style="width:100%; padding:12px; border-radius:var(--radius-md); border:1px solid var(--border); background:var(--bg-body); color:var(--text-main); font-family:inherit;">
                         <option value="">ทั้งหมด</option>
-                        <% categories.forEach(cat => { %>
-                            <option value="<%= cat %>" <%= currentCategory === cat ? 'selected' : '' %>><%= cat %></option>
-                        <% }) %>
+                        <% if(locals.categories) { %>
+                            <% categories.forEach(cat => { %>
+                                <option value="<%= cat %>" <%= currentCategory === cat ? 'selected' : '' %>><%= cat %></option>
+                            <% }) %>
+                        <% } %>
                     </select>
                 </div>
 
@@ -652,9 +723,12 @@
                     </div>
                 </div>
 
-                <button type="submit" style="width:100%; padding:14px; background:var(--primary); color:white; border:none; border-radius:var(--radius-md); font-weight:700; font-size:1rem; cursor:pointer; box-shadow:0 4px 15px rgba(99,102,241,0.3);">
-                    ค้นหา
-                </button>
+                <div style="display:flex; gap:10px;">
+                    <a href="/" style="flex:1; padding:14px; background:var(--bg-surface); color:var(--text-main); border:1px solid var(--border); border-radius:var(--radius-md); font-weight:600; text-align:center;">ล้าง</a>
+                    <button type="submit" style="flex:2; padding:14px; background:var(--primary); color:white; border:none; border-radius:var(--radius-md); font-weight:700; font-size:1rem; cursor:pointer; box-shadow:0 4px 15px rgba(99,102,241,0.3);">
+                        ค้นหา
+                    </button>
+                </div>
             </form>
         </div>
     </div>
@@ -675,8 +749,9 @@
         <a href="/favorites" class="b-nav-item">
             <i class="fa-regular fa-heart"></i> คลัง
         </a>
-        <a href="<%= user ? '/logout' : '/login' %>" class="b-nav-item">
-            <i class="<%= user ? 'fa-solid fa-arrow-right-from-bracket' : 'fa-regular fa-user' %>"></i> <%= user ? 'ออกระบบ' : 'เข้าสู่ระบบ/สมัครสมาชิก' %>
+        <a href="<%= locals.user ? '/logout' : '/login' %>" class="b-nav-item">
+            <i class="<%= locals.user ? 'fa-solid fa-arrow-right-from-bracket' : 'fa-regular fa-user' %>"></i> 
+            <%= locals.user ? 'ออกระบบ' : 'เข้าสู่ระบบ' %>
         </a>
     </nav>
 
@@ -698,24 +773,48 @@
             if(e.target === drawer) closeDrawer();
         });
 
-        // Toggle active state visual for Inputs inside labels
+        // Toggle active state visual for Inputs inside labels (Chips)
         document.querySelectorAll('.q-chip input').forEach(input => {
             input.addEventListener('change', function() {
                 if(this.type === 'radio') {
-                    document.querySelectorAll(`input[name="${this.name}"]`).forEach(el => el.parentElement.classList.remove('active'));
-                    this.parentElement.classList.add('active');
+                    // Remove active from siblings
+                    const name = this.name;
+                    document.querySelectorAll(`input[name="${name}"]`).forEach(el => {
+                        el.closest('.q-chip').classList.remove('active');
+                    });
+                    this.closest('.q-chip').classList.add('active');
                 } else {
-                    this.parentElement.classList.toggle('active', this.checked);
+                    // Toggle for checkbox
+                    this.closest('.q-chip').classList.toggle('active', this.checked);
                 }
             });
         });
+
+        // Theme Toggle Logic
+        function updateThemeIcon(theme) {
+            const icon = document.getElementById('themeIcon');
+            if(theme === 'dark') {
+                icon.classList.remove('fa-moon');
+                icon.classList.add('fa-sun');
+            } else {
+                icon.classList.remove('fa-sun');
+                icon.classList.add('fa-moon');
+            }
+        }
 
         function toggleTheme() {
             const current = document.documentElement.getAttribute('data-theme');
             const next = current === 'light' ? 'dark' : 'light';
             document.documentElement.setAttribute('data-theme', next);
             localStorage.setItem('theme', next);
+            updateThemeIcon(next);
         }
+
+        // Initialize Icon on Load
+        (function() {
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            updateThemeIcon(savedTheme);
+        })();
     </script>
 </body>
 </html>

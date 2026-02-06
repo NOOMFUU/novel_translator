@@ -432,7 +432,7 @@
             <ul class="chapter-list" id="chapterList">
                 <% allChapters.forEach(c => { %>
                     <li class="chapter-item">
-                        <a href="/chapter/<%= c._id %>" class="chapter-link <%= c._id.toString() === chapter._id.toString() ? 'active' : '' %>" id="link-<%= c._id %>">
+                        <a href="/novel/<%= chapter.novelId._id %>/chapter/<%= c.chapterNumber %>" class="chapter-link <%= c._id.toString() === chapter._id.toString() ? 'active' : '' %>" id="link-<%= c._id %>">
                             <div class="chapter-info">
                                 <span class="ep-badge">Ep.<%= c.chapterNumber %></span>
                                 <span class="chapter-title-text"><%= c.title.replace(/^ตอนที่ \d+[:\s]*/, '') %></span>
@@ -497,7 +497,7 @@
 
                         <div class="nav-footer" id="chapterFooter">
                             <% if (prevChapter) { %>
-                                <a href="/chapter/<%= prevChapter._id %>" class="nav-btn-lg">
+                                <a href="/novel/<%= chapter.novelId._id %>/chapter/<%= prevChapter.chapterNumber %>" class="nav-btn-lg">
                                     <span class="nav-label"><i class="fa-solid fa-arrow-left"></i> Previous</span>
                                     <span class="nav-title">Ep.<%= prevChapter.chapterNumber %></span>
                                 </a>
@@ -509,7 +509,7 @@
                             <% } %>
 
                             <% if (nextChapter) { %>
-                                <a href="/chapter/<%= nextChapter._id %>" class="nav-btn-lg next">
+                                <a href="/novel/<%= chapter.novelId._id %>/chapter/<%= nextChapter.chapterNumber %>" class="nav-btn-lg next">
                                     <span class="nav-label">Next <i class="fa-solid fa-arrow-right"></i></span>
                                     <span class="nav-title">Ep.<%= nextChapter.chapterNumber %></span>
                                 </a>
@@ -740,7 +740,7 @@
         // --- Other Logic (Existing) ---
 
         function saveLastRead() {
-             localStorage.setItem(`lastRead-${novelId}`, chapterId);
+             localStorage.setItem(`lastRead-${novelId}`, "<%= chapter.chapterNumber %>");
         }
 
         function markAsFinished() {
