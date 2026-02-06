@@ -17,55 +17,63 @@
     </script>
 
     <style>
-        /* --- DESIGN SYSTEM (Premium Theme) --- */
+        /* --- DESIGN SYSTEM (Modern Premium Theme) --- */
         :root {
-            --header-height: 64px;
+            --header-height: 70px;
             --bottom-nav-height: 70px;
-            --container-max: 1240px;
+            --container-max: 1280px;
             
-            /* Color Palette (Modern Indigo/Violet) */
+            /* Color Palette (Vibrant & Deep) */
             --primary: #6366f1;
-            --primary-dark: #4338ca;
+            --primary-hover: #4f46e5;
             --primary-light: #e0e7ff;
-            --secondary: #ec4899; /* Pink accent */
+            --secondary: #ec4899; 
+            --accent: #8b5cf6;
             
-            --bg-body: #f1f5f9;
+            --bg-body: #f8fafc;
             --bg-surface: #ffffff;
-            --bg-surface-glass: rgba(255, 255, 255, 0.85);
+            --bg-surface-glass: rgba(255, 255, 255, 0.8);
+            --bg-card: #ffffff;
             
-            --text-main: #0f172a;
+            --text-main: #1e293b;
             --text-muted: #64748b;
             --text-light: #94a3b8;
             
             --border: #e2e8f0;
-            --border-glass: rgba(255, 255, 255, 0.5);
-
-            /* Shadows */
-            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --border-glass: rgba(255, 255, 255, 0.6);
+            
+            /* Enhanced Shadows */
+            --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
             --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
-            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.025);
-            --shadow-float: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            --shadow-lg: 0 10px 25px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.03);
+            --shadow-float: 0 20px 30px -5px rgba(99, 102, 241, 0.25);
             
             --radius-sm: 8px;
-            --radius-md: 12px;
-            --radius-lg: 20px;
+            --radius-md: 16px;
+            --radius-lg: 24px;
             --radius-full: 9999px;
 
-            --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+            --ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+            --ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         [data-theme="dark"] {
-            --bg-body: #020617; /* Very dark blue */
+            --bg-body: #0f172a;
             --bg-surface: #1e293b;
             --bg-surface-glass: rgba(30, 41, 59, 0.85);
-            --text-main: #f8fafc;
-            --text-muted: #cbd5e1;
+            --bg-card: #1e293b;
+            
+            --text-main: #f1f5f9;
+            --text-muted: #94a3b8;
+            --text-light: #64748b;
+            
             --border: #334155;
-            --border-glass: rgba(255, 255, 255, 0.05);
-            --primary-light: rgba(99, 102, 241, 0.15);
+            --border-glass: rgba(255, 255, 255, 0.08);
+            --primary-light: rgba(99, 102, 241, 0.2);
+            --shadow-lg: 0 10px 25px -3px rgba(0, 0, 0, 0.3);
         }
 
-        /* --- GLOBAL RESET & TYPOGRAPHY --- */
+        /* --- GLOBAL & SCROLLBAR --- */
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         
         body {
@@ -75,14 +83,20 @@
             margin: 0;
             padding-top: var(--header-height);
             padding-bottom: 90px;
-            opacity: 0; animation: pageFadeIn 0.6s var(--ease-out) forwards;
+            opacity: 0; animation: pageFadeIn 0.5s var(--ease-smooth) forwards;
         }
         
         @keyframes pageFadeIn { to { opacity: 1; } }
 
-        a { text-decoration: none; color: inherit; }
+        a { text-decoration: none; color: inherit; transition: color 0.2s; }
         ul { list-style: none; padding: 0; margin: 0; }
-        button, input, select { font-family: inherit; }
+        button, input, select { font-family: inherit; outline: none; }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--text-light); border-radius: 4px; opacity: 0.5; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
 
         .container {
             max-width: var(--container-max);
@@ -90,167 +104,170 @@
             padding: 0 24px;
         }
 
-        /* --- HEADER (Glassmorphism) --- */
+        /* --- HEADER --- */
         .main-header {
-            position: fixed;
-            top: 0; left: 0; right: 0;
+            position: fixed; top: 0; left: 0; right: 0;
             height: var(--header-height);
             background: var(--bg-surface-glass);
-            backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
-            border-bottom: 1px solid var(--border);
+            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border-glass);
             z-index: 1000;
             transition: all 0.3s ease;
         }
         
         .header-content {
-            display: flex;
-            justify-content: space-between; align-items: center;
-            height: 100%;
-            width: 100%;
+            display: flex; justify-content: space-between; align-items: center;
+            height: 100%; width: 100%;
         }
 
         .logo {
-            font-size: 1.5rem;
-            font-weight: 800; letter-spacing: -0.5px;
+            font-size: 1.6rem; font-weight: 800; letter-spacing: -0.5px;
             background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
             -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-            display: flex; align-items: center; gap: 10px;
+            display: flex; align-items: center; gap: 12px;
         }
+        .logo i { font-size: 1.4rem; color: var(--primary); -webkit-text-fill-color: initial; }
 
         /* Search Bar Desktop */
         .search-container {
-            flex: 1;
-            max-width: 480px; margin: 0 40px;
+            flex: 1; max-width: 500px; margin: 0 40px;
             position: relative; display: none;
         }
         .search-input {
-            width: 100%;
-            padding: 10px 20px 10px 48px;
+            width: 100%; padding: 12px 20px 12px 50px;
             border-radius: var(--radius-full);
             border: 2px solid transparent;
             background: var(--bg-body);
             color: var(--text-main); font-size: 0.95rem;
-            transition: all 0.3s var(--ease-out);
+            transition: all 0.3s var(--ease-smooth);
         }
         .search-input:focus {
             background: var(--bg-surface);
             border-color: var(--primary);
             box-shadow: 0 0 0 4px var(--primary-light);
-            outline: none;
         }
         .search-icon {
-            position: absolute;
-            left: 18px; top: 50%; transform: translateY(-50%);
+            position: absolute; left: 20px; top: 50%; transform: translateY(-50%);
             color: var(--text-muted); pointer-events: none;
         }
 
-        /* --- HERO SECTION (Dynamic Blur) --- */
+        /* --- HERO SECTION --- */
         .hero-section {
             margin: 24px 0 40px;
             border-radius: var(--radius-lg);
             position: relative; overflow: hidden;
             box-shadow: var(--shadow-lg);
-            min-height: 280px; display: flex; align-items: center;
+            min-height: 320px; display: flex; align-items: center;
+            border: 1px solid var(--border-glass);
         }
         
         .hero-backdrop {
-            position: absolute;
-            inset: 0;
+            position: absolute; inset: 0;
             background-size: cover; background-position: center;
-            filter: blur(40px) brightness(0.6);
-            transform: scale(1.1); /* Prevent blur edges */
-            z-index: 0;
+            filter: blur(40px) brightness(0.5);
+            transform: scale(1.1); z-index: 0;
         }
-        [data-theme="light"] .hero-backdrop { filter: blur(50px) brightness(0.9) saturate(1.2); opacity: 0.8; }
+        [data-theme="light"] .hero-backdrop { filter: blur(60px) brightness(1.1) saturate(1.2); opacity: 0.85; }
         
         .hero-content {
-            position: relative;
-            z-index: 2;
-            padding: 30px 40px; width: 100%;
-            display: flex; gap: 40px; align-items: center;
+            position: relative; z-index: 2;
+            padding: 40px 60px; width: 100%;
+            display: flex; gap: 50px; align-items: center;
             color: white;
-            text-shadow: 0 2px 10px rgba(0,0,0,0.3);
         }
-        [data-theme="light"] .hero-content { color: var(--text-main); text-shadow: none; }
+        [data-theme="light"] .hero-content { color: var(--text-main); }
 
         .hero-cover {
-            width: 160px;
-            aspect-ratio: 2/3; object-fit: cover;
+            width: 180px; aspect-ratio: 2/3; object-fit: cover;
             border-radius: var(--radius-md);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
-            transform: rotate(-3deg) translateY(0);
-            transition: transform 0.4s var(--ease-out);
-            border: 4px solid rgba(255,255,255,0.2);
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);
+            transform: perspective(1000px) rotateY(-10deg) rotateX(5deg);
+            transition: transform 0.4s var(--ease-bounce);
+            border: 4px solid rgba(255,255,255,0.15);
         }
-        .hero-section:hover .hero-cover { transform: rotate(0deg) translateY(-5px); }
+        .hero-section:hover .hero-cover { transform: perspective(1000px) rotateY(0deg) rotateX(0deg) scale(1.02); }
 
         .hero-details h1 {
-            font-size: 2rem;
-            margin: 10px 0 15px; line-height: 1.5;
+            font-size: 2.5rem; margin: 15px 0 20px; line-height: 1.3;
+            font-weight: 800;
             display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
         }
         
         .badge {
-            display: inline-flex;
-            align-items: center; padding: 4px 10px;
-            border-radius: var(--radius-sm); font-size: 0.75rem; font-weight: 700;
+            display: inline-flex; align-items: center; padding: 6px 14px;
+            border-radius: var(--radius-full); font-size: 0.8rem; font-weight: 700;
             letter-spacing: 0.5px; text-transform: uppercase;
         }
         .badge-glass {
             background: rgba(255,255,255,0.2);
-            backdrop-filter: blur(8px); border: 1px solid rgba(255,255,255,0.3);
+            backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.3);
+            color: white;
         }
-        [data-theme="light"] .badge-glass { background: rgba(0,0,0,0.05); border-color: rgba(0,0,0,0.05); color: var(--text-main); }
+        [data-theme="light"] .badge-glass { 
+            background: rgba(255,255,255,0.7); border-color: white; color: var(--primary);
+            box-shadow: var(--shadow-sm);
+        }
 
-        /* --- QUICK FILTERS --- */
+        .cta-btn {
+            display: inline-flex; align-items: center; gap: 8px;
+            margin-top: 24px; background: var(--primary); color: white;
+            padding: 12px 32px; border-radius: var(--radius-full);
+            font-weight: 600; font-size: 1.05rem;
+            box-shadow: 0 10px 20px -5px rgba(99, 102, 241, 0.4);
+            transition: all 0.3s var(--ease-bounce);
+        }
+        .cta-btn:hover { transform: translateY(-3px); box-shadow: 0 15px 30px -5px rgba(99, 102, 241, 0.5); background: var(--primary-hover); }
+
+        /* --- FILTERS --- */
         .quick-filter-bar {
-            display: flex;
-            gap: 12px; margin-bottom: 24px;
-            overflow-x: auto; padding-bottom: 8px;
-            scrollbar-width: none; -ms-overflow-style: none;
+            display: flex; gap: 12px; margin-bottom: 30px;
+            overflow-x: auto; padding-bottom: 10px;
+            scrollbar-width: none;
         }
         .quick-filter-bar::-webkit-scrollbar { display: none; }
 
         .q-chip {
-            white-space: nowrap;
-            padding: 8px 16px;
+            white-space: nowrap; padding: 8px 18px;
             border-radius: var(--radius-full);
             background: var(--bg-surface); border: 1px solid var(--border);
-            color: var(--text-muted); font-size: 0.9rem; font-weight: 500;
-            transition: all 0.2s;
-            user-select: none;
-            cursor: pointer;
-            display: flex; align-items: center; gap: 6px;
+            color: var(--text-muted); font-size: 0.95rem; font-weight: 500;
+            transition: all 0.2s var(--ease-smooth);
+            cursor: pointer; display: flex; align-items: center; gap: 8px;
+            box-shadow: var(--shadow-sm);
         }
         .q-chip:hover { transform: translateY(-2px); border-color: var(--primary); color: var(--primary); }
         .q-chip.active {
-            background: var(--primary);
-            border-color: var(--primary); color: white;
+            background: var(--primary); border-color: var(--primary); color: white;
             box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
         }
 
-        /* --- NOVEL GRID --- */
+        /* --- NOVEL GRID & CARDS (FIXED) --- */
         .grid-header {
-            display: flex;
-            justify-content: space-between; align-items: flex-end;
-            margin-bottom: 20px;
+            display: flex; justify-content: space-between; align-items: flex-end;
+            margin-bottom: 24px;
         }
         .grid-title { 
-            font-size: 1.25rem; font-weight: 700;
-            margin: 0; display: flex; align-items: center; gap: 8px; 
+            font-size: 1.5rem; font-weight: 800;
+            margin: 0; display: flex; align-items: center; gap: 10px;
+            background: linear-gradient(90deg, var(--text-main) 0%, var(--text-light) 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
         }
+        .grid-title i { -webkit-text-fill-color: initial; }
 
         .novel-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-            gap: 24px;
+            /* แก้ไข 1: ปรับ minmax จาก 200px เป็น 160px เพื่อให้ไม่ดีดเป็น 1 คอลัมน์ตอนจอย่อครึ่ง */
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            gap: 20px; row-gap: 32px;
+            align-content: start; /* ป้องกันการกระจายตัวแนวตั้งแปลกๆ */
         }
 
         .novel-card {
-            background: transparent;
-            position: relative; 
-            transition: 0.3s var(--ease-out);
-            display: block;
+            background: transparent; position: relative; 
+            transition: all 0.3s var(--ease-smooth);
+            display: flex; flex-direction: column; height: 100%;
+            /* แก้ไข 2: ป้องกันการ์ดขยายกว้างเกินไปในบางจังหวะ แต่ยังยืดหยุ่น */
+            min-width: 0; 
         }
         
         .card-cover-wrapper {
@@ -258,121 +275,132 @@
             border-radius: var(--radius-md); overflow: hidden;
             aspect-ratio: 2/3; box-shadow: var(--shadow-md);
             margin-bottom: 12px; background: var(--bg-body);
+            width: 100%;
         }
-        .card-cover-wrapper::after { /* Shine Effect */
-            content: '';
-            position: absolute; inset: 0;
-            background: linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.05) 100%);
-            opacity: 0; transition: opacity 0.3s;
-        }
-        .novel-card:hover .card-cover-wrapper::after { opacity: 1; }
-        .novel-card:hover .card-cover-wrapper { transform: translateY(-4px); box-shadow: var(--shadow-lg); }
-
-        .card-img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s; }
-        .novel-card:hover .card-img { transform: scale(1.08); }
-
+        .card-img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94); }
+        .novel-card:hover .card-img { transform: scale(1.1); }
+        
+        /* Status Badge */
         .card-status {
-            position: absolute;
-            top: 8px; right: 8px;
-            padding: 4px 8px; border-radius: 6px;
-            font-size: 0.65rem; font-weight: 800; color: white;
-            backdrop-filter: blur(8px);
-            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-            text-transform: uppercase; z-index: 2;
+            position: absolute; top: 8px; right: 8px;
+            padding: 3px 8px; border-radius: var(--radius-full);
+            font-size: 0.6rem; font-weight: 800; color: white;
+            backdrop-filter: blur(6px);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            text-transform: uppercase; z-index: 2; letter-spacing: 0.5px;
         }
-        .st-on { background: rgba(16, 185, 129, 0.9); }
-        .st-end { background: rgba(239, 68, 68, 0.9); }
-        .st-pause { background: rgba(245, 158, 11, 0.9); }
+        .st-on { background: linear-gradient(135deg, #10b981 0%, #059669 100%); }
+        .st-end { background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); }
+        .st-pause { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); }
 
-        .card-info h3 {
-            font-size: 1rem;
-            font-weight: 700; margin: 0 0 4px 0;
-            line-height: 1.4; height: 2.8em;
+        /* Card Content */
+        .card-info { flex: 1; display: flex; flex-direction: column; }
+        
+        .card-category {
+            font-size: 0.7rem; color: var(--primary); font-weight: 600;
+            margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+
+        .card-title {
+            font-size: 1rem; font-weight: 700; margin: 0 0 8px 0;
+            line-height: 1.4;
+            /* แก้ไข 3: ล็อคความสูงชื่อเรื่องให้เท่ากัน (ประมาณ 2 บรรทัด) ป้องกันการ์ดโย้เย้ */
             display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
-            transition: color 0.2s; color: var(--text-main);
+            min-height: 2.8em; 
+            color: var(--text-main); transition: color 0.2s;
         }
-        .novel-card:hover .card-info h3 { color: var(--primary); }
+        .novel-card:hover .card-title { color: var(--primary); }
 
-        .card-meta {
-            display: flex;
-            justify-content: space-between; align-items: center;
-            font-size: 0.8rem; color: var(--text-muted);
+        /* New Chapter Info Section */
+        .chapter-box {
+            background: var(--bg-body); border-radius: 8px;
+            padding: 4px 8px; margin-bottom: 8px;
+            display: flex; align-items: center; gap: 6px;
+            font-size: 0.75rem; color: var(--text-muted);
+            border: 1px solid transparent; transition: all 0.2s;
         }
-        .ep-badge { color: var(--primary); font-weight: 600; display: flex; align-items: center; gap: 4px; }
+        .novel-card:hover .chapter-box { border-color: var(--primary-light); background: var(--bg-surface); }
+        
+        .ch-badge {
+            background: var(--primary-light); color: var(--primary);
+            padding: 2px 5px; border-radius: 4px; font-weight: 700; font-size: 0.65rem;
+            white-space: nowrap;
+        }
+        .ch-title {
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+            font-weight: 500; opacity: 0.9; flex: 1;
+        }
+
+        .card-stats {
+            display: flex; justify-content: space-between; align-items: center;
+            font-size: 0.75rem; color: var(--text-light); margin-top: auto;
+        }
 
         /* --- PAGINATION --- */
         .pagination-wrapper {
             display: flex; justify-content: center; align-items: center; gap: 12px;
-            margin-top: 40px; padding-top: 20px; border-top: 1px solid var(--border);
+            margin-top: 50px; padding-top: 30px; border-top: 1px solid var(--border);
         }
         .page-nav-btn {
-            width: 40px; height: 40px; border-radius: 50%;
+            width: 44px; height: 44px; border-radius: 12px;
             background: var(--bg-surface); border: 1px solid var(--border);
             display: flex; align-items: center; justify-content: center;
-            color: var(--text-main); transition: 0.2s;
+            color: var(--text-main); transition: all 0.2s; box-shadow: var(--shadow-sm);
         }
-        .page-nav-btn:hover:not(.disabled) { border-color: var(--primary); color: var(--primary); }
-        .page-nav-btn.disabled { opacity: 0.5; pointer-events: none; }
+        .page-nav-btn:hover:not(.disabled) { border-color: var(--primary); color: white; background: var(--primary); transform: translateY(-2px); }
+        .page-nav-btn.disabled { opacity: 0.4; cursor: not-allowed; }
         
-        .page-input-group { display: flex; align-items: center; gap: 8px; }
         .page-input {
-            width: 50px; text-align: center; padding: 6px;
+            width: 60px; text-align: center; padding: 10px;
             border-radius: var(--radius-sm); border: 1px solid var(--border);
             background: var(--bg-body); color: var(--text-main); font-weight: 600;
         }
-        .page-label { font-size: 0.9rem; color: var(--text-muted); }
 
         /* --- MOBILE FLOATING BUTTON (FAB) --- */
         .fab-filter {
-            position: fixed;
-            bottom: calc(var(--bottom-nav-height) + 20px); right: 20px;
-            width: 56px; height: 56px; border-radius: 50%;
+            position: fixed; bottom: calc(var(--bottom-nav-height) + 24px); right: 24px;
+            width: 60px; height: 60px; border-radius: 50%;
             background: var(--primary); color: white;
             box-shadow: var(--shadow-float);
-            display: flex; align-items: center; justify-content: center;
-            font-size: 1.2rem; cursor: pointer; z-index: 900;
-            border: none; transition: transform 0.2s;
-            display: none; /* Hidden on Desktop */
+            display: none; align-items: center; justify-content: center;
+            font-size: 1.4rem; cursor: pointer; z-index: 900;
+            border: none; transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
         .fab-filter:active { transform: scale(0.9); }
         .fab-badge {
-            position: absolute;
-            top: 0; right: 0;
-            width: 14px; height: 14px; background: var(--secondary);
-            border-radius: 50%; border: 2px solid var(--bg-body);
-            display: block;
+            position: absolute; top: 0; right: 0;
+            width: 16px; height: 16px; background: var(--secondary);
+            border-radius: 50%; border: 3px solid var(--bg-body);
         }
 
         /* --- DRAWER (FILTER) --- */
         .drawer-overlay {
-            position: fixed;
-            inset: 0; background: rgba(0,0,0,0.6);
+            position: fixed; inset: 0; background: rgba(0,0,0,0.6);
             z-index: 2000; opacity: 0; visibility: hidden; transition: 0.3s;
-            backdrop-filter: blur(4px);
+            backdrop-filter: blur(6px);
         }
         .drawer-overlay.open { opacity: 1; visibility: visible; }
         
         .drawer-panel {
-            position: fixed;
-            bottom: 0; left: 0; right: 0;
+            position: fixed; bottom: 0; left: 0; right: 0;
             background: var(--bg-surface);
-            border-radius: 24px 24px 0 0;
-            padding: 24px; z-index: 2001;
+            border-radius: 28px 28px 0 0;
+            padding: 30px 24px; z-index: 2001;
             transform: translateY(100%);
-            transition: 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            transition: 0.4s var(--ease-bounce);
             max-height: 85vh; overflow-y: auto;
             box-shadow: 0 -10px 40px rgba(0,0,0,0.2);
         }
         .drawer-overlay.open .drawer-panel { transform: translateY(0); }
         .drawer-handle {
-            width: 40px; height: 4px; background: var(--border);
-            border-radius: 2px; margin: 0 auto 20px; opacity: 0.5;
+            width: 50px; height: 5px; background: var(--border);
+            border-radius: 10px; margin: 0 auto 24px; opacity: 0.6;
         }
 
         /* --- MOBILE NAV --- */
         .bottom-nav {
-            display: none;
-            position: fixed; bottom: 0; left: 0; right: 0;
+            display: none; position: fixed; bottom: 0; left: 0; right: 0;
             height: var(--bottom-nav-height);
             background: var(--bg-surface-glass);
             backdrop-filter: blur(20px);
@@ -383,15 +411,14 @@
         }
         
         .b-nav-item {
-            display: flex;
-            flex-direction: column; align-items: center; gap: 4px;
+            display: flex; flex-direction: column; align-items: center; gap: 5px;
             color: var(--text-muted); font-size: 0.7rem; font-weight: 500;
             width: 100%; height: 100%; justify-content: center;
             transition: color 0.2s; position: relative;
         }
-        .b-nav-item i { font-size: 1.3rem; margin-bottom: 2px; transition: transform 0.2s; }
-        .b-nav-item.active { color: var(--primary); }
-        .b-nav-item.active i { transform: translateY(-2px); }
+        .b-nav-item i { font-size: 1.4rem; margin-bottom: 2px; transition: transform 0.2s var(--ease-bounce); }
+        .b-nav-item.active { color: var(--primary); font-weight: 600; }
+        .b-nav-item.active i { transform: translateY(-4px); }
 
         /* --- RESPONSIVE MEDIA QUERIES --- */
         @media (min-width: 769px) {
@@ -401,51 +428,73 @@
             /* Center Modal on Desktop */
             .drawer-panel {
                 top: 50%; left: 50%; bottom: auto; right: auto;
-                transform: translate(-50%, -50%) scale(0.9);
-                width: 480px; max-width: 90%; border-radius: 24px;
-                opacity: 0;
+                transform: translate(-50%, -40%) scale(0.9);
+                width: 500px; max-width: 90%; border-radius: 24px;
+                opacity: 0; transition: 0.3s var(--ease-smooth);
             }
-            .drawer-overlay.open .drawer-panel {
-                transform: translate(-50%, -50%) scale(1);
-                opacity: 1;
-            }
+            .drawer-overlay.open .drawer-panel { transform: translate(-50%, -50%) scale(1); opacity: 1; }
             .drawer-handle { display: none; }
         }
 
         @media (max-width: 768px) {
             .container { padding: 0 16px; }
+            
             .hero-section {
-                flex-direction: column;
-                text-align: left; align-items: flex-start; padding: 20px;
-                min-height: auto; margin-top: 16px;
+                flex-direction: column; text-align: left; align-items: flex-start;
+                padding: 0; min-height: auto; margin-top: 16px;
+                height: auto;
             }
-            .hero-content { padding: 0; gap: 20px; flex-direction: row; }
-            .hero-cover { width: 90px; border-width: 2px; transform: none; }
-            .hero-details h1 { font-size: 1.4rem; }
+            .hero-backdrop { position: absolute; width: 100%; height: 100%; opacity: 0.6; }
+            .hero-content { 
+                padding: 24px; gap: 20px; flex-direction: row; 
+                background: linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,0.6) 100%);
+                align-items: flex-end; width: 100%;
+            }
+            [data-theme="light"] .hero-content { background: linear-gradient(to bottom, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0.95) 100%); }
+
+            .hero-cover { width: 100px; border-width: 2px; transform: none; box-shadow: var(--shadow-md); }
+            .hero-details h1 { font-size: 1.5rem; margin: 10px 0; }
+            .hero-details .badge { padding: 4px 10px; font-size: 0.7rem; }
+            .cta-btn { padding: 8px 20px; font-size: 0.9rem; margin-top: 12px; }
             
             .novel-grid {
-                grid-template-columns: repeat(2, 1fr); /* 2 Column Mobile */
-                gap: 12px; row-gap: 24px;
+                grid-template-columns: repeat(2, 1fr); /* 2 Column Mobile Fixed */
+                gap: 12px; /* ลดช่องว่างลงเพื่อให้มีที่ให้การ์ดมากขึ้น */
+                row-gap: 24px;
             }
             
+            .card-title { font-size: 0.9rem; min-height: 2.8em; /* ล็อคความสูงชื่อเรื่องในมือถือ */ }
+            .ch-badge { font-size: 0.6rem; padding: 1px 4px; }
+            .chapter-box { font-size: 0.7rem; padding: 4px 6px; gap: 4px; }
+
             .bottom-nav { display: flex; }
             .fab-filter { display: flex; }
             .desktop-only { display: none !important; }
             
-            .q-chip { font-size: 0.8rem; padding: 6px 14px; }
+            .q-chip { font-size: 0.85rem; padding: 6px 14px; }
+            .grid-title { font-size: 1.3rem; }
         }
+
+        /* --- FOOTER --- */
+        .site-footer {
+            background-color: var(--bg-surface);
+            color: var(--text-muted);
+            border-top: 1px solid var(--border);
+            padding: 40px 0; text-align: center;
+            margin-top: 60px;
+        }
+        .site-footer a:hover { color: var(--primary); }
+        .footer-links { margin: 15px 0; font-size: 0.9rem; }
+        .version-info { font-size: 0.75rem; opacity: 0.5; margin-top: 10px; font-family: monospace; }
     </style>
 </head>
 <body>
 
     <%
         // --- HELPERS SERVER-SIDE ---
-        // URL Builder Helper for Filters & Pagination
         const buildUrl = (overrides = {}) => {
             let params = new URLSearchParams();
             if(locals.query) params.append('q', locals.query);
-            
-            // Handle Tags
             let tags = locals.currentTags ? [...locals.currentTags] : [];
             if(overrides.clearTags) tags = [];
             else if(overrides.toggleTag) {
@@ -453,34 +502,22 @@
                 else tags.push(overrides.toggleTag);
             }
             if(!overrides.clearTags) tags.forEach(t => params.append('tag', t));
-
-            // Handle Category
             const cat = overrides.category !== undefined ? overrides.category : locals.currentCategory;
             if(cat) params.append('category', cat);
-            
-            // Handle Status
             const stat = overrides.status !== undefined ? overrides.status : locals.currentStatus;
             if(stat) params.append('status', stat);
-            
-            // Handle Sort
             const srt = overrides.sort !== undefined ? overrides.sort : locals.sort;
             if(srt) params.append('sort', srt);
-
-            // Handle Page
             const pg = overrides.page !== undefined ? overrides.page : 1;
             params.append('page', pg);
-
             return '/?' + params.toString();
         }
         
-        // Calculate active filters for badge
         const currentCategory = locals.currentCategory || '';
         const currentStatus = locals.currentStatus || '';
         const currentTags = locals.currentTags || [];
         let filterCount = (currentCategory ? 1 : 0) + (currentStatus ? 1 : 0) + (currentTags.length);
-        
-        // Defaults
-        const defaultCover = 'https://placehold.co/400x600/e2e8f0/1e293b?text=No+Cover'; // Path รูป default
+        const defaultCover = 'https://placehold.co/400x600/e2e8f0/1e293b?text=No+Cover';
     %>
 
     <header class="main-header">
@@ -495,23 +532,23 @@
                 <input type="text" name="q" class="search-input" placeholder="ค้นหานิยาย, ผู้แต่ง..." value="<%= locals.query || '' %>">
             </form>
 
-            <div style="display:flex; gap:8px; align-items:center;">
-                <button onclick="toggleTheme()" class="theme-btn" style="width:40px; height:40px; border-radius:50%; border:none; background:transparent; color:var(--text-main); cursor:pointer; font-size:1.1rem;">
+            <div style="display:flex; gap:12px; align-items:center;">
+                <button onclick="toggleTheme()" class="theme-btn" style="width:40px; height:40px; border-radius:50%; border:none; background:transparent; color:var(--text-main); cursor:pointer; font-size:1.2rem;">
                     <i class="fa-solid fa-moon" id="themeIcon"></i>
                 </button>
                 
-                <button class="mobile-only" onclick="document.getElementById('mobileSearch').classList.add('open')" style="width:40px; height:40px; border-radius:50%; border:none; background:transparent; color:var(--text-main); cursor:pointer; font-size:1.1rem;">
+                <button class="mobile-only" onclick="document.getElementById('mobileSearch').classList.add('open')" style="width:40px; height:40px; border-radius:50%; border:none; background:transparent; color:var(--text-main); cursor:pointer; font-size:1.2rem;">
                     <i class="fa-solid fa-magnifying-glass"></i>
                 </button>
 
                 <% if(locals.user) { %>
-                    <a href="/favorites" class="desktop-only" style="margin:0 10px; font-weight:600; font-size:0.9rem;">
+                    <a href="/favorites" class="desktop-only" style="margin:0 10px; font-weight:600; font-size:0.95rem; display:flex; align-items:center; gap:6px;">
                         <i class="fa-regular fa-heart" style="color:var(--secondary);"></i> คลัง
                     </a>
-                    <a href="/logout" class="desktop-only" style="color:var(--text-muted); font-size:0.9rem;">ออกระบบ</a>
+                    <a href="/logout" class="desktop-only" style="color:var(--text-muted); font-size:0.95rem; font-weight:500;">ออกระบบ</a>
                 <% } else { %>
-                    <a href="/login" class="desktop-only" style="background:var(--primary); color:white; padding:8px 20px; border-radius:var(--radius-full); font-size:0.9rem; font-weight:600;">เข้าสู่ระบบ</a>
-                    <a href="/register" class="desktop-only">สมัครสมาชิก</a>
+                    <a href="/login" class="desktop-only" style="background:var(--primary); color:white; padding:10px 24px; border-radius:var(--radius-full); font-size:0.95rem; font-weight:600; box-shadow:0 4px 12px rgba(99,102,241,0.3); transition:0.2s;">เข้าสู่ระบบ</a>
+                    <a href="/register" class="desktop-only" style="color:var(--text-muted); font-weight:600;">สมัครสมาชิก</a>
                 <% } %>
             </div>
         </div>
@@ -526,14 +563,14 @@
                 <div class="hero-content">
                     <img src="<%= recommended.imageUrl || defaultCover %>" class="hero-cover" onerror="this.onerror=null;this.src='<%= defaultCover %>';">
                     <div class="hero-details">
-                        <span class="badge badge-glass"><i class="fa-solid fa-crown" style="color:#fbbf24; margin-right:4px;"></i> Recommended</span>
+                        <span class="badge badge-glass"><i class="fa-solid fa-crown" style="margin-right:6px;"></i> แนะนำ</span>
                         <h1><%= recommended.title %></h1>
-                        <div style="display:flex; gap:12px; font-size:0.9rem; opacity:0.9; flex-wrap:wrap;">
+                        <div style="display:flex; gap:16px; font-size:0.95rem; opacity:0.9; flex-wrap:wrap; margin-bottom: 8px;">
                             <span><i class="fa-solid fa-pen-nib"></i> <%= recommended.author %></span>
                             <span><i class="fa-solid fa-layer-group"></i> <%= recommended.categories?.[0] || 'General' %></span>
                         </div>
-                        <a href="/novel/<%= recommended._id %>" style="display:inline-block; margin-top:16px; background:var(--primary); color:white; padding:10px 24px; border-radius:var(--radius-full); font-weight:600; box-shadow:0 4px 15px rgba(99,102,241,0.4);">
-                            อ่านเลย
+                        <a href="/novel/<%= recommended._id %>" class="cta-btn">
+                            อ่านเลย <i class="fa-solid fa-arrow-right"></i>
                         </a>
                     </div>
                 </div>
@@ -548,13 +585,13 @@
                 <% } else { %> <i class="fa-solid fa-fire" style="color:#f59e0b;"></i> นิยายล่าสุด <% } %>
             </h2>
             
-            <div style="display:flex; gap:8px;">
+            <div style="display:flex; gap:10px;">
                 <% if (locals.isWriter) { %>
-                    <a href="/novels/new" class="desktop-only" style="background:var(--primary); color:white; border:none; padding:8px 16px; border-radius:var(--radius-full); font-weight:600; font-size:0.9rem; display:flex; align-items:center; gap:6px;">
+                    <a href="/novels/new" class="desktop-only" style="background:var(--primary); color:white; border:none; padding:8px 20px; border-radius:var(--radius-full); font-weight:600; font-size:0.9rem; display:flex; align-items:center; gap:8px; box-shadow:0 4px 12px rgba(99,102,241,0.3);">
                         <i class="fa-solid fa-plus"></i> เพิ่มนิยาย
                     </a>
                 <% } %>
-                <button class="desktop-only" onclick="openDrawer()" style="background:var(--bg-surface); border:1px solid var(--border); padding:8px 16px; border-radius:var(--radius-full); cursor:pointer; font-family:inherit; color:var(--text-main); font-weight:500;">
+                <button class="desktop-only" onclick="openDrawer()" style="background:var(--bg-surface); border:1px solid var(--border); padding:8px 20px; border-radius:var(--radius-full); cursor:pointer; font-family:inherit; color:var(--text-main); font-weight:600; display:flex; align-items:center; gap:6px;">
                     <i class="fa-solid fa-sliders"></i> ตัวกรอง <%= filterCount > 0 ? `(${filterCount})` : '' %>
                 </button>
             </div>
@@ -565,7 +602,7 @@
                 ทั้งหมด
             </a>
             <% if(locals.allTags && allTags.length > 0) { %>
-                <% allTags.slice(0, 5).forEach(tag => { %>
+                <% allTags.slice(0, 6).forEach(tag => { %>
                     <% const isActive = currentTags.includes(tag); %>
                     <a href="<%= buildUrl({toggleTag: tag, page: 1}) %>" class="q-chip <%= isActive ? 'active' : '' %>">
                         #<%= tag %>
@@ -579,10 +616,11 @@
         </div>
 
         <% if (novels.length === 0) { %>
-            <div style="text-align:center; padding: 60px 20px; color:var(--text-muted);">
-                <i class="fa-solid fa-inbox" style="font-size:3rem; opacity:0.3; margin-bottom:12px;"></i>
-                <p>ไม่พบนิยายตามเงื่อนไข</p>
-                <a href="/" style="color:var(--primary); text-decoration:underline;">ล้างตัวกรอง</a>
+            <div style="text-align:center; padding: 80px 20px; color:var(--text-muted);">
+                <i class="fa-solid fa-box-open" style="font-size:4rem; opacity:0.2; margin-bottom:20px; color:var(--text-main);"></i>
+                <h3 style="margin:0; font-size:1.2rem; color:var(--text-main);">ไม่พบนิยายตามเงื่อนไข</h3>
+                <p>ลองปรับตัวกรองหรือคำค้นหาใหม่</p>
+                <a href="/" style="color:var(--primary); font-weight:600; text-decoration:underline;">ล้างตัวกรองทั้งหมด</a>
             </div>
         <% } %>
 
@@ -592,7 +630,7 @@
                     <div class="card-cover-wrapper">
                         <% 
                             let stClass = 'st-on'; let stText = 'ON GOING';
-                            if(novel.status === 'Completed') { stClass = 'st-end'; stText = 'COMPLETE'; }
+                            if(novel.status === 'Completed') { stClass = 'st-end'; stText = 'END'; }
                             else if(novel.status === 'Hiatus') { stClass = 'st-pause'; stText = 'PAUSE'; }
                         %>
                         <div class="card-status <%= stClass %>"><%= stText %></div>
@@ -600,20 +638,24 @@
                     </div>
                     
                     <div class="card-info">
-                        <div class="card-meta" style="margin-bottom:4px;">
-                            <span style="font-size:0.7rem; background:var(--bg-surface); border:1px solid var(--border); padding:1px 6px; border-radius:4px;">
-                                <%= (novel.categories && novel.categories[0]) || 'General' %>
-                            </span>
-                            <span><i class="fa-regular fa-eye"></i> <%= (novel.views || 0).toLocaleString() %></span>
+                        <div class="card-category">
+                            <%= (novel.categories && novel.categories[0]) || 'General' %>
                         </div>
-                        <h3><%= novel.title %></h3>
-                        <div class="card-meta">
+                        
+                        <h3 class="card-title"><%= novel.title %></h3>
+                        
+                        <div class="chapter-box">
                             <% if(novel.lastChapter && novel.lastChapter.chapterNumber) { %>
-                                <span class="ep-badge"><i class="fa-solid fa-bolt"></i> Ep.<%= novel.lastChapter.chapterNumber %></span>
+                                <span class="ch-badge">Ep.<%= novel.lastChapter.chapterNumber %></span>
+                                <span class="ch-title"><%= novel.lastChapter.title || 'อัปเดตล่าสุด' %></span>
                             <% } else { %>
-                                <span>-</span>
+                                <span style="opacity:0.5;">- ยังไม่มีตอน -</span>
                             <% } %>
-                            <span style="font-size:0.7rem;"><%= new Date(novel.updatedAt).toLocaleDateString('th-TH', {day:'2-digit', month:'2-digit', year:'2-digit'}) %></span>
+                        </div>
+
+                        <div class="card-stats">
+                            <span><i class="fa-regular fa-eye"></i> <%= (novel.views || 0).toLocaleString() %></span>
+                            <span style="font-size:0.75rem;"><%= new Date(novel.updatedAt).toLocaleDateString('th-TH', {day:'2-digit', month:'2-digit', year:'2-digit'}) %></span>
                         </div>
                     </div>
                 </a>
@@ -627,19 +669,18 @@
                     <i class="fa-solid fa-chevron-left"></i>
                 </a>
 
-                <form action="/" method="GET" class="page-input-group">
+                <form action="/" method="GET" style="display:flex; align-items:center; gap:10px;">
                     <% if(locals.query) { %><input type="hidden" name="q" value="<%= query %>"><% } %>
                     <% if(currentCategory) { %><input type="hidden" name="category" value="<%= currentCategory %>"><% } %>
                     <% if(currentStatus) { %><input type="hidden" name="status" value="<%= currentStatus %>"><% } %>
                     <% if(locals.sort) { %><input type="hidden" name="sort" value="<%= sort %>"><% } %>
-                    <% if(currentTags.length > 0) { 
-                         currentTags.forEach(t => { %>
-                            <input type="hidden" name="tag" value="<%= t %>">
-                    <%   }); } %>
+                    <% if(currentTags.length > 0) { currentTags.forEach(t => { %>
+                        <input type="hidden" name="tag" value="<%= t %>">
+                    <% }); } %>
                     
-                    <span class="page-label">หน้า</span>
+                    <span style="color:var(--text-muted); font-size:0.9rem;">หน้า</span>
                     <input type="number" name="page" value="<%= currentPage %>" min="1" max="<%= totalPages %>" class="page-input" onfocus="this.select()" autocomplete="off">
-                    <span class="page-label">/ <%= totalPages %></span>
+                    <span style="color:var(--text-muted); font-size:0.9rem;">/ <%= totalPages %></span>
                 </form>
 
                 <a href="<%= currentPage < totalPages ? buildUrl({page: currentPage + 1}) : 'javascript:void(0)' %>" 
@@ -660,17 +701,17 @@
         <div class="drawer-panel">
             <div class="drawer-handle"></div>
             
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-                <h3 style="margin:0; font-size:1.2rem;">ตัวกรองค้นหา</h3>
-                <button onclick="closeDrawer()" style="background:none; border:none; font-size:1.2rem; color:var(--text-muted); cursor:pointer;"><i class="fa-solid fa-xmark"></i></button>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:24px;">
+                <h3 style="margin:0; font-size:1.4rem; font-weight:800;">ตัวกรองค้นหา</h3>
+                <button onclick="closeDrawer()" style="background:none; border:none; font-size:1.4rem; color:var(--text-muted); cursor:pointer; width:36px; height:36px; display:flex; align-items:center; justify-content:center; border-radius:50%; background:var(--bg-body);"><i class="fa-solid fa-xmark"></i></button>
             </div>
 
             <form action="/" method="GET">
                 <% if(locals.query) { %> <input type="hidden" name="q" value="<%= query %>"> <% } %>
                 
-                <div style="margin-bottom:20px;">
-                    <label style="display:block; font-weight:600; margin-bottom:10px;">เรียงลำดับ</label>
-                    <div style="display:flex; flex-wrap:wrap; gap:8px;">
+                <div style="margin-bottom:24px;">
+                    <label style="display:block; font-weight:700; margin-bottom:12px; font-size:1rem;">เรียงลำดับ</label>
+                    <div style="display:flex; flex-wrap:wrap; gap:10px;">
                         <label class="q-chip <%= locals.sort === 'latest' ? 'active' : '' %>">
                             <input type="radio" name="sort" value="latest" <%= locals.sort === 'latest' ? 'checked' : '' %> hidden> ล่าสุด
                         </label>
@@ -686,31 +727,37 @@
                     </div>
                 </div>
 
-                <div style="margin-bottom:20px;">
-                    <label style="display:block; font-weight:600; margin-bottom:10px;">สถานะ</label>
-                    <select name="status" style="width:100%; padding:12px; border-radius:var(--radius-md); border:1px solid var(--border); background:var(--bg-body); color:var(--text-main); font-family:inherit;">
-                        <option value="">ทั้งหมด</option>
-                        <option value="On Going" <%= currentStatus === 'On Going' ? 'selected' : '' %>>On Going (กำลังแปล)</option>
-                        <option value="Completed" <%= currentStatus === 'Completed' ? 'selected' : '' %>>Completed (จบแล้ว)</option>
-                        <option value="Hiatus" <%= currentStatus === 'Hiatus' ? 'selected' : '' %>>Hiatus (ดอง/พัก)</option>
-                    </select>
-                </div>
-
-                <div style="margin-bottom:20px;">
-                    <label style="display:block; font-weight:600; margin-bottom:10px;">หมวดหมู่</label>
-                    <select name="category" style="width:100%; padding:12px; border-radius:var(--radius-md); border:1px solid var(--border); background:var(--bg-body); color:var(--text-main); font-family:inherit;">
-                        <option value="">ทั้งหมด</option>
-                        <% if(locals.categories) { %>
-                            <% categories.forEach(cat => { %>
-                                <option value="<%= cat %>" <%= currentCategory === cat ? 'selected' : '' %>><%= cat %></option>
-                            <% }) %>
-                        <% } %>
-                    </select>
+                <div style="margin-bottom:24px;">
+                    <label style="display:block; font-weight:700; margin-bottom:12px; font-size:1rem;">สถานะ</label>
+                    <div style="position:relative;">
+                        <select name="status" style="width:100%; padding:14px; border-radius:var(--radius-md); border:1px solid var(--border); background:var(--bg-body); color:var(--text-main); font-family:inherit; appearance:none;">
+                            <option value="">ทั้งหมด</option>
+                            <option value="On Going" <%= currentStatus === 'On Going' ? 'selected' : '' %>>On Going (กำลังแปล)</option>
+                            <option value="Completed" <%= currentStatus === 'Completed' ? 'selected' : '' %>>Completed (จบแล้ว)</option>
+                            <option value="Hiatus" <%= currentStatus === 'Hiatus' ? 'selected' : '' %>>Hiatus (ดอง/พัก)</option>
+                        </select>
+                        <i class="fa-solid fa-chevron-down" style="position:absolute; right:16px; top:50%; transform:translateY(-50%); color:var(--text-muted); pointer-events:none;"></i>
+                    </div>
                 </div>
 
                 <div style="margin-bottom:24px;">
-                    <label style="display:block; font-weight:600; margin-bottom:10px;">Tags (เลือกได้หลายอัน)</label>
-                    <div style="display:flex; flex-wrap:wrap; gap:8px;">
+                    <label style="display:block; font-weight:700; margin-bottom:12px; font-size:1rem;">หมวดหมู่</label>
+                    <div style="position:relative;">
+                        <select name="category" style="width:100%; padding:14px; border-radius:var(--radius-md); border:1px solid var(--border); background:var(--bg-body); color:var(--text-main); font-family:inherit; appearance:none;">
+                            <option value="">ทั้งหมด</option>
+                            <% if(locals.categories) { %>
+                                <% categories.forEach(cat => { %>
+                                    <option value="<%= cat %>" <%= currentCategory === cat ? 'selected' : '' %>><%= cat %></option>
+                                <% }) %>
+                            <% } %>
+                        </select>
+                        <i class="fa-solid fa-chevron-down" style="position:absolute; right:16px; top:50%; transform:translateY(-50%); color:var(--text-muted); pointer-events:none;"></i>
+                    </div>
+                </div>
+
+                <div style="margin-bottom:32px;">
+                    <label style="display:block; font-weight:700; margin-bottom:12px; font-size:1rem;">Tags</label>
+                    <div style="display:flex; flex-wrap:wrap; gap:10px;">
                         <% if(locals.allTags) { %>
                             <% allTags.forEach(tag => { %>
                                 <% const isActive = currentTags && currentTags.includes(tag); %>
@@ -723,9 +770,9 @@
                     </div>
                 </div>
 
-                <div style="display:flex; gap:10px;">
-                    <a href="/" style="flex:1; padding:14px; background:var(--bg-surface); color:var(--text-main); border:1px solid var(--border); border-radius:var(--radius-md); font-weight:600; text-align:center;">ล้าง</a>
-                    <button type="submit" style="flex:2; padding:14px; background:var(--primary); color:white; border:none; border-radius:var(--radius-md); font-weight:700; font-size:1rem; cursor:pointer; box-shadow:0 4px 15px rgba(99,102,241,0.3);">
+                <div style="display:flex; gap:16px;">
+                    <a href="/" style="flex:1; padding:14px; background:var(--bg-body); color:var(--text-main); border:1px solid var(--border); border-radius:var(--radius-full); font-weight:600; text-align:center;">ล้างค่า</a>
+                    <button type="submit" style="flex:2; padding:14px; background:var(--primary); color:white; border:none; border-radius:var(--radius-full); font-weight:700; font-size:1rem; cursor:pointer; box-shadow:0 6px 20px rgba(99,102,241,0.4);">
                         ค้นหา
                     </button>
                 </div>
@@ -734,26 +781,82 @@
     </div>
 
     <div class="drawer-overlay" id="mobileSearch" style="align-items:flex-start;">
-        <div style="width:100%; background:var(--bg-surface); padding:16px; border-radius:0 0 20px 20px; box-shadow:0 4px 20px rgba(0,0,0,0.1);">
-            <form action="/" method="GET" style="display:flex; gap:10px;">
-                <input type="text" name="q" class="search-input" placeholder="ค้นหา..." value="<%= locals.query || '' %>" style="background:var(--bg-body);" autofocus>
-                <button type="button" onclick="document.getElementById('mobileSearch').classList.remove('open')" style="background:none; border:none; color:var(--text-main);">ปิด</button>
+        <div style="width:100%; background:var(--bg-surface); padding:20px 16px; border-radius:0 0 24px 24px; box-shadow:0 4px 25px rgba(0,0,0,0.15);">
+            <form action="/" method="GET" style="display:flex; gap:12px; align-items:center;">
+                <div style="position:relative; flex:1;">
+                    <i class="fa-solid fa-magnifying-glass" style="position:absolute; left:16px; top:50%; transform:translateY(-50%); color:var(--text-muted);"></i>
+                    <input type="text" name="q" class="search-input" placeholder="ค้นหาชื่อเรื่อง..." value="<%= locals.query || '' %>" style="background:var(--bg-body); border:1px solid var(--border); padding-left:42px;" autofocus>
+                </div>
+                <button type="button" onclick="document.getElementById('mobileSearch').classList.remove('open')" style="background:none; border:none; color:var(--text-main); font-weight:600; font-size:0.9rem;">ยกเลิก</button>
             </form>
         </div>
     </div>
 
     <nav class="bottom-nav">
         <a href="/" class="b-nav-item active">
-            <i class="fa-solid fa-house"></i> หน้าแรก
+            <i class="fa-solid fa-compass"></i> สำรวจ
         </a>
         <a href="/favorites" class="b-nav-item">
-            <i class="fa-regular fa-heart"></i> คลัง
+            <i class="fa-regular fa-bookmark"></i> ชั้นหนังสือ
         </a>
         <a href="<%= locals.user ? '/logout' : '/login' %>" class="b-nav-item">
-            <i class="<%= locals.user ? 'fa-solid fa-arrow-right-from-bracket' : 'fa-regular fa-user' %>"></i> 
-            <%= locals.user ? 'ออกระบบ' : 'เข้าสู่ระบบ' %>
+            <i class="<%= locals.user ? 'fa-solid fa-right-from-bracket' : 'fa-regular fa-circle-user' %>"></i> 
+            <%= locals.user ? 'ออกระบบ' : 'โปรไฟล์' %>
         </a>
     </nav>
+
+    <footer class="site-footer">
+        <div class="container">
+            <div style="margin-bottom: 8px; font-weight:500;">
+                Made with <span style="color:var(--secondary);">❤️</span> by <span style="font-weight: 800; color:var(--text-main);">NOOMFUU</span>
+            </div>
+
+            <div class="footer-links">
+                <a href="/">ความเป็นส่วนตัว</a> •
+                <a href="/">เงื่อนไขการใช้บริการ</a> •
+                <a href="#" onclick="openCookieSettings(); return false;">คุกกี้</a>
+            </div>
+
+            <div class="version-info" id="github-commit-info">
+                <i class="fa-brands fa-github"></i> Checking updates...
+            </div>
+        </div>
+    </footer>
+
+    <div id="cookieModal" class="drawer-overlay" style="z-index: 3000;">
+        <div class="drawer-panel" style="max-width: 500px; height: auto; top:50%; transform: translate(-50%, -50%); border-radius: 20px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+                <h3 style="margin:0; font-size:1.3rem;">🍪 การตั้งค่าคุกกี้</h3>
+                <button onclick="document.getElementById('cookieModal').classList.remove('open')" style="background:none; border:none; font-size:1.2rem; cursor:pointer;"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            
+            <p style="font-size:0.9rem; color:var(--text-muted); margin-bottom:20px;">
+                เราใช้คุกกี้เพื่อพัฒนาประสบการณ์การใช้งานของคุณ คุณสามารถเลือกการตั้งค่าได้ด้านล่าง
+            </p>
+
+            <div style="display:flex; flex-direction:column; gap:15px; margin-bottom:25px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; padding:12px; background:var(--bg-body); border-radius:12px;">
+                    <div>
+                        <div style="font-weight:600;">จำเป็น (Necessary)</div>
+                        <div style="font-size:0.8rem; color:var(--text-muted);">ต้องเปิดเสมอเพื่อความปลอดภัย</div>
+                    </div>
+                    <input type="checkbox" checked disabled style="accent-color:var(--primary); transform:scale(1.2);">
+                </div>
+
+                <div style="display:flex; justify-content:space-between; align-items:center; padding:12px; background:var(--bg-body); border-radius:12px;">
+                    <div>
+                        <div style="font-weight:600;">การตั้งค่า (Preferences)</div>
+                        <div style="font-size:0.8rem; color:var(--text-muted);">จำธีมและประวัติการอ่าน</div>
+                    </div>
+                    <input type="checkbox" id="cookiePref" checked style="accent-color:var(--primary); transform:scale(1.2);">
+                </div>
+            </div>
+
+            <button onclick="saveCookies()" style="width:100%; padding:14px; background:var(--primary); color:white; border:none; border-radius:50px; font-weight:700; cursor:pointer;">
+                บันทึกการตั้งค่า
+            </button>
+        </div>
+    </div>
 
     <script>
         // Modal Logic
@@ -773,18 +876,16 @@
             if(e.target === drawer) closeDrawer();
         });
 
-        // Toggle active state visual for Inputs inside labels (Chips)
+        // Chip Logic
         document.querySelectorAll('.q-chip input').forEach(input => {
             input.addEventListener('change', function() {
                 if(this.type === 'radio') {
-                    // Remove active from siblings
                     const name = this.name;
                     document.querySelectorAll(`input[name="${name}"]`).forEach(el => {
                         el.closest('.q-chip').classList.remove('active');
                     });
                     this.closest('.q-chip').classList.add('active');
                 } else {
-                    // Toggle for checkbox
                     this.closest('.q-chip').classList.toggle('active', this.checked);
                 }
             });
@@ -810,11 +911,61 @@
             updateThemeIcon(next);
         }
 
-        // Initialize Icon on Load
+        // Init
         (function() {
             const savedTheme = localStorage.getItem('theme') || 'light';
             updateThemeIcon(savedTheme);
         })();
+
+        // Cookie Logic
+        function openCookieSettings() {
+            document.getElementById('cookieModal').classList.add('open');
+        }
+
+        function saveCookies() {
+            const pref = document.getElementById('cookiePref').checked;
+            localStorage.setItem('cookie_pref', pref);
+            document.getElementById('cookieModal').classList.remove('open');
+            
+            // Toast
+            const toast = document.createElement('div');
+            toast.innerText = 'บันทึกการตั้งค่าคุกกี้แล้ว';
+            Object.assign(toast.style, {
+                position: 'fixed', bottom: '20px', left: '50%', transform: 'translateX(-50%)',
+                background: 'rgba(0,0,0,0.8)', color: 'white', padding: '10px 20px', 
+                borderRadius: '50px', zIndex: '4000', fontSize: '0.9rem'
+            });
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 2000);
+        }
+
+        // GitHub Version Info
+        async function fetchLatestCommit() {
+            const repo = 'NOOMFUU/novel_translator';
+            const url = `https://api.github.com/repos/${repo}/commits?per_page=1`;
+
+            try {
+                const response = await fetch(url);
+                if (!response.ok) throw new Error('Network response was not ok');
+                
+                const data = await response.json();
+                const latestCommit = data[0];
+                const shortSha = latestCommit.sha.substring(0, 7);
+                const dateObj = new Date(latestCommit.commit.author.date);
+                const formattedDate = dateObj.getFullYear() + '-' + 
+                                    String(dateObj.getMonth() + 1).padStart(2, '0') + '-' + 
+                                    String(dateObj.getDate()).padStart(2, '0') + ' ' + 
+                                    String(dateObj.getHours()).padStart(2, '0') + ':' + 
+                                    String(dateObj.getMinutes()).padStart(2, '0');
+                
+                document.getElementById('github-commit-info').innerText = `v.${shortSha} (${formattedDate})`;
+            } catch (error) {
+                console.error('Error fetching commit:', error);
+                document.getElementById('github-commit-info').innerText = 'Version info unavailable';
+            }
+        }
+
+        fetchLatestCommit();
     </script>
 </body>
 </html>
